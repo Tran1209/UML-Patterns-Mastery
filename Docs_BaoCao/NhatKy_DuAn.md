@@ -8,7 +8,7 @@
 
 | STT | Họ và Tên | Mã Sinh Viên | GitHub Username | Vai trò trong Nhóm (Role) | Module phụ trách chính |
 |:---:|:---|:---:|:---:|:---|:---|
-| **1** | *(Trưởng nhóm)* | ... | `tieutuvotri` | **Team Leader & Lead Architect** | Core Game Loop, Player State Machine, Tổng hợp Báo cáo |
+| **1** | *(Trưởng nhóm)* | ... | `Tran1209` | **Team Leader & Lead Architect** | Core Game Loop, Player State Machine, Tổng hợp Báo cáo |
 | **2** | ... | ... | ... | **Network & Server Engineer** | Dedicated Server, TCP Sockets, Packet DTOs |
 | **3** | ... | ... | ... | **Combat & Mechanics Engineer** | Combat Engine, Strategy Damage, AABB Hitbox |
 | **4** | ... | ... | ... | **Client UI & Experience Engineer** | 2D Render, HUD UI, Observer Pattern, Input |

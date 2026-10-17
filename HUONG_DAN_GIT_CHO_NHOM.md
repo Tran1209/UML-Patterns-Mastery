@@ -24,7 +24,7 @@ Lý do lớn nhất khiến sinh viên sợ Git là bị **xung đột code (Con
 
 ## 🚀 BƯỚC 1: DÀNH CHO TRƯỞNG NHÓM (KHỞI TẠO REPO)
 
-1. Mở trình duyệt, đăng nhập vào tài khoản GitHub của bạn (`tieutuvotri`).
+1. Mở trình duyệt, đăng nhập vào tài khoản GitHub của bạn (`Tran1209`).
 2. Bấm nút **New Repository** (màu xanh lá):
    * Repository name: `UML-Patterns-Mastery` (hoặc `OOP-Multiplayer-Game`).
    * Chọn chế độ: **Public** (để giảng viên dễ xem) hoặc **Private** (nếu muốn bảo mật nội bộ).
@@ -41,7 +41,7 @@ Lý do lớn nhất khiến sinh viên sợ Git là bị **xung đột code (Con
 1. Kiểm tra Email hoặc vào thông báo trên trang GitHub để bấm **Accept Invitation** (Chấp nhận lời mời của Trưởng nhóm).
 2. Mở terminal (Git Bash, Command Prompt hoặc Cursor/VS Code) trên máy bạn:
    ```bash
-   git clone https://github.com/tieutuvotri/UML-Patterns-Mastery.git
+   git clone https://github.com/Tran1209/UML-Patterns-Mastery.git
    cd UML-Patterns-Mastery
    ```
 
