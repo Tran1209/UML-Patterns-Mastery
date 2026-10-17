@@ -1,0 +1,42 @@
+# Sách gốc & chương đã tách (file nặng / bản quyền) — không đẩy lên GitHub đồ án
+_Knowledge_Base_Larman/
+00_Raw_PDF/
+*.pdf
+
+# Công cụ xử lý sách nội bộ
+scripts/
+
+# Obsidian local settings
+.obsidian/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.swp
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Build artifacts (C# / C++ / Unity / Game)
+[Bb]in/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+*.exe
+*.dll
+*.pdb
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
