@@ -12,9 +12,9 @@ status: active
 
 ---
 
-> [!ABSTRACT] ẢNH BÌA BÁO CÁO KỸ THUẬT CHUẨN CAPSTONE (TECHNICAL REPORT COVER)
-> ![[Docs_BaoCao/images/Bia_BaoCao_Technical_Report.jpg|360]]
-> *Tác phẩm bìa học thuật: Đấu trường phân tán thời gian thực (Distributed Real-time Combat Simulation Engine) tích hợp sơ đồ UML, Socket Topology và Finite State Machine.*
+> [!ABSTRACT] ẢNH BÌA BÁO CÁO KỸ THUẬT CHUẨN KIẾN TRÚC OOP (PURE TECH COVER)
+> ![[Docs_BaoCao/images/Bia_BaoCao_OOP_Architecture.jpg|380]]
+> *Tác phẩm bìa học thuật: Kiến trúc Phân tầng Hướng đối tượng 3D Isometric (Presentation $\rightarrow$ Core Domain Model $\rightarrow$ Distributed Network Synchronization $\rightarrow$ Persistence Data Layer).*
 
 ---
 
