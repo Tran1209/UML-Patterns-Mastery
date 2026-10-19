@@ -77,7 +77,8 @@ flowchart TD
 > [!TIP] LIÊN KẾT TRUY VẾT YÊU CẦU (TRACEABILITY)
 > Nhấn vào từng phần để đọc bản thảo, đối soát với các sơ đồ UML và trích dẫn mã nguồn thực tế.
 
-1. **Văn bản Quản trị Dự án**:
+1. **Văn bản Quản trị Dự án & Bìa Chính Thức**:
+   * [[Docs_BaoCao/00_Trang_Bia_BaoCao_HUCE|🏛️ Trang Bìa Chính Thức ĐH Xây Dựng Hà Nội (HUCE)]] *(HTML in ấn: `Docs_BaoCao/Trang_Bia_HUCE.html`)*
    * [[Docs_BaoCao/NhatKy_DuAn|📋 Nhật ký Tiến độ & Đánh giá Đóng góp Thành viên (Work Log & RACI Matrix)]]
    * [[HUONG_DAN_GIT_CHO_NHOM|🚀 Cẩm nang Hướng dẫn Sử dụng Git/GitHub cho Nhóm 5 Người]]
 2. **Nội dung Báo cáo Học thuật**:
