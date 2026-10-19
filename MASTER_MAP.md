@@ -56,7 +56,7 @@
 |:---:|:---|:---|:---:|
 | 1 | Phát biểu bài toán & FURPS+ | `Docs_BaoCao/Phan_01_PhatBieu_BaiToan.md` | ✅ Hoàn thành |
 | 2 | Phân tích OOA (Use Case, SSD, Domain Model) | `Docs_BaoCao/Phan_02_PhanTich_OOA.md` | ✅ Hoàn thành |
-| 3 | Thiết kế OOD (9 GRASP, DCD, GoF, Deployment) | `Docs_BaoCao/Phan_03_...` | 🔲 Chưa làm |
+| 3 | Thiết kế OOD (9 GRASP, DCD, GoF, Deployment) | `Docs_BaoCao/Phan_03_ThietKe_OOD.md` | ✅ Hoàn thành |
 | 4 | Cài đặt OOP + Netcode Java | `Docs_BaoCao/Phan_04_...` | 🔲 Chưa làm |
 | 5 | Kiểm thử & Đo lường Jitter | `Docs_BaoCao/Phan_05_...` | 🔲 Chưa làm |
 | 6 | Kết luận & Phản biện Larman vs Hiện đại | `Docs_BaoCao/Phan_06_...` | 🔲 Chưa làm |

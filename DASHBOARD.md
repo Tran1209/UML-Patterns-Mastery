@@ -41,7 +41,7 @@ flowchart TD
         R1["[[Docs_BaoCao/Phan_01_PhatBieu_BaiToan|Phần I: Phát biểu Bài toán & FURPS+]]"]
         R2["[[Docs_BaoCao/HocPhan_01_NenTang_OOAD_va_UP|Nền tảng OOAD & Quy trình UP]]"]
         R3["[[Docs_BaoCao/Phan_02_PhanTich_OOA|Phần II: Phân tích OOA (Domain Model)]]"]
-        R4["Phần III: Thiết kế OOD (GRASP & DCD)"]
+        R4["[[Docs_BaoCao/Phan_03_ThietKe_OOD|Phần III: Thiết kế OOD (GRASP & DCD)]]"]
         R5["Phần IV: Cài đặt OOP & Netcode"]
         R6["Phần V: Kiểm thử & Khắc phục Jitter"]
     end
@@ -93,7 +93,7 @@ flowchart TD
    * [[Docs_BaoCao/HocPhan_01_NenTang_OOAD_va_UP|📖 Học phần 1: Nền tảng OOAD và Bản chất Quy trình Unified Process]]
    * [[Docs_BaoCao/Phan_01_PhatBieu_BaiToan|📝 Phần I: Bối cảnh, Phát biểu Bài toán & Phân loại Yêu cầu FURPS+]]
    * [[Docs_BaoCao/Phan_02_PhanTich_OOA|🔍 Phần II: Phân tích Hướng đối tượng (OOA) — Use Cases, SSD & Domain Model]]
-   * `Phần III: Thiết kế Hướng đối tượng (OOD)` — Áp dụng 9 GRASP, GoF Patterns, và Sơ đồ Lớp Chi tiết (DCD).
+   * [[Docs_BaoCao/Phan_03_ThietKe_OOD|📐 Phần III: Thiết kế Hướng đối tượng (OOD) — 9 GRASP, Mẫu GoF & Sơ đồ Lớp Chi tiết (DCD)]]
    * `Phần IV: Cài đặt Hướng đối tượng (OOP)` — Hiện thực hóa mã nguồn đa hình, Kiến trúc Server Authoritative.
    * `Phần V: Kiểm thử Phần mềm & Thực nghiệm Netcode` — Unit Test Suite, Benchmark độ trễ, Giải quyết triệt để lỗi giật hình (Micro-stutter / Jitter 20Hz vs 60fps).
    * `Phần VI: Đánh giá Giới hạn & Hướng Phát triển` — Đóng gói đồ án và kết luận.
