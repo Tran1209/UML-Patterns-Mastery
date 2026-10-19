@@ -74,8 +74,8 @@ mindmap
       Áp dụng triệt để 9 nguyên lý GRASP
       Áp dụng các mẫu thiết kế GoF
     + Ràng buộc kỹ thuật
-      Ngôn ngữ C# / C++
-      Giao thức Socket TCP/UDP
+      Ngôn ngữ Java (JDK 17 / 21)
+      Giao thức Socket TCP / WebSocket
       Định dạng gói tin DTO
 ```
 
@@ -98,8 +98,9 @@ mindmap
 * **S (Supportability)**:
   * Cấu trúc mã nguồn module hóa cao, dễ dàng bổ sung thêm các loại vũ khí hoặc chế độ chơi mới mà không phải sửa đổi mã nguồn cốt lõi (tuân thủ nguyên lý *Open-Closed Principle*).
 * **+ (Technical Constraints)**:
-  * Nền tảng phát triển: C# (.NET Core) hoặc C++ với thư viện đồ họa 2D nhẹ (Raylib / SFML / MonoGame) hoặc Unity Engine.
-  * Kiến trúc mạng Socket thuần, không sử dụng các dịch vụ đám mây "hộp đen" làm mất đi tính nguyên bản của môn học.
+  * **Nền tảng phát triển cốt lõi**: **Ngôn ngữ Java (JDK 17 / 21)** — Ngôn ngữ lập trình hướng đối tượng thuần chuẩn mực học thuật, tuân thủ 100% theo các ca học NextGen POS và Monopoly trong giáo trình của Craig Larman (*Applying UML and Patterns*).
+  * **Giao tiếp mạng thời gian thực**: Sử dụng cơ chế Socket thuần (`java.net.Socket`, `ServerSocket`) hoặc WebSocket Server, giao thức nhị phân/JSON DTO tối ưu hóa băng thông.
+  * **Kiến trúc phân tầng sạch sẽ**: Tách rời hoàn toàn các lớp Domain Entities, Command/Event Handlers, Network Sockets và Persistence Data Mappers.
 
 ---
 
