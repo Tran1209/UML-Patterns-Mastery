@@ -44,6 +44,8 @@ flowchart TD
         R4["[[Docs_BaoCao/Phan_03_ThietKe_OOD|Phần III: Thiết kế OOD (GRASP & DCD)]]"]
         R5["[[Docs_BaoCao/Phan_04_CaiDat_OOP|Phần IV: Cài đặt OOP & Netcode]]"]
         R6["[[Docs_BaoCao/Phan_05_KiemThu_va_ThucNghiem|Phần V: Kiểm thử & Khắc phục Jitter]]"]
+        R7["[[Docs_BaoCao/Phan_06_KetLuan_va_PhanBien|Phần VI: Kết luận & Phản biện]]"]
+        R8["[[Docs_BaoCao/Phan_07_TaiLieuThamKhao|Phần VII: Tài liệu Tham khảo]]"]
     end
 
     subgraph CODE["🎮 MÃ NGUỒN GAME (SRC_GAME)"]
@@ -96,7 +98,8 @@ flowchart TD
    * [[Docs_BaoCao/Phan_03_ThietKe_OOD|📐 Phần III: Thiết kế Hướng đối tượng (OOD) — 9 GRASP, Mẫu GoF & Sơ đồ Lớp Chi tiết (DCD)]]
    * [[Docs_BaoCao/Phan_04_CaiDat_OOP|💻 Phần IV: Cài đặt Hướng đối tượng (OOP) — Hiện thực hóa Java, Netcode & LERP]]
    * [[Docs_BaoCao/Phan_05_KiemThu_va_ThucNghiem|🧪 Phần V: Kiểm thử Phần mềm & Thực nghiệm Netcode — 11/11 Unit Tests & Triệt tiêu Jitter LERP]]
-   * `Phần VI: Đánh giá Giới hạn & Hướng Phát triển` — Đóng gói đồ án và kết luận.
+   * [[Docs_BaoCao/Phan_06_KetLuan_va_PhanBien|🎓 Phần VI: Kết luận & Phản biện Học thuật — Đối thoại Larman 2004 vs Kỹ nghệ 2026]]
+   * [[Docs_BaoCao/Phan_07_TaiLieuThamKhao|📚 Phần VII: Danh mục Tài liệu Tham khảo Chuẩn IEEE/APA (Bộ Ngũ Trụ Cột)]]
 
 ---
 
