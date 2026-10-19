@@ -1,145 +1,261 @@
 # PHẦN I: PHÁT BIỂU VÀ MÔ TẢ BÀI TOÁN
-> **Đồ án môn học: Lập trình Hướng đối tượng (OOP)**  
-> **Tên đề tài: Xây dựng Hệ thống Trò chơi Nhiều người chơi (Multiplayer Game) theo Tiến trình Unified Process và Nguyên lý Thiết kế Hướng đối tượng của Craig Larman**
+
+> **Môn học**: Lập trình Hướng đối tượng (OOP)
+> **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin
+> **Nhóm thực hiện**: Nam · Kiên · Anh · Huy · Hoàng
+> **Ngôn ngữ cài đặt**: Java (JDK 17 / 21)
 
 ---
 
-## 1.1. BỐI CẢNH KỸ THUẬT VÀ LÝ DO CHỌN ĐỀ TÀI (TECHNICAL MOTIVATION)
+## 1.0. GIỚI THIỆU TỔNG QUAN
 
-Trong kỷ nguyên phát triển phần mềm hiện đại, các hệ thống trò chơi trực tuyến nhiều người chơi (Multiplayer Real-time Games) là một trong những phân nhánh phần mềm phức tạp nhất, đòi hỏi sự kết hợp đồng thời giữa:
-1. **Lập trình Hướng đối tượng đa hình (Polymorphic OOP)** để mô hình hóa thế giới trò chơi đa dạng.
-2. **Giao tiếp mạng thời gian thực (Real-time Socket Networking)** với độ trễ thấp và độ tin cậy cao.
-3. **Quản lý trạng thái phân tán và bảo toàn dữ liệu (State Synchronization & Consistency)**.
+Trong thập niên 2020, phần mềm không còn tồn tại đơn lẻ. Hầu hết ứng dụng hiện đại — từ trò chơi trực tuyến đến hệ thống thương mại điện tử — đều vận hành trên nền tảng **phân tán, đa người dùng, thời gian thực**. Điều này đặt ra một yêu cầu căn bản với kỹ sư phần mềm hiện đại: không chỉ biết viết code chạy đúng, mà phải biết **thiết kế hệ thống chịu tải, dễ bảo trì và không bị vỡ khi mở rộng quy mô**.
 
-Tuy nhiên, trong quá trình phát triển, các dự án game thường mắc phải các lỗi kiến trúc kinh điển:
-* **Mã nguồn hỗn loạn (Spaghetti Code)**: Lạm dụng hàm cập nhật theo chu kỳ khung hình (`Update()`), nhồi nhét xử lý đồ họa, phím bấm và tính toán sát thương vào chung một lớp ("God Object" / Monolithic Class).
-* **Ghép nối chặt chẽ (Tight Coupling)**: Tầng giao diện người dùng (UI) phụ thuộc trực tiếp vào dữ liệu socket mạng hoặc logic nghiệp vụ, khiến việc kiểm thử đơn vị (Unit Testing) và tái sử dụng mã nguồn trở nên bất khả thi.
-* **Lỗ hổng gian lận từ phía máy khách (Client-Authoritative Flaw)**: Đặt trọn niềm tin vào Client trong việc tính toán kết quả trận đấu, dẫn đến nguy cơ bị can thiệp bộ nhớ hoặc can thiệp gói tin (hack tốc độ, hack sát thương).
+Báo cáo này trình bày quá trình phân tích, thiết kế và cài đặt một **trò chơi đối kháng nhiều người chơi qua mạng (Real-time Multiplayer 2D Action RPG)** bằng ngôn ngữ Java, áp dụng phương pháp luận **Object-Oriented Analysis & Design (OOAD)** theo khung Unified Process của Craig Larman. Đây là bài toán phần mềm đại diện cho ba thách thức kỹ thuật cốt lõi mà một sinh viên OOP cần chinh phục trước khi tốt nghiệp:
 
-Nhằm giải quyết triệt để các vấn đề trên, đề tài này được xây dựng với mục tiêu áp dụng toàn diện phương pháp luận **Phân tích và Thiết kế Hướng đối tượng (OOAD)** theo giáo trình kinh điển *"Applying UML and Patterns"* của Craig Larman, kết hợp với các mẫu thiết kế của Gang of Four (GoF) và kiến trúc máy chủ nắm quyền (**Authoritative Dedicated Server**). Thông qua đề tài, nhóm hướng tới việc tạo ra một kiến trúc game phân tầng sạch sẽ, nơi các nguyên lý phân bổ trách nhiệm (Responsibility-Driven Design - RDD) được tôn trọng tuyệt đối.
+1. **Mô hình hóa thế giới thực bằng đối tượng** — thiết kế phân cấp lớp, quan hệ kế thừa, giao diện, đa hình.
+2. **Đồng bộ trạng thái qua mạng** — xử lý độ trễ, mất gói, đảm bảo tính nhất quán giữa Server và nhiều Client.
+3. **Kiến trúc sạch, dễ kiểm thử** — tách biệt tầng nghiệp vụ, giao diện và lưu trữ; áp dụng các mẫu thiết kế để mã nguồn không bị "vỡ" khi thêm tính năng.
 
----
+### Tại sao lại là game — không phải một CRUD app thông thường?
 
-## 1.2. TẦM NHÌN SẢN PHẨM VÀ MÔ TẢ KỊCH BẢN TRÒ CHƠI (PRODUCT VISION & GAMEPLAY)
-*(Tham chiếu: Chapter 7: Vision Document — Craig Larman)*
-
-### 1.2.1. Định danh sản phẩm & Tầm nhìn cốt lõi
-* **Tên dự án**: **[Tên Game của Nhóm - Ví dụ: TankArena 2D / BomberCraft / BattleRoom]**
-* **Thể loại**: Trò chơi đối kháng nhiều người chơi (2–4 người) qua mạng cục bộ (LAN / Socket TCP/UDP), phong cách đồ họa 2D góc nhìn từ trên xuống (Top-down 2D).
-* **Mục tiêu sản phẩm**: Cung cấp một môi trường đấu trường công bằng, độ trễ thấp, nơi người chơi tương tác với nhau trong cùng một không gian ảo được kiểm soát chặt chẽ bởi Server trung tâm.
-
-### 1.2.2. Mô hình Phòng đấu (Lobby & Room Model)
-1. **Giai đoạn Tiền trận đấu (Pre-game)**:
-   * Người chơi khởi động Client, nhập địa chỉ IP/Cổng của Server và tên nhân vật.
-   * Người chơi có thể tự tạo phòng mới (Create Room) hoặc tham gia phòng có sẵn (Join Room).
-   * Phòng chơi có sức chứa tối đa quy định (2 đến 4 người). Khi tất cả người chơi bấm nút **Sẵn sàng (Ready)**, Server sẽ kích hoạt đếm ngược 3 giây để nạp trận đấu.
-2. **Giai đoạn Trong trận đấu (In-game Gameplay)**:
-   * Mỗi người chơi điều khiển một thực thể nhân vật xuất phát tại các vị trí cố định trên bản đồ.
-   * **Hành động hợp lệ**:
-     * Di chuyển 4 hướng (hoặc 8 hướng) qua cụm phím WASD / Mũi tên.
-     * Thực hiện đòn tấn công / kỹ năng bằng phím Space / Chuột.
-     * Nhặt các hòm bùa chú (Power-ups / Buffs) xuất hiện ngẫu nhiên trên bản đồ (tăng tốc độ, khiên bảo vệ, đạn lửa, hồi máu).
-   * **Quy tắc tính toán thế giới (Authoritative Rule)**: Client chỉ gửi "Ý định hành động" (Input Intent). Toàn bộ việc phát hiện va chạm vật lý (Collision Detection AABB), tính toán sát thương trừ máu, và nhặt bùa chú đều do Server tính toán độc quyền và phát sóng (Broadcast) kết quả về cho các Client hiển thị.
-3. **Giai đoạn Kết thúc trận đấu (Post-game)**:
-   * Trận đấu kết thúc khi chỉ còn duy nhất 1 người chơi sống sót (Last Man Standing) hoặc hết thời gian thi đấu (người có điểm tiêu diệt cao nhất sẽ thắng).
-   * Hệ thống hiển thị bảng thành tích (Leaderboard), lưu lịch sử ván đấu xuống cơ sở dữ liệu/file JSON và đưa người chơi trở về sảnh chờ.
+Ứng dụng quản lý thông thường (CRUD) về cơ bản là một lớp bọc cho cơ sở dữ liệu. Trong khi đó, game multiplayer thời gian thực đặt ra toàn bộ các vấn đề OOP và kỹ nghệ phần mềm trong một bài toán duy nhất: vòng lặp game (Game Loop), máy trạng thái (State Machine), chiến lược đa hình (Strategy Pattern), quan sát sự kiện (Observer), đồng bộ mạng, kiểm thử tự động, và phân chia công việc nhóm. Đây là lý do nhóm lựa chọn bài toán này như một **"phòng thực hành OOP toàn diện"**.
 
 ---
 
-## 1.3. ĐẶC TẢ YÊU CẦU HỆ THỐNG THEO CHUẨN FURPS+ (SYSTEM REQUIREMENTS)
-*(Tham chiếu: Chapter 5: Evolutionary Requirements — Craig Larman)*
+## 1.1. BỐI CẢNH VÀ LÝ DO CHỌN ĐỀ TÀI
 
-Nhóm áp dụng mô hình phân loại yêu cầu **FURPS+** của Craig Larman để định lượng chính xác các tiêu chí kỹ thuật:
+### 1.1.1. Vấn đề thực tiễn — Khi thiếu phương pháp luận
+
+Sinh viên khi tiếp cận bài toán game nhiều người chơi mà **không có phương pháp luận** thường rơi vào bốn lỗi kiến trúc điển hình sau:
+
+| Lỗi kiến trúc | Biểu hiện cụ thể | Hậu quả kỹ thuật |
+|:---|:---|:---|
+| **God Object** | Nhét toàn bộ logic — vẽ màn hình, xử lý phím, tính sát thương, gửi gói tin — vào một lớp duy nhất | Không thể kiểm thử, không thể bảo trì; thêm 1 tính năng làm vỡ 5 tính năng khác |
+| **Client-Authoritative** | Để Client tự tính toán vị trí và kết quả chiến đấu, rồi gửi lên Server | Dễ bị hack tốc độ, hack sát thương; người chơi dịch chuyển tức thời |
+| **Tight Coupling** | Lớp vẽ đồ họa đọc trực tiếp từ Socket mạng | Không viết Unit Test được; sửa mạng là vỡ giao diện và ngược lại |
+| **Micro-stutter** | Server gửi trạng thái 20 lần/giây, Client vẽ 60 khung/giây nhưng thiếu bộ đệm nội suy | Nhân vật đối thủ nhảy cóc giật cục; trải nghiệm chơi game rất tệ |
+
+Mỗi lỗi trên đều có một giải pháp tương ứng trong bộ công cụ OOAD + Modern Engineering mà nhóm áp dụng.
+
+### 1.1.2. Nền tảng lý thuyết — Chiến lược "Ngoại Larman, Nội Hiện Đại"
+
+Nhóm áp dụng chiến lược kết hợp hai lớp kiến thức bổ sung cho nhau:
+
+**Lớp ngoài — Khung phương pháp luận (Larman 2004):**
+Craig Larman trong *Applying UML and Patterns* (3rd ed.) cung cấp một khung phân tích và thiết kế có hệ thống: từ Use Case Diagram, Domain Model (OOA), Design Class Diagram (OOD), đến 9 nguyên lý GRASP phân bổ trách nhiệm. Đây là ngôn ngữ chung giữa nhóm và giảng viên — cho phép báo cáo được chấm điểm theo đúng barem môn học.
+
+> **Giới hạn được thừa nhận**: Larman viết năm 2004, trước khi kiến trúc microservice, reactive programming và distributed systems trở thành tiêu chuẩn ngành. Một số phần như UP Process nặng-tài-liệu đã được thực tế thay thế bằng Agile/Scrum. Nhóm ghi nhận điều này và trình bày phần phản biện ở Chương 6.
+
+**Lớp trong — Kỹ thuật hiện đại (2015–2024):**
+
+| # | Sách | Tác giả | Áp dụng vào | Thành viên phụ trách |
+|:---:|:---|:---|:---|:---:|
+| 1 | *Applying UML and Patterns* (3rd ed.) | Craig Larman | Khung OOAD, 9 GRASP, báo cáo học thuật | Nam |
+| 2 | *Game Programming Patterns* | Robert Nystrom | Game Loop, Component/ECS, Spatial Partition | Anh + Huy |
+| 3 | *Multiplayer Game Programming* | Glazer & Madhav | LERP, Snapshot Interpolation, Client Prediction | Kiên |
+| 4 | *Patterns of Enterprise Application Architecture* | Martin Fowler | Data Mapper, Repository, Persistence Layer | Hoàng |
+| 5 | *Implementing Domain-Driven Design* | Vaughn Vernon | Aggregate Root, Value Objects, Domain Events | Nam |
+
+Sự kết hợp này tạo ra một kiến trúc mà **mặt ngoài đọc như một báo cáo Larman chuẩn mực**, nhưng **bên trong vận hành theo các nguyên lý kỹ nghệ hiện đại nhất năm 2026**.
+
+### 1.1.3. Lý do chọn đề tài
+
+Nhóm chọn đề tài game multiplayer vì ba lý do:
+
+1. **Bao phủ toàn bộ kiến thức OOP**: Kế thừa, đa hình, đóng gói, các mẫu thiết kế GoF và nguyên lý GRASP — tất cả đều hiện diện trong một bài toán duy nhất.
+2. **Sản phẩm chạy được để minh chứng**: Kết quả cuối cùng là một game thực sự chạy được trên mạng LAN, 2–4 người cùng chơi — không chỉ là lý thuyết trên giấy.
+3. **Cầu nối học thuật ↔ thực tế**: Dùng Larman làm nền tảng phân tích, nhưng triển khai kỹ thuật theo tiêu chuẩn ngành hiện đại — đây là cách học OOP có giá trị lâu dài.
+
+---
+
+## 1.2. MÔ TẢ SẢN PHẨM VÀ KỊCH BẢN TRÒ CHƠI
+
+*(Tham chiếu: Chương 7 — Vision Document, Craig Larman)*
+
+### 1.2.1. Thông tin nhận dạng sản phẩm
+
+| Thuộc tính | Nội dung |
+|:---|:---|
+| **Tên dự án** | **[Tên game nhóm thống nhất]** |
+| **Nền tảng mã nguồn mẫu** | Arcane-Engine-2D (Aethelgard) |
+| **Thể loại** | Đấu trường đối kháng nhiều người chơi (2–4 người) qua mạng LAN / Socket TCP |
+| **Góc nhìn** | 2D từ trên xuống (Top-down 2D) |
+| **Ngôn ngữ cài đặt** | **Java (JDK 17 / 21)** |
+| **Giao tiếp mạng** | `java.net.Socket` / `ServerSocket` (TCP thuần) |
+| **Kiến trúc Server** | Dedicated Authoritative Server — Server là nguồn phán quyết duy nhất |
+
+### 1.2.2. Tầm nhìn sản phẩm (Product Vision)
+
+> *"Cung cấp một đấu trường chiến đấu công bằng, độ trễ thấp, nơi mọi phán quyết — di chuyển, va chạm, sát thương — đều do Server trung tâm quyết định và không thể bị gian lận từ phía Client."*
+
+### 1.2.3. Kịch bản trò chơi (Gameplay Scenario)
+
+**Giai đoạn 1 — Chuẩn bị (Pre-game):**
+- Người chơi khởi động ứng dụng Client, nhập địa chỉ IP/cổng của Server và chọn tên nhân vật.
+- Người chơi tạo phòng mới hoặc tham gia phòng đang chờ. Phòng chứa tối đa 4 người.
+- Khi tất cả bấm **"Sẵn sàng"**, Server đếm ngược 3 giây rồi bắt đầu trận.
+
+**Giai đoạn 2 — Trong trận (In-game):**
+
+```mermaid
+sequenceDiagram
+    participant P as Người chơi (Client)
+    participant S as Dedicated Server
+    participant O as Các Client khác
+
+    P->>S: InputCommandPacket {dx,dy,action,seq}
+    Note over S: Server kiểm tra hợp lệ,<br/>tính toán va chạm AABB,<br/>cập nhật trạng thái thế giới
+    S-->>P: WorldSnapshotPacket (20Hz)
+    S-->>O: WorldSnapshotPacket (20Hz)
+    Note over P,O: Client dùng LERP nội suy<br/>vẽ mượt 60 FPS
+```
+
+- Người chơi điều khiển nhân vật bằng **WASD** (di chuyển) và **Space / Chuột** (tấn công).
+- Client **chỉ gửi ý định** (`InputCommandPacket`). Server tự tính toán tất cả.
+- Server phát sóng ảnh chụp trạng thái (`WorldSnapshotPacket`) ở tần số **20Hz**.
+- Client dùng giải thuật **nội suy tuyến tính (LERP)** để vẽ mượt mà ở **60 FPS** dù chỉ nhận dữ liệu 20 lần/giây:
+
+$$P_{render}(t) = P_{old} + \bigl(P_{new} - P_{old}\bigr) \times \alpha, \quad \alpha = \frac{t - t_{old}}{t_{new} - t_{old}}$$
+
+**Giai đoạn 3 — Kết thúc (Post-game):**
+- Trận kết thúc khi chỉ còn 1 người sống (Last Man Standing) hoặc hết giờ.
+- Server ghi kết quả xuống file JSON qua **Data Mapper Pattern** (Martin Fowler).
+- Bảng thành tích hiển thị, tất cả trở về phòng chờ.
+
+---
+
+## 1.3. ĐẶC TẢ YÊU CẦU HỆ THỐNG THEO CHUẨN FURPS+
+
+*(Tham chiếu: Chương 5 — Evolutionary Requirements, Craig Larman)*
+
+FURPS+ là mô hình phân loại yêu cầu phần mềm do Grady Booch và cộng sự đề xuất, được Craig Larman tích hợp vào khung Unified Process. Mô hình bao gồm 5 chiều chất lượng chính (**F**unctionality, **U**sability, **R**eliability, **P**erformance, **S**upportability) và phần mở rộng (**+**) cho các ràng buộc kỹ thuật. Đây là công cụ giúp nhóm đảm bảo không bỏ sót bất kỳ chiều chất lượng nào của hệ thống khi đặc tả yêu cầu.
 
 ```mermaid
 mindmap
   root((YÊU CẦU FURPS+))
     F - Chức năng
       Tạo và tham gia phòng đấu
-      Đồng bộ di chuyển & hành động
+      Đồng bộ di chuyển và hành động
       Tính toán va chạm và sát thương
+      Hệ thống vật phẩm và bùa chú
       Bảng điểm và kết thúc ván đấu
     U - Khả năng sử dụng
-      Giao diện HUD trực quan
-      Hiển thị Ping mạng và FPS
-      Thông báo trạng thái kết nối rõ ràng
+      HUD hiển thị máu và ping trực quan
+      Thông báo rõ ràng khi mất kết nối
     R - Độ tin cậy
-      Authoritative Server chống hack
-      Xử lý ngắt kết nối an toàn
+      Authoritative Server chống gian lận
+      Xử lý ngắt kết nối không làm sập phòng
     P - Hiệu năng
       Client đạt 60 FPS mượt mà
-      Server Tick Rate 30Hz - 60Hz
-      Độ trễ phản hồi mạng nội bộ dưới 50ms
+      Server Tick Rate 20Hz - 30Hz
+      Độ trễ mạng nội bộ dưới 50ms
+      Kích thước gói tin dưới 256 bytes
     S - Khả năng bảo trì
-      Áp dụng triệt để 9 nguyên lý GRASP
-      Áp dụng các mẫu thiết kế GoF
+      9 nguyên lý GRASP phân bổ trách nhiệm
+      Mẫu thiết kế GoF tách ghép nối
+      Module hóa theo 5 phân vùng nhóm
     + Ràng buộc kỹ thuật
-      Ngôn ngữ Java (JDK 17 / 21)
-      Giao thức Socket TCP / WebSocket
-      Định dạng gói tin DTO
+      Ngôn ngữ Java JDK 17 21
+      Socket TCP thuần java.net
+      Không dùng engine thương mại
 ```
 
-### Bảng chi tiết yêu cầu FURPS+:
-* **F (Functionality)**:
-  * `FR-01`: Quản lý phiên kết nối (Connect, Handshake, Disconnect).
-  * `FR-02`: Quản lý phòng chờ (Lobby, Room State, Ready Toggle).
-  * `FR-03`: Đồng bộ vị trí thực thể (Position Replication, Velocity Sync).
-  * `FR-04`: Hệ thống Chiến đấu (Combat System, Damage Calculation, Health Sync).
-  * `FR-05`: Hệ thống Vật phẩm & Bùa chú (Item Spawning, Buff Composite).
-  * `FR-06`: Lưu trữ lịch sử trận đấu (Persistence Match Result).
-* **U (Usability)**:
-  * Giao diện đồ họa tách biệt hoàn toàn theo mô hình **Model-View Separation**.
-  * Cung cấp chỉ số Ping hiển thị trực tiếp trên góc màn hình để theo dõi chất lượng đường truyền.
-* **R (Reliability)**:
-  * Khi 1 người chơi thoát đột ngột (Alt+F4 hoặc rớt mạng), Server tự động hủy thực thể của người đó và thông báo cho các Client còn lại mà không làm sập phòng chơi (Graceful Disconnection).
-* **P (Performance)**:
-  * Tốc độ xử lý khung hình tối thiểu đạt 60 FPS trên Client.
-  * Server tối ưu hóa việc đóng gói dữ liệu, kích thước mỗi gói tin đồng bộ trạng thái không vượt quá 256 bytes.
-* **S (Supportability)**:
-  * Cấu trúc mã nguồn module hóa cao, dễ dàng bổ sung thêm các loại vũ khí hoặc chế độ chơi mới mà không phải sửa đổi mã nguồn cốt lõi (tuân thủ nguyên lý *Open-Closed Principle*).
-* **+ (Technical Constraints)**:
-  * **Nền tảng phát triển cốt lõi**: **Ngôn ngữ Java (JDK 17 / 21)** — Ngôn ngữ lập trình hướng đối tượng thuần chuẩn mực học thuật, tuân thủ 100% theo các ca học NextGen POS và Monopoly trong giáo trình của Craig Larman (*Applying UML and Patterns*).
-  * **Giao tiếp mạng thời gian thực**: Sử dụng cơ chế Socket thuần (`java.net.Socket`, `ServerSocket`) hoặc WebSocket Server, giao thức nhị phân/JSON DTO tối ưu hóa băng thông.
-  * **Kiến trúc phân tầng sạch sẽ**: Tách rời hoàn toàn các lớp Domain Entities, Command/Event Handlers, Network Sockets và Persistence Data Mappers.
+### Bảng đặc tả chi tiết FURPS+
+
+**F — Chức năng (Functionality):**
+
+| Mã yêu cầu | Mô tả | Người thực hiện |
+|:---:|:---|:---:|
+| `FR-01` | Quản lý phiên kết nối: Connect, Handshake, Disconnect | Kiên |
+| `FR-02` | Quản lý phòng chờ: tạo phòng, vào phòng, toggle Ready | Kiên |
+| `FR-03` | Đồng bộ vị trí nhân vật theo chu kỳ 20Hz (Position Sync) | Kiên + Huy |
+| `FR-04` | Hệ thống chiến đấu: Hitbox AABB, tính sát thương, trừ máu | Anh |
+| `FR-05` | Hệ thống vật phẩm và bùa chú (Composite Buff Pattern) | Anh |
+| `FR-06` | Lưu lịch sử trận đấu xuống file JSON (Data Mapper) | Hoàng |
+
+**U — Khả năng sử dụng (Usability):**
+- Giao diện HUD tách biệt hoàn toàn khỏi logic game theo mô hình **Model-View Separation** — thay đổi giao diện không ảnh hưởng đến nghiệp vụ.
+- Hiển thị Ping (ms) và FPS trực tiếp trên màn hình chơi game.
+- Thông báo rõ ràng khi người chơi mất kết nối hoặc phòng bị giải tán.
+
+**R — Độ tin cậy (Reliability):**
+- Khi 1 người chơi thoát đột ngột, Server tự hủy thực thể và thông báo các Client còn lại mà không làm sập trận đấu (*Graceful Disconnection*).
+- Server là nguồn duy nhất phán quyết mọi kết quả — không có Client nào có thể can thiệp vào logic trận đấu.
+- Thiết kế theo nguyên tắc **Fail-Safe Defaults**: khi không nhận được Input từ người chơi quá 200ms, nhân vật tự động đứng yên thay vì tiếp tục hành động cũ.
+
+**P — Hiệu năng (Performance):**
+- Client duy trì tốc độ render tối thiểu **60 FPS** nhờ tách rời chu kỳ vật lý (Fixed Timestep) và chu kỳ vẽ — theo *Game Loop Pattern* của Robert Nystrom.
+- Mỗi gói tin `WorldSnapshotPacket` không vượt quá **256 bytes** sau khi tối ưu hóa delta-encoding.
+- Thuật toán **Snapshot Interpolation (LERP)** loại bỏ hoàn toàn hiện tượng giật hình (Micro-stutter) giữa Server 20Hz và Canvas 60fps — theo Glazer & Madhav, Ch.7.
+
+**S — Khả năng bảo trì (Supportability):**
+- Áp dụng 9 nguyên lý **GRASP** của Craig Larman để phân bổ trách nhiệm vào đúng lớp (Low Coupling, High Cohesion, Controller, Creator, Information Expert...).
+- Áp dụng các mẫu GoF: **Strategy** (sát thương), **Observer** (HUD), **State** (FSM nhân vật), **Composite** (bùa chú), **Command** (input).
+- Mã nguồn phân vùng thành 5 module độc lập — thêm loại vũ khí mới chỉ cần thêm 1 class, không sửa code cũ (*Open-Closed Principle*).
+
+**+ — Ràng buộc kỹ thuật (Technical Constraints):**
+- **Ngôn ngữ**: Java (JDK 17 / 21) — ngôn ngữ OOP thuần, khớp 100% với giáo trình Craig Larman và mã nguồn mẫu `com.aethelgard.*` đã phân tích.
+- **Mạng**: Socket TCP thuần (`java.net.Socket`, `ServerSocket`) — không dùng framework mạng bậc cao để giữ nguyên bản chất học thuật và có thể kiểm tra từng lớp giao thức.
+- **Không dùng engine thương mại**: Toàn bộ Game Loop, Canvas rendering và Physics tự cài đặt để thể hiện hiểu biết OOP thực chất — không phải gọi API có sẵn.
 
 ---
 
-## 1.4. PHẠM VI PHA INCEPTION VÀ KẾ HOẠCH PHÁT TRIỂN LẶP (ITERATION PLAN)
-*(Tham chiếu: Chapter 2 & 4 — Craig Larman)*
+## 1.4. PHẠM VI VÀ KẾ HOẠCH PHÁT TRIỂN LẶP
 
-### 1.4.1. Tuyên bố Ranh giới Pha Inception (Scope Definition)
-Theo phương pháp luận của Craig Larman, mục đích của pha Inception không phải là cố gắng đặc tả 100% tất cả các chi tiết, mà là **xác định tính khả thi (Feasibility)** và dập tắt các rủi ro kỹ thuật nền tảng. Do đó, nhóm xác định phạm vi trong pha Inception:
-* **Các Use Case được chọn viết chi tiết (Khoảng 10%)**:
-  * `UC-01: Tham gia phòng đấu (Join Game Room)`
-  * `UC-02: Thực hiện hành động chiến đấu (Execute Combat Action)`
-* **Các tính năng hoãn lại (Deferred to Construction phase)**:
-  * Hệ thống tài khoản nâng cao, cửa hàng trang phục (Skins), hệ thống chat voice, bảng xếp hạng toàn cầu.
+*(Tham chiếu: Chương 2 & 4 — Craig Larman)*
 
-### 1.4.2. Kế hoạch Lặp (Iteration Plan) trong Pha Elaboration
-Dự án được phân bổ thành **3 Iteration** (mỗi chu kỳ kéo dài 2 tuần) với mục tiêu tạo ra bản build thực thi được (**Executable Architecture Baseline**) sau mỗi chu kỳ:
+### 1.4.1. Phạm vi pha Inception
+
+Theo phương pháp luận Unified Process, pha Inception **không đặc tả 100% chi tiết** mà tập trung vào hai mục tiêu: xác định tính khả thi (*Feasibility*) và nhận diện, dập tắt các rủi ro kỹ thuật nền tảng (*Risk Mitigation*). Nhóm nhận diện bốn rủi ro chính sau:
+
+| Rủi ro | Mức độ | Phương án giảm thiểu |
+|:---|:---:|:---|
+| Giật hình khi đồng bộ mạng (Micro-stutter) | 🔴 Cao | Cài đặt LERP Snapshot Buffer ngay từ Iteration 1 |
+| Gian lận từ Client (hack vị trí, sát thương) | 🔴 Cao | Dùng Dedicated Authoritative Server ngay từ đầu |
+| Xung đột khi 5 người code chung một codebase | 🟡 Trung bình | Phân vùng thư mục Git riêng biệt theo nhánh tính năng |
+| Độ trễ mạng vượt ngưỡng 50ms trên LAN | 🟡 Trung bình | Tối ưu kích thước gói tin; đo đạc và kiểm thử trong Iteration 2 |
+
+**Use Case được chọn viết đầy đủ trong Inception (~10% theo Larman):**
+- `UC-01`: Người chơi tham gia phòng đấu và di chuyển nhân vật.
+- `UC-02`: Người chơi thực hiện tấn công và nhận sát thương.
+
+**Tính năng hoãn lại (Deferred to Future Release):** Hệ thống tài khoản đăng nhập, cửa hàng trang phục, chat thoại, bảng xếp hạng toàn cầu.
+
+### 1.4.2. Kế hoạch vòng lặp phát triển (7 tuần)
 
 ```mermaid
 gantt
-    title TIẾN ĐỘ PHÁT TRIỂN LẶP DỰ ÁN GAME MULTIPLAYER (6 TUẦN)
+    title KẾ HOẠCH PHÁT TRIỂN LẶP — GAME MULTIPLAYER 2D (7 TUẦN)
     dateFormat  YYYY-MM-DD
     axisFormat %d/%m
 
-    section Pha Inception (Tuần 1)
-    Khảo sát bài toán, Thiết lập Git, Viết Phần I Báo cáo :done, inc1, 2026-10-18, 7d
-    Khảo sát kỹ thuật Socket TCP & Dựng khung Game Loop   :done, inc2, 2026-10-18, 7d
+    section Inception (Tuần 1)
+    Thiết lập Git · Phân vai · Viết Chương 1        :done, inc1, 2026-10-18, 7d
+    Khảo sát Arcane-Engine-2D · Phát hiện lỗi Jitter :done, inc2, 2026-10-18, 7d
 
-    section Pha Elaboration - Iteration 1 (Tuần 2-3)
-    Thiết lập Dedicated Server & Kết nối Socket 2 Client :active, it1_1, 2026-10-25, 14d
-    Player Movement, FSM State Machine & Đồng bộ vị trí  :active, it1_2, 2026-10-25, 14d
-    Viết Phần II Báo cáo (Use Case, SSD, Domain Model)   :active, it1_3, 2026-10-25, 14d
+    section Iteration 1 — Baseline (Tuần 2-3)
+    Use Case chi tiết + Domain Model (OOA)           :active, it1_1, 2026-10-25, 14d
+    Dedicated Server Java + Socket 2 Client          :active, it1_2, 2026-10-25, 14d
+    GameLoop + PlayerStateMachine + LERP             :active, it1_3, 2026-10-25, 14d
+    Viết Chương 2 Báo cáo (OOA)                     :active, it1_4, 2026-10-25, 14d
 
-    section Pha Elaboration - Iteration 2 (Tuần 4-5)
-    Xây dựng Combat Engine, Strategy Damage & Hitbox AABB :it2_1, 2026-11-08, 14d
-    Hệ thống Vật phẩm Buff (Composite) & Gói tin mạng DTO  :it2_2, 2026-11-08, 14d
-    Viết Phần III Báo cáo (DCD, 9 GRASP, GoF Patterns)   :it2_3, 2026-11-08, 14d
+    section Iteration 2 — Combat (Tuần 4-5)
+    Combat Engine · Hitbox AABB · Strategy Damage   :it2_1, 2026-11-08, 14d
+    Composite Buff · HUD Observer · Input Command   :it2_2, 2026-11-08, 14d
+    Viết Chương 3 + 4 (DCD, GRASP, GoF + Code)     :it2_3, 2026-11-08, 14d
 
-    section Pha Elaboration - Iteration 3 & Hoàn thiện (Tuần 6)
-    Hệ thống Lưu trữ (Persistence Data Mapper) & Test Cases:fin_1, 2026-11-22, 7d
-    Chạy thực nghiệm 2 máy, Quay clip demo & Tổng duyệt    :fin_2, 2026-11-22, 7d
-    Hoàn thiện và đóng gói Báo cáo 50 trang              :fin_3, 2026-11-22, 7d
+    section Iteration 3 — Polish & Nộp bài (Tuần 6-7)
+    Data Mapper JSON · JUnit Test Suite             :fin_1, 2026-11-22, 7d
+    Thực nghiệm 4 máy LAN · Đo đạc Jitter · Demo  :fin_2, 2026-11-22, 7d
+    Hoàn thiện Chương 5 + 6 · Đóng gói 100 trang  :fin_3, 2026-11-22, 7d
 ```
+
+---
+
+*Chú thích tài liệu tham khảo chương này:*
+- *[1] Craig Larman — Applying UML and Patterns, 3rd ed. (2004), Ch. 5, 7*
+- *[2] Robert Nystrom — Game Programming Patterns (2014), Ch. 9 (Game Loop)*
+- *[3] Glazer & Madhav — Multiplayer Game Programming (2015), Ch. 7*
+- *[4] Martin Fowler — PoEAA (2002), Ch. 10 (Data Mapper)*
+- *[5] Vaughn Vernon — Implementing DDD (2013), Ch. 10 (Aggregates)*
