@@ -52,6 +52,21 @@ Nhóm được tổ chức theo cấu trúc chuyên nghiệp của một studio 
 
 ---
 
+### 1.3. Môi trường & Hệ Công cụ Kỹ nghệ (Engineering Toolchain & Second Brain)
+Để đảm bảo tính liên kết vết chặt chẽ và chuẩn mực kỹ nghệ phần mềm, nhóm thiết lập hệ sinh thái công cụ:
+
+1. **Obsidian Vault (`E:\UML-Patterns-Mastery`) — Trạm Chỉ huy Tri thức (Second Brain)**:
+   * **Quản trị Tri thức Học thuật (PKM)**: Bóc tách 38 chương sách Craig Larman, Martin Fowler PoEAA và Vaughn Vernon DDD thành các ghi chú liên kết 2 chiều (Bi-directional Wikilinks `[[...]]`).
+   * **Đồ thị Tri thức (Graph View - `Ctrl + G`)**: Trực quan hóa mạng lưới kết nối giữa Yêu cầu $\leftrightarrow$ Khái niệm thực tế $\leftrightarrow$ Mẫu thiết kế GRASP/GoF $\leftrightarrow$ Mã nguồn.
+   * **Bản đồ Kiến trúc Không gian (Spatial Canvas)**: Sử dụng [`Architecture_Canvas.canvas`](file:///E:/UML-Patterns-Mastery/Architecture_Canvas.canvas) để theo dõi luồng tương tác và phân rã module.
+   * **Bản đồ Điều hướng Trung tâm**: [`DASHBOARD.md`](file:///E:/UML-Patterns-Mastery/DASHBOARD.md).
+2. **IDE Lập trình & Soạn thảo**: **Cursor / VS Code** (tích hợp AI Pair Programming và extension Markdown).
+3. **Quản lý Mã nguồn & Phiên bản**: **Git & GitHub** (`https://github.com/Tran1209/UML-Patterns-Mastery.git`).
+4. **Mô hình hóa UML Chuẩn**: **Mermaid.js** render trực tiếp trong Obsidian và GitHub Markdown.
+5. **Nền tảng Thực thi (Runtime Engine)**: **Node.js / Bun** (Dedicated WebSocket Server) kết hợp **HTML5 Canvas** (Client Renderer) và **Java Core Models**.
+
+---
+
 ## 2. NHẬT KÝ TIẾN ĐỘ THEO TỪNG VÒNG LẶP (UNIFIED PROCESS WORK LOG)
 
 ```mermaid
@@ -70,7 +85,7 @@ timeline
 
 | Thời gian | Thành viên | Chi tiết Công việc Thực hiện | Sản phẩm Đầu ra (Deliverables) | Đối soát Git / Vị trí Tệp | Trạng thái |
 |:---:|:---:|:---|:---|:---|:---:|
-| **17/10/2026** | **TV1** | • Khởi tạo Local Repository tại `E:\UML-Patterns-Mastery`.<br>• Thiết lập cơ sở tri thức Craig Larman (38 chương trích xuất), Martin Fowler PoEAA và Vaughn Vernon DDD.<br>• Viết tài liệu nền tảng học thuật OOAD & UP. | • Thư mục `00_Raw_PDF/_Knowledge_Base_Larman/`<br>• File [`HocPhan_01_NenTang_OOAD_va_UP.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/HocPhan_01_NenTang_OOAD_va_UP.md)<br>• Bộ 6 ghi chú phân tích kiến trúc trong `01_Report_Notes/` | Commit `7491f6f` | **Hoàn thành** |
+| **17/10/2026** | **TV1** | • Khởi tạo Local Repository tại `E:\UML-Patterns-Mastery`.<br>• Thiết lập kho lưu trữ thành **Obsidian Vault**; khởi tạo Trạm chỉ huy tri thức [`DASHBOARD.md`](file:///E:/UML-Patterns-Mastery/DASHBOARD.md) và bản đồ không gian [`Architecture_Canvas.canvas`](file:///E:/UML-Patterns-Mastery/Architecture_Canvas.canvas).<br>• Bóc tách cơ sở tri thức Craig Larman (38 chương trích xuất), Martin Fowler PoEAA và Vaughn Vernon DDD để xây dựng mạng lưới Đồ thị Tri thức (Graph View).<br>• Viết tài liệu nền tảng học thuật OOAD & UP. | • Thư mục `00_Raw_PDF/_Knowledge_Base_Larman/`<br>• File [`DASHBOARD.md`](file:///E:/UML-Patterns-Mastery/DASHBOARD.md)<br>• File [`Architecture_Canvas.canvas`](file:///E:/UML-Patterns-Mastery/Architecture_Canvas.canvas)<br>• File [`HocPhan_01_NenTang_OOAD_va_UP.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/HocPhan_01_NenTang_OOAD_va_UP.md)<br>• Bộ 6 ghi chú phân tích kiến trúc trong `01_Report_Notes/` | Commit `7491f6f` | **Hoàn thành** |
 | **18/10/2026** | **Cả nhóm** | • Họp nhóm khởi động (Kick-off Meeting): Phân chia 5 vai trò kỹ thuật.<br>• Ban hành tài liệu hướng dẫn Git chuẩn, phân vùng thư mục độc lập để triệt tiêu 100% rủi ro Merge Conflict.<br>• Chuyển đổi tài khoản quản trị repo sang GitHub `Tran1209`. | • File [`HUONG_DAN_GIT_CHO_NHOM.md`](file:///E:/UML-Patterns-Mastery/HUONG_DAN_GIT_CHO_NHOM.md)<br>• Repo Remote: `Tran1209/UML-Patterns-Mastery` | Commit `70ca404` | **Hoàn thành** |
 | **18/10/2026** | **TV1 + TV2** | • Khảo sát mã nguồn thực tế `Arcane-Engine-2D` (kiến trúc Node/Bun WebSocket server và TypeScript/Java models).<br>• **Phát hiện kỹ thuật quan trọng**: Đo đạc cơ chế đồng bộ snapshot 20Hz (`server.ts`) kết hợp Canvas 60fps (`GameCanvas.tsx`) phát hiện hiện tượng nhảy khung hình (Micro-stutter / Jitter) do thiếu cơ chế nội suy tuyến tính (Linear Interpolation - LERP).<br>• Đưa hiện tượng này vào danh mục kiểm thử và bài toán cải tiến kỹ thuật cho Báo cáo (Chương 5 & 6). | • Báo cáo phân tích Netcode `Arcane-Engine-2D`<br>• File kiến trúc `DesignPatternsViewer.tsx` và `NetcodeSimulator.tsx` | Biên bản khảo sát mã nguồn | **Hoàn thành** |
 | **19/10/2026** | **TV1** | • Soạn thảo hoàn chỉnh Phần I Báo cáo theo chuẩn Craig Larman:<br>&nbsp;&nbsp;+ Bối cảnh kỹ thuật, Lý do chọn đề tài (Mục 1.1)<br>&nbsp;&nbsp;+ Tầm nhìn sản phẩm & Kịch bản đấu trường (Mục 1.2)<br>&nbsp;&nbsp;+ Bảng phân loại yêu cầu FURPS+ (Mục 1.3)<br>&nbsp;&nbsp;+ Phạm vi Inception & Kế hoạch lặp (Mục 1.4)<br>• Khởi tạo khung thư mục độc lập cho 5 thành viên trong `Src_Game/` và `Tests/`. | • File [`Phan_01_PhatBieu_BaiToan.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/Phan_01_PhatBieu_BaiToan.md)<br>• 5 thư mục module: `Core/`, `Server/`, `Combat/`, `UI/`, `Persistence/`, `Tests/` | Commit `02b5330` | **Hoàn thành** |
