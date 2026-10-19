@@ -19,13 +19,13 @@ Nhật ký dự án (Work Log) là văn bản học thuật bắt buộc và là
 ### 1.1. Bảng phân công 5 Vị trí Kỹ thuật Cốt lõi
 Nhóm được tổ chức theo cấu trúc chuyên nghiệp của một studio kỹ nghệ phần mềm game, phân định rõ ràng giữa các tầng kiến trúc:
 
-| STT | Họ và Tên | Mã Sinh Viên | GitHub Username | Vai trò Kỹ thuật (Role) | Module Phụ trách Chính (Territory) | Nhánh Git Làm việc |
-|:---:|:---|:---:|:---:|:---|:---|:---|
-| **1** | **Nam** *(Trưởng nhóm)* | ... | `Tran1209` | **Team Leader & Lead Software Architect** | • Kiến trúc tổng thể hệ thống<br>• Core Loop & Player State Machine<br>• Phân tích OOA/OOD & Tổng hợp Báo cáo | `main`, `feature/core-loop` |
-| **2** | **Kiên** | ... | *(kien_git)* | **Network & Distributed Systems Engineer** | • Dedicated Server & WebSocket/TCP Sockets<br>• Serialization & Network Packet DTOs<br>• Cơ chế đồng bộ trạng thái (State Sync) | `feature/network-server` |
-| **3** | **Anh** | ... | *(anh_git)* | **Combat Mechanics & Physics Engineer** | • Combat Engine & Hitbox va chạm AABB<br>• Chiến lược tính sát thương (Strategy Pattern)<br>• Hệ thống Vật phẩm & Buff (Composite Pattern) | `feature/combat-system` |
-| **4** | **Huy** | ... | *(huy_git)* | **Client Graphics & UX Engineer** | • 2D Canvas Renderer (60 FPS)<br>• Controller Input Adapter & Xử lý phím<br>• HUD UI & Observer Pattern cập nhật máu/sự kiện | `feature/client-ui` |
-| **5** | **Hoàng** | ... | *(hoang_git)* | **Data Persistence & QA/QC Test Engineer** | • Lưu trữ dữ liệu (Data Mapper Pattern)<br>• Bộ kiểm thử tự động (Unit Test / Integration Test)<br>• Đo lường hiệu năng mạng, Profiling độ trễ & Jitter | `feature/data-testing` |
+| STT | Họ và Tên | Mã Sinh Viên | GitHub Username | Vai trò Kỹ thuật (Role) | Trụ cột Sách Nghiên cứu Chính (Pillars) | Module Phụ trách Chính (Territory) | Nhánh Git Làm việc |
+|:---:|:---|:---:|:---:|:---|:---|:---|:---|
+| **1** | **Nam** *(Trưởng nhóm)* | ... | `Tran1209` | **Team Leader & Lead Architect** | **Craig Larman** (*Applying UML & Patterns*) & **Vaughn Vernon** (*IDDD*) | • Kiến trúc tổng thể hệ thống<br>• Core Loop & Player State Machine<br>• Phân tích OOA/OOD & Tổng hợp Báo cáo | `main`, `feature/core-loop` |
+| **2** | **Kiên** | ... | *(kien_git)* | **Network & Distributed Systems Engineer** | **Joshua Glazer & Sanjay Madhav** (*Multiplayer Game Programming*) | • Dedicated Server & WebSocket/TCP Sockets<br>• Serialization & Network Packet DTOs<br>• LERP Snapshot Interpolation & Prediction | `feature/network-server` |
+| **3** | **Anh** | ... | *(anh_git)* | **Combat Mechanics & Physics Engineer** | **Robert Nystrom** (*Game Programming Patterns*) | • Combat Engine & Hitbox va chạm AABB<br>• Chiến lược tính sát thương (Strategy Pattern)<br>• Spatial Partitioning tối ưu hóa va chạm | `feature/combat-system` |
+| **4** | **Huy** | ... | *(huy_git)* | **Client Graphics & UX Engineer** | **Robert Nystrom** (Game Loop & Double Buffer) & **GoF** | • 2D Canvas Renderer (60 FPS)<br>• Controller Input Adapter & Xử lý phím<br>• HUD UI & Observer Pattern cập nhật máu/sự kiện | `feature/client-ui` |
+| **5** | **Hoàng** | ... | *(hoang_git)* | **Data Persistence & QA/QC Test Engineer** | **Martin Fowler** (*PoEAA*) & **Martin Kleppmann** (*DDIA*) | • Lưu trữ dữ liệu (Data Mapper Pattern)<br>• Bộ kiểm thử tự động (Unit Test / Integration Test)<br>• Đo lường hiệu năng mạng, Profiling độ trễ & Jitter | `feature/data-testing` |
 
 ---
 
