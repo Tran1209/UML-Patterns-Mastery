@@ -12,11 +12,9 @@ status: active
 
 ---
 
-> [!NOTE] VAI TRÒ CỦA OBSIDIAN TRONG DỰ ÁN
-> Vault này đóng vai trò là **"Bộ não thứ hai" (Second Brain)** của nhóm, kết nối chặt chẽ giữa:
-> **Lý thuyết học thuật (Craig Larman, Fowler, Vernon)** $\longleftrightarrow$ **Mô hình Phân tích & Thiết kế (OOA / OOD)** $\longleftrightarrow$ **Mã nguồn thực thi (Arcane Engine 2D)** $\longleftrightarrow$ **Báo cáo Đại học (~100 trang)**.
-> 
-> *Nhấn `Ctrl + G` để mở **Graph View** chiêm ngưỡng mạng lưới liên kết tri thức, hoặc mở [[Architecture_Canvas.canvas|Bản đồ Kiến trúc Canvas]] để xem không gian hệ thống trực quan.*
+> [!ABSTRACT] ẢNH BÌA BÁO CÁO KỸ THUẬT CHUẨN CAPSTONE (TECHNICAL REPORT COVER)
+> ![[Docs_BaoCao/images/Bia_BaoCao_Technical_Report.jpg|360]]
+> *Tác phẩm bìa học thuật: Đấu trường phân tán thời gian thực (Distributed Real-time Combat Simulation Engine) tích hợp sơ đồ UML, Socket Topology và Finite State Machine.*
 
 ---
 
