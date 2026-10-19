@@ -12,6 +12,12 @@ status: active
 
 ---
 
+> [!IMPORTANT] ĐỌC FILE NÀY TRƯỚC NẾU BẠN ĐANG BỊ RỐI!
+> 📍 **[[MASTER_MAP|MASTER_MAP.md — Bản đồ tổng thể dự án (Tất cả trong 1 trang)]]**  
+> *Gom trọn: 5 thành viên · 5 cuốn sách · 7 chương báo cáo · 3 vấn đề kỹ thuật · Việc cần làm tiếp theo.*
+
+---
+
 > [!ABSTRACT] ẢNH BÌA BÁO CÁO KỸ THUẬT CHUẨN KIẾN TRÚC OOP (PURE TECH COVER)
 > ![[Docs_BaoCao/images/Bia_BaoCao_OOP_Architecture.jpg|380]]
 > *Tác phẩm bìa học thuật: Kiến trúc Phân tầng Hướng đối tượng 3D Isometric (Presentation $\rightarrow$ Core Domain Model $\rightarrow$ Distributed Network Synchronization $\rightarrow$ Persistence Data Layer).*
