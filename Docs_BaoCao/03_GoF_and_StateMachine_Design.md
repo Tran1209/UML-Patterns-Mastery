@@ -11,15 +11,15 @@
 
 ## 1. GoF trọng tâm
 
-| GoF | POS (Larman) | Game OOP |
-|-----|--------------|----------|
-| Strategy | Pricing / Discount | Damage formula, AI behavior |
-| Factory | `ServicesFactory` | `EnemyFactory`, `ItemFactory` |
-| Adapter | Tax / Credit auth | Input SDK, cloud save |
-| Composite | `CompositePricingStrategy` | Buff stack, quest conditions |
-| Observer | Model ↔ UI | HP bar, achievement events |
-| State | (mở rộng) | Player/Enemy/Game state machine |
-| Facade | Subsystem API | `GameFacade` bootstrap scene |
+| GoF       | POS (Larman)               | Game OOP                        |
+| --------- | -------------------------- | ------------------------------- |
+| Strategy  | Pricing / Discount         | Damage formula, AI behavior     |
+| Factory   | `ServicesFactory`          | `EnemyFactory`, `ItemFactory`   |
+| Adapter   | Tax / Credit auth          | Input SDK, cloud save           |
+| Composite | `CompositePricingStrategy` | Buff stack, quest conditions    |
+| Observer  | Model ↔ UI                 | HP bar, achievement events      |
+| State     | (mở rộng)                  | Player/Enemy/Game state machine |
+| Facade    | Subsystem API              | `GameFacade` bootstrap scene    |
 
 ---
 

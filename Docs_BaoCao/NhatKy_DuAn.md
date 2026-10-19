@@ -21,11 +21,11 @@ Nhóm được tổ chức theo cấu trúc chuyên nghiệp của một studio 
 
 | STT | Họ và Tên | Mã Sinh Viên | GitHub Username | Vai trò Kỹ thuật (Role) | Module Phụ trách Chính (Territory) | Nhánh Git Làm việc |
 |:---:|:---|:---:|:---:|:---|:---|:---|
-| **1** | *(Trưởng nhóm)* | ... | `Tran1209` | **Team Leader & Lead Software Architect** | • Kiến trúc tổng thể hệ thống<br>• Core Loop & Player State Machine<br>• Phân tích OOA/OOD & Tổng hợp Báo cáo | `main`, `feature/core-loop` |
-| **2** | ... | ... | *(TV2_Git)* | **Network & Distributed Systems Engineer** | • Dedicated Server & WebSocket/TCP Sockets<br>• Serialization & Network Packet DTOs<br>• Cơ chế đồng bộ trạng thái (State Sync) | `feature/network-server` |
-| **3** | ... | ... | *(TV3_Git)* | **Combat Mechanics & Physics Engineer** | • Combat Engine & Hitbox va chạm AABB<br>• Chiến lược tính sát thương (Strategy Pattern)<br>• Hệ thống Vật phẩm & Buff (Composite Pattern) | `feature/combat-system` |
-| **4** | ... | ... | *(TV4_Git)* | **Client Graphics & UX Engineer** | • 2D Canvas Renderer (60 FPS)<br>• Controller Input Adapter & Xử lý phím<br>• HUD UI & Observer Pattern cập nhật máu/sự kiện | `feature/client-ui` |
-| **5** | ... | ... | *(TV5_Git)* | **Data Persistence & QA/QC Test Engineer** | • Lưu trữ dữ liệu (Data Mapper Pattern)<br>• Bộ kiểm thử tự động (Unit Test / Integration Test)<br>• Đo lường hiệu năng mạng, Profiling độ trễ & Jitter | `feature/data-testing` |
+| **1** | **Nam** *(Trưởng nhóm)* | ... | `Tran1209` | **Team Leader & Lead Software Architect** | • Kiến trúc tổng thể hệ thống<br>• Core Loop & Player State Machine<br>• Phân tích OOA/OOD & Tổng hợp Báo cáo | `main`, `feature/core-loop` |
+| **2** | **Kiên** | ... | *(kien_git)* | **Network & Distributed Systems Engineer** | • Dedicated Server & WebSocket/TCP Sockets<br>• Serialization & Network Packet DTOs<br>• Cơ chế đồng bộ trạng thái (State Sync) | `feature/network-server` |
+| **3** | **Anh** | ... | *(anh_git)* | **Combat Mechanics & Physics Engineer** | • Combat Engine & Hitbox va chạm AABB<br>• Chiến lược tính sát thương (Strategy Pattern)<br>• Hệ thống Vật phẩm & Buff (Composite Pattern) | `feature/combat-system` |
+| **4** | **Huy** | ... | *(huy_git)* | **Client Graphics & UX Engineer** | • 2D Canvas Renderer (60 FPS)<br>• Controller Input Adapter & Xử lý phím<br>• HUD UI & Observer Pattern cập nhật máu/sự kiện | `feature/client-ui` |
+| **5** | **Hoàng** | ... | *(hoang_git)* | **Data Persistence & QA/QC Test Engineer** | • Lưu trữ dữ liệu (Data Mapper Pattern)<br>• Bộ kiểm thử tự động (Unit Test / Integration Test)<br>• Đo lường hiệu năng mạng, Profiling độ trễ & Jitter | `feature/data-testing` |
 
 ---
 
@@ -158,11 +158,11 @@ timeline
 ### 4.2. Bảng Tổng kết Đóng góp
 | STT | Họ và Tên | Mã Sinh Viên | Vai trò Phụ trách | Tự Đánh giá (% Đóng góp) | Nhóm Thống nhất (%) | Chữ ký Xác nhận |
 |:---:|:---|:---:|:---|:---:|:---:|:---:|
-| **1** | *(Trưởng nhóm)* | ... | Team Leader & Software Architect | 100% | 100% | *(Ký tên)* |
-| **2** | ... | ... | Network & Server Engineer | 100% | 100% | *(Ký tên)* |
-| **3** | ... | ... | Combat & Mechanics Engineer | 100% | 100% | *(Ký tên)* |
-| **4** | ... | ... | Client UI & UX Engineer | 100% | 100% | *(Ký tên)* |
-| **5** | ... | ... | Data Persistence & QA/QC Tester | 100% | 100% | *(Ký tên)* |
+| **1** | **Nam** *(Trưởng nhóm)* | ... | Team Leader & Software Architect | 100% | 100% | *(Ký tên)* |
+| **2** | **Kiên** | ... | Network & Server Engineer | 100% | 100% | *(Ký tên)* |
+| **3** | **Anh** | ... | Combat & Mechanics Engineer | 100% | 100% | *(Ký tên)* |
+| **4** | **Huy** | ... | Client UI & UX Engineer | 100% | 100% | *(Ký tên)* |
+| **5** | **Hoàng** | ... | Data Persistence & QA/QC Tester | 100% | 100% | *(Ký tên)* |
 
 ---
 

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Trang Bìa Đồ Án OOP - Đại Học Xây Dựng Hà Nội (HUCE)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto;
+      background: #0b0f19;
+      color: #e2e8f0;
+      font-family: 'Montserrat', sans-serif;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14mm 16mm;
+      overflow: hidden;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Viền hoa văn kỹ thuật kép chuẩn Đồ án */
+    .border-outer {
+      position: absolute;
+      top: 8mm;
+      left: 8mm;
+      right: 8mm;
+      bottom: 8mm;
+      border: 2px solid #38bdf8;
+      pointer-events: none;
+    }
+
+    .border-inner {
+      position: absolute;
+      top: 10mm;
+      left: 10mm;
+      right: 10mm;
+      bottom: 10mm;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      pointer-events: none;
+    }
+
+    .corner-tech {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border: 3px solid #f59e0b;
+    }
+    .c-tl { top: 7mm; left: 7mm; border-right: none; border-bottom: none; }
+    .c-tr { top: 7mm; right: 7mm; border-left: none; border-bottom: none; }
+    .c-bl { bottom: 7mm; left: 7mm; border-right: none; border-top: none; }
+    .c-br { bottom: 7mm; right: 7mm; border-left: none; border-top: none; }
+
+    /* Header Trường */
+    .header {
+      text-align: center;
+      margin-top: 4mm;
+    }
+
+    .header .ministry {
+      font-size: 11pt;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .header .university {
+      font-size: 15pt;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #38bdf8;
+      margin-top: 2mm;
+      text-transform: uppercase;
+    }
+
+    .header .faculty {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #f59e0b;
+      margin-top: 1.5mm;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .divider-line {
+      width: 120mm;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8, #f59e0b, transparent);
+      margin: 3mm auto 0 auto;
+    }
+
+    /* Tiêu đề Đồ án */
+    .title-section {
+      text-align: center;
+      margin-top: 4mm;
+    }
+
+    .badge-report {
+      display: inline-block;
+      padding: 4px 16px;
+      border: 1px solid #38bdf8;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.1);
+      font-size: 9.5pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #38bdf8;
+      text-transform: uppercase;
+      margin-bottom: 3mm;
+    }
+
+    .main-title {
+      font-size: 18pt;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.35;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .sub-title {
+      font-size: 11pt;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-top: 2.5mm;
+      line-height: 1.4;
+    }
+
+    .game-name {
+      color: #f59e0b;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    /* Khối minh họa Artwork 3D OOP */
+    .artwork-section {
+      text-align: center;
+      margin: 2mm 0;
+    }
+
+    .artwork-img {
+      width: 90mm;
+      height: auto;
+      max-height: 72mm;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Bảng thông tin 5 thành viên */
+    .info-section {
+      margin-top: 2mm;
+      padding: 0 6mm;
+    }
+
+    .mentor-box {
+      margin-bottom: 3mm;
+      font-size: 10.5pt;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 6px 12px;
+      border-left: 3px solid #f59e0b;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .mentor-box span.label {
+      font-weight: 700;
+      color: #f59e0b;
+      text-transform: uppercase;
+    }
+
+    .members-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .members-table th {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 5px 8px;
+      font-weight: 700;
+      text-align: left;
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .members-table td {
+      padding: 4.5px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+    }
+
+    .members-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .member-name {
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .role-badge {
+      font-size: 8pt;
+      font-weight: 600;
+      color: #38bdf8;
+    }
+
+    .leader-star {
+      color: #f59e0b;
+      font-weight: bold;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-bottom: 1mm;
+      border-top: 1px dashed rgba(56, 189, 248, 0.3);
+      padding-top: 3mm;
+    }
+
+    .footer .location-year {
+      font-size: 11pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    @media print {
+      body {
+        background: #0b0f19 !important;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Khung viền kỹ thuật -->
+  <div class="border-outer"></div>
+  <div class="border-inner"></div>
+  <div class="corner-tech c-tl"></div>
+  <div class="corner-tech c-tr"></div>
+  <div class="corner-tech c-bl"></div>
+  <div class="corner-tech c-br"></div>
+
+  <!-- Header Trường -->
+  <div class="header">
+    <div class="ministry">BỘ GIÁO DỤC VÀ ĐÀO TẠO</div>
+    <div class="university">TRƯỜNG ĐẠI HỌC XÂY DỰNG HÀ NỘI (HUCE)</div>
+    <div class="faculty">KHOA CÔNG NGHỆ THÔNG TIN</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Tiêu đề Đồ án -->
+  <div class="title-section">
+    <div class="badge-report">BÁO CÁO BÀI TẬP LỚN / ĐỒ ÁN MÔN HỌC</div>
+    <h1 class="main-title">LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG (OOP)</h1>
+    <p class="sub-title">
+      Đề tài: Thiết Kế & Xây Dựng Hệ Thống Game Multiplayer Phân Tán Theo Tiến Trình Unified Process Và 9 Nguyên Lý GRASP / GoF
+    </p>
+    <p style="margin-top: 1.5mm; font-size: 10pt; color: #94a3b8;">
+      Tên dự án: <span class="game-name">HAKHAN: ARENA OF AETHELGARD</span>
+    </p>
+  </div>
+
+  <!-- Ảnh Artwork 3D OOP đã render -->
+  <div class="artwork-section">
+    <img src="images/Bia_BaoCao_OOP_Architecture.jpg" alt="OOP Architecture 3D" class="artwork-img">
+  </div>
+
+  <!-- Thông tin Thành viên & Giảng viên -->
+  <div class="info-section">
+    <div class="mentor-box">
+      <span class="label">Giảng viên hướng dẫn:</span> &nbsp;<strong>[Tên Thầy / Cô Phụ Trách Bộ Môn]</strong>
+    </div>
+
+    <table class="members-table">
+      <thead>
+        <tr>
+          <th style="width: 8%; text-align: center;">STT</th>
+          <th style="width: 32%;">Họ và Tên Sinh Viên</th>
+          <th style="width: 22%; text-align: center;">Mã Sinh Viên</th>
+          <th style="width: 38%;">Vai Trò Kỹ Thuật (Module Phụ Trách)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center;"><span class="leader-star">★</span> 1</td>
+          <td class="member-name">[Họ và tên] Nam</td>
+          <td style="text-align: center;">...</td>
+          <td><span class="role-badge">Trưởng nhóm</span> • Lead Architect & Core Loop</td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">2</td>
+          <td class="member-name">[Họ và tên] Kiên</td>
+          <td style="text-align: center;">...</td>
+          <td><span class="role-badge">Kỹ sư Mạng</span> • Dedicated Server & Socket Netcode</td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">3</td>
+          <td class="member-name">[Họ và tên] Anh</td>
+          <td style="text-align: center;">...</td>
+          <td><span class="role-badge">Kỹ sư Combat</span> • Hitbox AABB & Damage Strategy</td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">4</td>
+          <td class="member-name">[Họ và tên] Huy</td>
+          <td style="text-align: center;">...</td>
+          <td><span class="role-badge">Kỹ sư UI/UX</span> • Canvas 60fps & HUD Observer</td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">5</td>
+          <td class="member-name">[Họ và tên] Hoàng</td>
+          <td style="text-align: center;">...</td>
+          <td><span class="role-badge">Kỹ sư QA & Data</span> • Data Mapper & Unit Tests</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="location-year">HÀ NỘI — 2026</div>
+  </div>
+
+</body>
+</html>
