@@ -574,14 +574,14 @@ classDiagram
 
 Để chứng minh tính kế thừa học thuật sâu sắc từ giáo trình của Craig Larman, bảng dưới đây đối chiếu cấu trúc phân tích giữa ca học kinh điển **NextGen POS** (Point of Sale) trong sách và bài toán **Game Multiplayer 2D** của nhóm:
 
-| Khái niệm trong NextGen POS (Larman) | Khái niệm tương đương trong Game Đấu trường 2D | Giải thích bản chất tương đồng về mặt nghiệp vụ |
-|:---|:---|:---|
-| **`Store`** (Cửa hàng) | **`GameSession`** (Phiên máy chủ) | Thực thể cấp cao nhất bao bọc toàn bộ không gian hoạt động. |
-| **`Register`** (Máy thu ngân) | **`GameRoom`** (Phòng đấu) | Ranh giới diễn ra từng phiên giao dịch độc lập (trong game là trận đấu). |
-| **`Sale`** (Giao dịch bán hàng) | **`CombatEncounter`** (Đợt giao tranh) | Thực thể chứa đựng một chuỗi các sự kiện phát sinh liên tiếp. |
-| **`SalesLineItem`** (Mục hàng trong hóa đơn) | **`DamageEvent`** (Sự kiện gây sát thương) | Từng phần tử cấu thành nên tổng thể: nhiều `DamageEvent` tạo nên trận đấu như nhiều `SalesLineItem` tạo nên đơn hàng. |
-| **`ProductDescription`** (Mô tả sản phẩm) | **`WeaponSpec` / `BuffSpec`** (Đặc tả thông số) | Mẫu phân tách giữa "Đối tượng thực tế" và "Thông số định nghĩa sẵn" (khắc phục trùng lặp bộ nhớ). |
-| **`Payment`** (Thanh toán tiền) | **`MatchSummary`** (Tổng kết trận đấu) | Sự kiện kết thúc giao dịch và chốt số liệu thống kê. |
+| Khái niệm trong NextGen POS (Larman)         | Khái niệm tương đương trong Game Đấu trường 2D  | Giải thích bản chất tương đồng về mặt nghiệp vụ                                                                       |
+| :------------------------------------------- | :---------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| **`Store`** (Cửa hàng)                       | **`GameSession`** (Phiên máy chủ)               | Thực thể cấp cao nhất bao bọc toàn bộ không gian hoạt động.                                                           |
+| **`Register`** (Máy thu ngân)                | **`GameRoom`** (Phòng đấu)                      | Ranh giới diễn ra từng phiên giao dịch độc lập (trong game là trận đấu).                                              |
+| **`Sale`** (Giao dịch bán hàng)              | **`CombatEncounter`** (Đợt giao tranh)          | Thực thể chứa đựng một chuỗi các sự kiện phát sinh liên tiếp.                                                         |
+| **`SalesLineItem`** (Mục hàng trong hóa đơn) | **`DamageEvent`** (Sự kiện gây sát thương)      | Từng phần tử cấu thành nên tổng thể: nhiều `DamageEvent` tạo nên trận đấu như nhiều `SalesLineItem` tạo nên đơn hàng. |
+| **`ProductDescription`** (Mô tả sản phẩm)    | **`WeaponSpec` / `BuffSpec`** (Đặc tả thông số) | Mẫu phân tách giữa "Đối tượng thực tế" và "Thông số định nghĩa sẵn" (khắc phục trùng lặp bộ nhớ).                     |
+| **`Payment`** (Thanh toán tiền)              | **`MatchSummary`** (Tổng kết trận đấu)          | Sự kiện kết thúc giao dịch và chốt số liệu thống kê.                                                                  |
 
 ---
 

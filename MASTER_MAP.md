@@ -30,7 +30,7 @@
 
 | Người | Việc chính | Sách học | Module code | Nhánh Git |
 |:---:|:---|:---|:---|:---|
-| **Nam** ★ | Kiến trúc tổng thể, Core Loop, State Machine, tổng hợp báo cáo | Craig Larman + Vaughn Vernon | `Src_Game/Core/` | `main` |
+| **Nam** ★ | Kiến trúc tổng thể, Core Loop, FSM, Đồng điều phối Netcode, Tổng hợp báo cáo | Craig Larman + Vaughn Vernon + Glazer & Madhav | `Src_Game/Core/` | `main` |
 | **Kiên** | Server 20Hz, Socket, Gói tin DTO, LERP chống giật hình | Glazer & Madhav | `Src_Game/Server/` `Src_Game/Network/` | `feature/network-server` |
 | **Anh** | Hitbox AABB, Strategy Damage, Spatial Grid va chạm | Robert Nystrom | `Src_Game/Combat/` | `feature/combat-system` |
 | **Huy** | Canvas 60fps, HUD, Input Adapter, Observer Event | Robert Nystrom + GoF | `Src_Game/UI/` | `feature/client-ui` |
@@ -101,11 +101,17 @@ E:\UML-Patterns-Mastery\
 │   ├── 07_Robert_Nystrom_Game_Programming_Patterns.md ← MỚI
 │   └── 08_Glazer_Madhav_Multiplayer_Netcode.md ← MỚI
 │
-├── 📝 Docs_BaoCao\              ← Báo cáo học thuật
+├── 📝 Docs_BaoCao\              ← Báo cáo học thuật (~100 trang)
 │   ├── 00_Trang_Bia_BaoCao_HUCE.md  ← Trang bìa (5 thành viên)
 │   ├── Trang_Bia_HUCE.html          ← Bìa in được (Chrome → PDF)
 │   ├── NhatKy_DuAn.md               ← Nhật ký & RACI (✅ Đầy đủ)
 │   ├── Phan_01_PhatBieu_BaiToan.md  ← Chương 1 (✅ Hoàn thành)
+│   ├── Phan_02_PhanTich_OOA.md      ← Chương 2 (✅ Hoàn thành)
+│   ├── Phan_03_ThietKe_OOD.md       ← Chương 3 (✅ Hoàn thành)
+│   ├── Phan_04_CaiDat_OOP.md        ← Chương 4 (✅ Hoàn thành)
+│   ├── Phan_05_KiemThu_va_ThucNghiem.md ← Chương 5 (✅ Hoàn thành)
+│   ├── Phan_06_KetLuan_va_PhanBien.md   ← Chương 6 (✅ Hoàn thành)
+│   ├── Phan_07_TaiLieuThamKhao.md       ← Chương 7 (✅ Hoàn thành)
 │   ├── HocPhan_01_NenTang_OOAD.md   ← Lý thuyết nền OOAD & UP
 │   └── images\
 │       ├── Bia_BaoCao_Technical_Report.jpg  ← Ảnh bìa (Chiến binh)

@@ -11,11 +11,11 @@
 
 ## 1. Use Cases (tóm tắt)
 
-| Use Case | Actor | Mục tiêu |
-|----------|-------|----------|
-| UC1 — Bắt đầu trận / phiên chơi | Player | Khởi tạo session, spawn thực thể |
+| Use Case                         | Actor  | Mục tiêu                            |
+| -------------------------------- | ------ | ----------------------------------- |
+| UC1 — Bắt đầu trận / phiên chơi  | Player | Khởi tạo session, spawn thực thể    |
 | UC2 — Thực hiện hành động combat | Player | Tấn công / dùng skill / nhận damage |
-| UC3 — Quản lý inventory | Player | Nhặt, trang bị, dùng vật phẩm |
+| UC3 — Quản lý inventory          | Player | Nhặt, trang bị, dùng vật phẩm       |
 
 *(Bổ sung preconditions / main success scenario khi chốt gameplay.)*
 

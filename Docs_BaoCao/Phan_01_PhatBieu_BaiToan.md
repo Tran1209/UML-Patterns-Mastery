@@ -3,7 +3,7 @@
 > **Môn học**: Lập trình Hướng đối tượng (OOP)
 > **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin
 > **Nhóm thực hiện**: Nam · Kiên · Anh · Huy · Hoàng
-> **Ngôn ngữ cài đặt**: Java (JDK 17 / 21)
+> **Ngôn ngữ cài đặt**: Java 2d A
 
 ---
 
@@ -27,14 +27,14 @@ Báo cáo này trình bày quá trình phân tích, thiết kế và cài đặt
 
 ### 1.1.1. Vấn đề thực tiễn — Khi thiếu phương pháp luận
 
-Sinh viên khi tiếp cận bài toán game nhiều người chơi mà **không có phương pháp luận** thường rơi vào bốn lỗi kiến trúc điển hình sau:
 
-| Lỗi kiến trúc | Biểu hiện cụ thể | Hậu quả kỹ thuật |
-|:---|:---|:---|
-| **God Object** | Nhét toàn bộ logic — vẽ màn hình, xử lý phím, tính sát thương, gửi gói tin — vào một lớp duy nhất | Không thể kiểm thử, không thể bảo trì; thêm 1 tính năng làm vỡ 5 tính năng khác |
-| **Client-Authoritative** | Để Client tự tính toán vị trí và kết quả chiến đấu, rồi gửi lên Server | Dễ bị hack tốc độ, hack sát thương; người chơi dịch chuyển tức thời |
-| **Tight Coupling** | Lớp vẽ đồ họa đọc trực tiếp từ Socket mạng | Không viết Unit Test được; sửa mạng là vỡ giao diện và ngược lại |
-| **Micro-stutter** | Server gửi trạng thái 20 lần/giây, Client vẽ 60 khung/giây nhưng thiếu bộ đệm nội suy | Nhân vật đối thủ nhảy cóc giật cục; trải nghiệm chơi game rất tệ |
+
+| Lỗi kiến trúc            | Biểu hiện cụ thể                                                                                  | Hậu quả kỹ thuật                                                                |
+| :----------------------- | :------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------ |
+| **God Object**           | Nhét toàn bộ logic — vẽ màn hình, xử lý phím, tính sát thương, gửi gói tin — vào một lớp duy nhất | Không thể kiểm thử, không thể bảo trì; thêm 1 tính năng làm vỡ 5 tính năng khác |
+| **Client-Authoritative** | Để Client tự tính toán vị trí và kết quả chiến đấu, rồi gửi lên Server                            | Dễ bị hack tốc độ, hack sát thương; người chơi dịch chuyển tức thời             |
+| **Tight Coupling**       | Lớp vẽ đồ họa đọc trực tiếp từ Socket mạng                                                        | Không viết Unit Test được; sửa mạng là vỡ giao diện và ngược lại                |
+| **Micro-stutter**        | Server gửi trạng thái 20 lần/giây, Client vẽ 60 khung/giây nhưng thiếu bộ đệm nội suy             | Nhân vật đối thủ nhảy cóc giật cục; trải nghiệm chơi game rất tệ                |
 
 Mỗi lỗi trên đều có một giải pháp tương ứng trong bộ công cụ OOAD + Modern Engineering mà nhóm áp dụng.
 
@@ -43,21 +43,20 @@ Mỗi lỗi trên đều có một giải pháp tương ứng trong bộ công c
 Nhóm áp dụng chiến lược kết hợp hai lớp kiến thức bổ sung cho nhau:
 
 **Lớp ngoài — Khung phương pháp luận (Larman 2004):**
-Craig Larman trong *Applying UML and Patterns* (3rd ed.) cung cấp một khung phân tích và thiết kế có hệ thống: từ Use Case Diagram, Domain Model (OOA), Design Class Diagram (OOD), đến 9 nguyên lý GRASP phân bổ trách nhiệm. Đây là ngôn ngữ chung giữa nhóm và giảng viên — cho phép báo cáo được chấm điểm theo đúng barem môn học.
+Craig Larman trong *Applying UML and Patterns* (3rd ed.) cung cấp một khung phân tích và thiết kế có hệ thống: từ Use Case Diagram, Domain Model (OOA), Design Class Diagram (OOD), đến 9 nguyên lý GRASP phân bổ trách nhiệm. 
 
 > **Giới hạn được thừa nhận**: Larman viết năm 2004, trước khi kiến trúc microservice, reactive programming và distributed systems trở thành tiêu chuẩn ngành. Một số phần như UP Process nặng-tài-liệu đã được thực tế thay thế bằng Agile/Scrum. Nhóm ghi nhận điều này và trình bày phần phản biện ở Chương 6.
 
 **Lớp trong — Kỹ thuật hiện đại (2015–2024):**
 
-| # | Sách | Tác giả | Áp dụng vào | Thành viên phụ trách |
-|:---:|:---|:---|:---|:---:|
-| 1 | *Applying UML and Patterns* (3rd ed.) | Craig Larman | Khung OOAD, 9 GRASP, báo cáo học thuật | Nam |
-| 2 | *Game Programming Patterns* | Robert Nystrom | Game Loop, Component/ECS, Spatial Partition | Anh + Huy |
-| 3 | *Multiplayer Game Programming* | Glazer & Madhav | LERP, Snapshot Interpolation, Client Prediction | Kiên |
-| 4 | *Patterns of Enterprise Application Architecture* | Martin Fowler | Data Mapper, Repository, Persistence Layer | Hoàng |
-| 5 | *Implementing Domain-Driven Design* | Vaughn Vernon | Aggregate Root, Value Objects, Domain Events | Nam |
-
-Sự kết hợp này tạo ra một kiến trúc mà **mặt ngoài đọc như một báo cáo Larman chuẩn mực**, nhưng **bên trong vận hành theo các nguyên lý kỹ nghệ hiện đại nhất năm 2026**.
+|  #  | Sách                                              | Tác giả         | Áp dụng vào                                     | Thành viên phụ trách |
+| :-: | :------------------------------------------------ | :-------------- | :---------------------------------------------- | :------------------: |
+|  1  | *Applying UML and Patterns* (3rd ed.)             | Craig Larman    | Khung OOAD, 9 GRASP, báo cáo học thuật          |         Nam          |
+|  2  | *Game Programming Patterns*                       | Robert Nystrom  | Game Loop, Component/ECS, Spatial Partition     |      Anh + Huy       |
+|  3  | *Multiplayer Game Programming*                    | Glazer & Madhav | LERP, Snapshot Interpolation, Client Prediction |      Kiên, Nam       |
+|  4  | *Patterns of Enterprise Application Architecture* | Martin Fowler   | Data Mapper, Repository, Persistence Layer      |        Hoàng         |
+|  5  | *Implementing Domain-Driven Design*               | Vaughn Vernon   | Aggregate Root, Value Objects, Domain Events    |         Nam          |
+|     |                                                   |                 |                                                 |                      |
 
 ### 1.1.3. Lý do chọn đề tài
 
@@ -65,7 +64,7 @@ Nhóm chọn đề tài game multiplayer vì ba lý do:
 
 1. **Bao phủ toàn bộ kiến thức OOP**: Kế thừa, đa hình, đóng gói, các mẫu thiết kế GoF và nguyên lý GRASP — tất cả đều hiện diện trong một bài toán duy nhất.
 2. **Sản phẩm chạy được để minh chứng**: Kết quả cuối cùng là một game thực sự chạy được trên mạng LAN, 2–4 người cùng chơi — không chỉ là lý thuyết trên giấy.
-3. **Cầu nối học thuật ↔ thực tế**: Dùng Larman làm nền tảng phân tích, nhưng triển khai kỹ thuật theo tiêu chuẩn ngành hiện đại — đây là cách học OOP có giá trị lâu dài.
+3. **Cầu nối học thuật ↔ thực tế**: Dùng Larman làm nền tảng phân tích, nhưng triển khai kỹ thuật theo tiêu chuẩn ngành hiện đại.
 
 ---
 
@@ -75,15 +74,15 @@ Nhóm chọn đề tài game multiplayer vì ba lý do:
 
 ### 1.2.1. Thông tin nhận dạng sản phẩm
 
-| Thuộc tính | Nội dung |
-|:---|:---|
-| **Tên dự án** | **[Tên game nhóm thống nhất]** |
-| **Nền tảng mã nguồn mẫu** | Arcane-Engine-2D (Aethelgard) |
-| **Thể loại** | Đấu trường đối kháng nhiều người chơi (2–4 người) qua mạng LAN / Socket TCP |
-| **Góc nhìn** | 2D từ trên xuống (Top-down 2D) |
-| **Ngôn ngữ cài đặt** | **Java (JDK 17 / 21)** |
-| **Giao tiếp mạng** | `java.net.Socket` / `ServerSocket` (TCP thuần) |
-| **Kiến trúc Server** | Dedicated Authoritative Server — Server là nguồn phán quyết duy nhất |
+| Thuộc tính                | Nội dung                                                                    |
+| :------------------------ | :-------------------------------------------------------------------------- |
+| **Tên dự án**             |                                                                             |
+| **Nền tảng mã nguồn mẫu** | Arcane-Engine-2D (Aethelgard)                                               |
+| **Thể loại**              | Đấu trường đối kháng nhiều người chơi (2–4 người) qua mạng LAN / Socket TCP |
+| **Góc nhìn**              | 2D                                                                          |
+| **Ngôn ngữ cài đặt**      | **Java (JDK 17 / 21)**                                                      |
+| **Giao tiếp mạng**        | `java.net.Socket` / `ServerSocket` (TCP thuần)                              |
+| **Kiến trúc Server**      | Dedicated Authoritative Server — Server là nguồn phán quyết duy nhất        |
 
 ### 1.2.2. Tầm nhìn sản phẩm (Product Vision)
 
@@ -209,12 +208,12 @@ mindmap
 
 Theo phương pháp luận Unified Process, pha Inception **không đặc tả 100% chi tiết** mà tập trung vào hai mục tiêu: xác định tính khả thi (*Feasibility*) và nhận diện, dập tắt các rủi ro kỹ thuật nền tảng (*Risk Mitigation*). Nhóm nhận diện bốn rủi ro chính sau:
 
-| Rủi ro | Mức độ | Phương án giảm thiểu |
-|:---|:---:|:---|
-| Giật hình khi đồng bộ mạng (Micro-stutter) | 🔴 Cao | Cài đặt LERP Snapshot Buffer ngay từ Iteration 1 |
-| Gian lận từ Client (hack vị trí, sát thương) | 🔴 Cao | Dùng Dedicated Authoritative Server ngay từ đầu |
-| Xung đột khi 5 người code chung một codebase | 🟡 Trung bình | Phân vùng thư mục Git riêng biệt theo nhánh tính năng |
-| Độ trễ mạng vượt ngưỡng 50ms trên LAN | 🟡 Trung bình | Tối ưu kích thước gói tin; đo đạc và kiểm thử trong Iteration 2 |
+| Rủi ro                                       |    Mức độ     | Phương án giảm thiểu                                            |
+| :------------------------------------------- | :-----------: | :-------------------------------------------------------------- |
+| Giật hình khi đồng bộ mạng (Micro-stutter)   |    🔴 Cao     | Cài đặt LERP Snapshot Buffer ngay từ Iteration 1                |
+| Gian lận từ Client (hack vị trí, sát thương) |    🔴 Cao     | Dùng Dedicated Authoritative Server ngay từ đầu                 |
+| Xung đột khi 5 người code chung một codebase | 🟡 Trung bình | Phân vùng thư mục Git riêng biệt theo nhánh tính năng           |
+| Độ trễ mạng vượt ngưỡng 50ms trên LAN        | 🟡 Trung bình | Tối ưu kích thước gói tin; đo đạc và kiểm thử trong Iteration 2 |
 
 **Use Case được chọn viết đầy đủ trong Inception (~10% theo Larman):**
 - `UC-01`: Người chơi tham gia phòng đấu và di chuyển nhân vật.

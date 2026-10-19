@@ -69,16 +69,16 @@ flowchart TD
 > [!ABSTRACT] NGUỒN TÀI LIỆU KINH ĐIỂN
 > Toàn bộ trích đoạn giáo trình 38 chương của Craig Larman đã được bóc tách và phân loại tại thư mục `00_Raw_PDF/_Knowledge_Base_Larman/`.
 
-| Mã số | Tên Chuyên đề Ghi chú | Tác giả & Trụ cột | Nội dung Học thuật Trọng tâm | Thẻ Phân loại |
-|:---:|:---|:---|:---|:---|
-| **01** | [[01_Report_Notes/01_Process_and_UML\|01. Quy trình UP & Mô hình hóa UML]] | Craig Larman *(Trụ cột 1)* | Vòng đời UP qua 4 pha; phân biệt rạch ròi giữa Domain Model (OOA) và DCD (OOD). | `#up` `#uml` `#domain-model` |
-| **02** | [[01_Report_Notes/02_GRASP_9_Principles\|02. 9 Nguyên lý Thiết kế GRASP]] | Craig Larman *(Trụ cột 1)* | Khắc sâu 9 nguyên lý phân bổ trách nhiệm: Information Expert, Creator, Controller, Low Coupling, High Cohesion,... | `#grasp` `#responsibility-driven` |
-| **03** | [[01_Report_Notes/03_GoF_Patterns_Applied\|03. Mẫu Thiết kế GoF Thực chiến]] | Gang of Four | Ứng dụng Strategy (Sát thương), Observer (HUD UI), State (FSM), Composite (Buffs). | `#gof` `#patterns` `#architecture` |
-| **04** | [[01_Report_Notes/04_NextGen_POS_Evolution\|04. Tiến hóa Ca học NextGen POS]] | Craig Larman *(Trụ cột 1)* | Phân tích bài học kinh điển của Craig Larman qua 3 vòng lặp Iteration. | `#larman` `#case-study` |
-| **05** | [[01_Report_Notes/05_Martin_Fowler_PoEAA\|05. Martin Fowler - PoEAA]] | Martin Fowler *(Trụ cột 4)* | Mẫu kiến trúc lưu trữ: Data Mapper, Identity Map tách rời Domain Model khỏi Database. | `#fowler` `#poeaa` `#data-mapper` |
-| **06** | [[01_Report_Notes/06_Domain_Driven_Design_Aggregates\|06. Vaughn Vernon - DDD Aggregates]] | Vaughn Vernon *(Trụ cột 5)* | Thiết kế Aggregate Root, Entity, Value Object bảo toàn tính toàn vẹn nghiệp vụ Game. | `#ddd` `#aggregates` `#clean-code` |
-| **07** | [[01_Report_Notes/07_Robert_Nystrom_Game_Programming_Patterns\|07. Robert Nystrom - Game Patterns]] | Robert Nystrom *(Trụ cột 2)* | Game Loop (Fixed Timestep), Component Pattern (thay thế kế thừa sâu), Spatial Partition. | `#nystrom` `#ecs` `#game-loop` |
-| **08** | [[01_Report_Notes/08_Glazer_Madhav_Multiplayer_Netcode\|08. Glazer & Madhav - Real-time Netcode]] | Glazer & Madhav *(Trụ cột 3)* | Dedicated Authoritative Server, Snapshot Interpolation (LERP 20Hz vs 60fps), Client Prediction. | `#netcode` `#lerp` `#jitter` |
+| Mã số  | Tên Chuyên đề Ghi chú                                                                               | Tác giả & Trụ cột             | Nội dung Học thuật Trọng tâm                                                                                       | Thẻ Phân loại                      |
+| :----: | :-------------------------------------------------------------------------------------------------- | :---------------------------- | :----------------------------------------------------------------------------------------------------------------- | :--------------------------------- |
+| **01** | [[01_Report_Notes/01_Process_and_UML\|01. Quy trình UP & Mô hình hóa UML]]                          | Craig Larman *(Trụ cột 1)*    | Vòng đời UP qua 4 pha; phân biệt rạch ròi giữa Domain Model (OOA) và DCD (OOD).                                    | `#up` `#uml` `#domain-model`       |
+| **02** | [[01_Report_Notes/02_GRASP_9_Principles\|02. 9 Nguyên lý Thiết kế GRASP]]                           | Craig Larman *(Trụ cột 1)*    | Khắc sâu 9 nguyên lý phân bổ trách nhiệm: Information Expert, Creator, Controller, Low Coupling, High Cohesion,... | `#grasp` `#responsibility-driven`  |
+| **03** | [[01_Report_Notes/03_GoF_Patterns_Applied\|03. Mẫu Thiết kế GoF Thực chiến]]                        | Gang of Four                  | Ứng dụng Strategy (Sát thương), Observer (HUD UI), State (FSM), Composite (Buffs).                                 | `#gof` `#patterns` `#architecture` |
+| **04** | [[01_Report_Notes/04_NextGen_POS_Evolution\|04. Tiến hóa Ca học NextGen POS]]                       | Craig Larman *(Trụ cột 1)*    | Phân tích bài học kinh điển của Craig Larman qua 3 vòng lặp Iteration.                                             | `#larman` `#case-study`            |
+| **05** | [[01_Report_Notes/05_Martin_Fowler_PoEAA\|05. Martin Fowler - PoEAA]]                               | Martin Fowler *(Trụ cột 4)*   | Mẫu kiến trúc lưu trữ: Data Mapper, Identity Map tách rời Domain Model khỏi Database.                              | `#fowler` `#poeaa` `#data-mapper`  |
+| **06** | [[01_Report_Notes/06_Domain_Driven_Design_Aggregates\|06. Vaughn Vernon - DDD Aggregates]]          | Vaughn Vernon *(Trụ cột 5)*   | Thiết kế Aggregate Root, Entity, Value Object bảo toàn tính toàn vẹn nghiệp vụ Game.                               | `#ddd` `#aggregates` `#clean-code` |
+| **07** | [[01_Report_Notes/07_Robert_Nystrom_Game_Programming_Patterns\|07. Robert Nystrom - Game Patterns]] | Robert Nystrom *(Trụ cột 2)*  | Game Loop (Fixed Timestep), Component Pattern (thay thế kế thừa sâu), Spatial Partition.                           | `#nystrom` `#ecs` `#game-loop`     |
+| **08** | [[01_Report_Notes/08_Glazer_Madhav_Multiplayer_Netcode\|08. Glazer & Madhav - Real-time Netcode]]   | Glazer & Madhav *(Trụ cột 3)* | Dedicated Authoritative Server, Snapshot Interpolation (LERP 20Hz vs 60fps), Client Prediction.                    | `#netcode` `#lerp` `#jitter`       |
 
 ---
 

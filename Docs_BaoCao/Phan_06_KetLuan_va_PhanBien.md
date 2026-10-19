@@ -81,13 +81,13 @@ flowchart TD
 
 ## 6.3. BÀI HỌC KINH NGHIỆM CHO 5 THÀNH VIÊN
 
-| Thành viên | Trọng tâm phụ trách | Bài học Kỹ nghệ Đắt giá Nhất Rút ra từ Đồ án |
-|:---|:---|:---|
-| **Nguyễn Hoài Nam** *(Leader)* | Core Loop & FSM | Hiểu sâu sắc sự khác biệt sống còn giữa **Domain Model (OOA)** và **DCD (OOD)**; kinh nghiệm phân chia kiến trúc thành các Bounded Context độc lập để 5 người code cùng lúc không bị xung đột Git. |
-| **Trần Trung Kiên** | Network Server & LERP | Thấm thía định luật Murphy trong lập trình mạng: *"Mọi thứ đều có thể trễ và mất mát"*. Khắc phục triệt để tư duy Client-Authoritative; làm chủ giải thuật toán học LERP nội suy tọa độ. |
-| **Phạm Quang Anh** | Combat & Physics | Nắm vững kỹ thuật phân vùng không gian (Spatial Partition) — hiểu vì sao một lập trình viên giỏi không bao giờ dùng thuật toán $O(N^2)$ trong vòng lặp game 60 FPS. |
-| **Vũ Quang Huy** | Client UI & Observer | Làm chủ nguyên lý Model-View Separation: Nhận ra vẻ đẹp của Observer Pattern khi toàn bộ mã nguồn đồ họa Canvas không hề vướng bận một dòng code tính toán sát thương nào. |
-| **Bùi Minh Hoàng** | Persistence & QA Test | Tầm quan trọng của Unit Test tự động: Một hệ thống có bộ test tốt cho phép nhóm tự tin tái cấu trúc (Refactoring) code lớn mà không sợ làm vỡ tính năng cũ; áp dụng Data Mapper tách rời tệp JSON. |
+| Thành viên                     | Trọng tâm phụ trách   | Bài học Kỹ nghệ Đắt giá Nhất Rút ra từ Đồ án                                                                                                                                                       |
+| :----------------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nguyễn Hoài Nam** *(Leader)* | Core Loop & FSM       | Hiểu sâu sắc sự khác biệt sống còn giữa **Domain Model (OOA)** và **DCD (OOD)**; kinh nghiệm phân chia kiến trúc thành các Bounded Context độc lập để 5 người code cùng lúc không bị xung đột Git. |
+| **Trần Trung Kiên**            | Network Server & LERP | Thấm thía định luật Murphy trong lập trình mạng: *"Mọi thứ đều có thể trễ và mất mát"*. Khắc phục triệt để tư duy Client-Authoritative; làm chủ giải thuật toán học LERP nội suy tọa độ.           |
+| **Phạm Quang Anh**             | Combat & Physics      | Nắm vững kỹ thuật phân vùng không gian (Spatial Partition) — hiểu vì sao một lập trình viên giỏi không bao giờ dùng thuật toán $O(N^2)$ trong vòng lặp game 60 FPS.                                |
+| **Vũ Quang Huy**               | Client UI & Observer  | Làm chủ nguyên lý Model-View Separation: Nhận ra vẻ đẹp của Observer Pattern khi toàn bộ mã nguồn đồ họa Canvas không hề vướng bận một dòng code tính toán sát thương nào.                         |
+| **Bùi Minh Hoàng**             | Persistence & QA Test | Tầm quan trọng của Unit Test tự động: Một hệ thống có bộ test tốt cho phép nhóm tự tin tái cấu trúc (Refactoring) code lớn mà không sợ làm vỡ tính năng cũ; áp dụng Data Mapper tách rời tệp JSON. |
 
 ---
 

@@ -1,114 +1,18 @@
 {
-  "nodes": [
-    {
-      "id": "n-dashboard",
-      "type": "text",
-      "text": "# 🌌 TRẠM CHỈ HUY TRI THỨC (OBSIDIAN)\n\nVault này kết nối toàn diện giữa **Giáo trình Craig Larman**, **Đồ án Game Multiplayer**, và **Báo cáo Đại học ~100 trang**.\n\n- [[DASHBOARD|Mở Dashboard Trung Tâm]]\n- [[Docs_BaoCao/NhatKy_DuAn|Nhật ký Tiến độ & RACI]]\n- [[HUONG_DAN_GIT_CHO_NHOM|Quy chuẩn Git 5 Thành viên]]",
-      "x": -600,
-      "y": -300,
-      "width": 380,
-      "height": 260,
-      "color": "6"
-    },
-    {
-      "id": "n-inception",
-      "type": "text",
-      "text": "## 🎯 1. BÀI TOÁN & YÊU CẦU FURPS+\n\n- **Tầm nhìn**: Game đối kháng nhiều người chơi 2D qua mạng (2-4 người).\n- **Kiến trúc**: Dedicated Authoritative Server chống hack tuyệt đối.\n- **Yêu cầu FURPS+**:\n  - `F`: Di chuyển, Tấn công, Nhặt Buff\n  - `U`: HUD UI, Ping & FPS counter\n  - `R`: Graceful Disconnection\n  - `P`: Client 60 FPS, Server 20-30Hz\n  - `S`: 9 nguyên lý GRASP & GoF\n\n📄 [[Docs_BaoCao/Phan_01_PhatBieu_BaiToan|Xem Phần I Báo cáo]]",
-      "x": -150,
-      "y": -300,
-      "width": 380,
-      "height": 280,
-      "color": "1"
-    },
-    {
-      "id": "n-ooa",
-      "type": "text",
-      "text": "## 🔍 2. PHÂN TÍCH (OOA) - DO THE RIGHT THING\n\n- **Domain Model (Mô hình lĩnh vực)**:\n  - Khảo sát các khái niệm thực tế: `Player`, `Weapon`, `Hitbox`, `GameRoom`, `WorldSnapshot`.\n  - ⚠️ **QUY TẮC SỐNG CÒN**: **KHÔNG ĐƯỢC CHỨA METHOD**.\n- **System Sequence Diagram (SSD)**:\n  - Bắt các sự kiện hệ thống mức cao: `joinRoom()`, `sendMoveIntent()`, `executeAttack()`.\n\n📄 [[Docs_BaoCao/HocPhan_01_NenTang_OOAD_va_UP|Nền tảng OOAD & UP]]",
-      "x": 300,
-      "y": -300,
-      "width": 400,
-      "height": 280,
-      "color": "2"
-    },
-    {
-      "id": "n-ood",
-      "type": "text",
-      "text": "## 📐 3. THIẾT KẾ (OOD) - DO THE THING RIGHT\n\n- **9 Nguyên lý GRASP của Craig Larman**:\n  - **Controller**: `GameLoopController` nhận InputIntent.\n  - **Creator / Expert**: `GameRoom` tạo và nắm giữ `Player`.\n  - **Polymorphism**: `IDamageStrategy` cho các loại sát thương.\n- **GoF Design Patterns**:\n  - **Strategy**: Công thức tính sát thương vật lý / bạo kích.\n  - **Observer**: Khi máu đổi $\\rightarrow$ HUD cập nhật tự động.\n  - **State**: FSM nhân vật (`Idle`, `Moving`, `Attacking`).\n  - **Composite**: Ghép hiệu ứng nhiều Buff đồng thời.\n\n📚 [[01_Report_Notes/02_GRASP_9_Principles|Chi tiết 9 GRASP]] | [[01_Report_Notes/03_GoF_Patterns_Applied|Chi tiết GoF]]",
-      "x": 300,
-      "y": 60,
-      "width": 420,
-      "height": 330,
-      "color": "3"
-    },
-    {
-      "id": "n-oop",
-      "type": "text",
-      "text": "## 💻 4. CÀI ĐẶT MÃ NGUỒN (OOP)\n\n- **Dedicated Server (20Hz Tick)**: [[Src_Game/Server/README|Module Server]]\n  - Chạy vòng lặp tính toán độc quyền, gửi snapshot trạng thái.\n- **Client Canvas (60 FPS)**: [[Src_Game/UI/README|Module UI]]\n  - Đảm bảo Model-View Separation, vẽ 60fps mượt mà.\n- **Combat & Physics Engine**: [[Src_Game/Combat/README|Module Combat]]\n  - Hitbox va chạm AABB hình chữ nhật giới hạn.\n- **Data Mapper (Fowler PoEAA)**: [[Src_Game/Persistence/README|Module Persistence]]\n  - Tách rời hoàn toàn nghiệp vụ khỏi cơ sở dữ liệu.",
-      "x": -150,
-      "y": 60,
-      "width": 380,
-      "height": 310,
-      "color": "4"
-    },
-    {
-      "id": "n-qa-netcode",
-      "type": "text",
-      "text": "## 🧪 5. KIỂM THỬ & GIẢI PHÁP NETCODE JITTER\n\n- **Phát hiện thực nghiệm**: Khảo sát mã nguồn mẫu `Arcane-Engine-2D` phát hiện hiện tượng nhảy giật hình (*Micro-stutter / Jitter*):\n  - Server gửi dữ liệu ở tần số **20Hz** (50ms/lần).\n  - Client render ở tần số **60 FPS** (16.6ms/khung).\n  - Do thiếu phép nội suy (LERP), nhân vật bị giật mỗi chu kỳ nhận tin.\n- **Giải pháp kiến trúc**: Thiết kế bộ đệm `SnapshotInterpolationBuffer` và thuật toán Linear Interpolation (LERP) trong Iteration 1 & 2.\n- **Minh chứng**: Đưa vào Báo cáo Chương 5 làm điểm nhấn kỹ thuật xuất sắc!\n\n📄 [[Tests/README|Chi tiết Kịch bản Test]]",
-      "x": -600,
-      "y": 60,
-      "width": 400,
-      "height": 330,
-      "color": "5"
-    }
-  ],
-  "edges": [
-    {
-      "id": "e-dash-inc",
-      "fromNode": "n-dashboard",
-      "fromSide": "right",
-      "toNode": "n-inception",
-      "toSide": "left",
-      "label": "Yêu cầu đồ án"
-    },
-    {
-      "id": "e-inc-ooa",
-      "fromNode": "n-inception",
-      "fromSide": "right",
-      "toNode": "n-ooa",
-      "toSide": "left",
-      "label": "Mô hình hóa"
-    },
-    {
-      "id": "e-ooa-ood",
-      "fromNode": "n-ooa",
-      "fromSide": "bottom",
-      "toNode": "n-ood",
-      "toSide": "top",
-      "label": "Áp dụng Patterns"
-    },
-    {
-      "id": "e-ood-oop",
-      "fromNode": "n-ood",
-      "fromSide": "left",
-      "toNode": "n-oop",
-      "toSide": "right",
-      "label": "Hiện thực hóa code"
-    },
-    {
-      "id": "e-oop-qa",
-      "fromNode": "n-oop",
-      "fromSide": "left",
-      "toNode": "n-qa-netcode",
-      "toSide": "right",
-      "label": "Kiểm thử & Tối ưu"
-    },
-    {
-      "id": "e-qa-dash",
-      "fromNode": "n-qa-netcode",
-      "fromSide": "top",
-      "toNode": "n-dashboard",
-      "toSide": "bottom",
-      "label": "Ghi nhận Nhật ký"
-    }
-  ]
+	"nodes":[
+		{"id":"n-qa-netcode","type":"text","text":"## 🧪 5. KIỂM THỬ & GIẢI PHÁP NETCODE JITTER\n\n- **Phát hiện thực nghiệm**: Khảo sát mã nguồn mẫu `Arcane-Engine-2D` phát hiện hiện tượng nhảy giật hình (*Micro-stutter / Jitter*):\n  - Server gửi dữ liệu ở tần số **20Hz** (50ms/lần).\n  - Client render ở tần số **60 FPS** (16.6ms/khung).\n  - Do thiếu phép nội suy (LERP), nhân vật bị giật mỗi chu kỳ nhận tin.\n- **Giải pháp kiến trúc**: Thiết kế bộ đệm `SnapshotInterpolationBuffer` và thuật toán Linear Interpolation (LERP) trong Iteration 1 & 2.\n- **Minh chứng**: Đưa vào Báo cáo Chương 5 làm điểm nhấn kỹ thuật xuất sắc!\n\n📄 [[Tests/README|Chi tiết Kịch bản Test]]","x":-720,"y":60,"width":400,"height":521,"color":"5"},
+		{"id":"n-dashboard","type":"text","text":"# 🌌 TRẠM CHỈ HUY TRI THỨC (OBSIDIAN)\n\nVault này kết nối toàn diện giữa **Giáo trình Craig Larman**, **Đồ án Game Multiplayer**, và **Báo cáo Đại học ~100 trang**.\n\n- [[DASHBOARD|Mở Dashboard Trung Tâm]]\n- [[Docs_BaoCao/NhatKy_DuAn|Nhật ký Tiến độ & RACI]]\n- [[HUONG_DAN_GIT_CHO_NHOM|Quy chuẩn Git 5 Thành viên]]","x":-720,"y":-456,"width":380,"height":279,"color":"6"},
+		{"id":"n-inception","type":"text","text":"## 🎯 1. BÀI TOÁN & YÊU CẦU FURPS+\n\n- **Tầm nhìn**: Game đối kháng nhiều người chơi 2D qua mạng (2-4 người).\n- **Kiến trúc**: Dedicated Authoritative Server chống hack tuyệt đối.\n- **Yêu cầu FURPS+**:\n  - `F`: Di chuyển, Tấn công, Nhặt Buff\n  - `U`: HUD UI, Ping & FPS counter\n  - `R`: Graceful Disconnection\n  - `P`: Client 60 FPS, Server 20-30Hz\n  - `S`: 9 nguyên lý GRASP & GoF\n\n📄 [[Docs_BaoCao/Phan_01_PhatBieu_BaiToan|Xem Phần I Báo cáo]]","x":-110,"y":-519,"width":380,"height":406,"color":"1"},
+		{"id":"n-ooa","type":"text","text":"## 🔍 2. PHÂN TÍCH (OOA) - DO THE RIGHT THING\n\n- **Domain Model (Mô hình lĩnh vực)**:\n  - Khảo sát các khái niệm thực tế: `Player`, `Weapon`, `Hitbox`, `GameRoom`, `WorldSnapshot`.\n  - ⚠️ **QUY TẮC SỐNG CÒN**: **KHÔNG ĐƯỢC CHỨA METHOD**.\n- **System Sequence Diagram (SSD)**:\n  - Bắt các sự kiện hệ thống mức cao: `joinRoom()`, `sendMoveIntent()`, `executeAttack()`.\n\n📄 [[Docs_BaoCao/HocPhan_01_NenTang_OOAD_va_UP|Nền tảng OOAD & UP]]","x":520,"y":-512,"width":400,"height":399,"color":"2"},
+		{"id":"n-ood","type":"text","text":"## 📐 3. THIẾT KẾ (OOD) - DO THE THING RIGHT\n\n- **9 Nguyên lý GRASP của Craig Larman**:\n  - **Controller**: `GameLoopController` nhận InputIntent.\n  - **Creator / Expert**: `GameRoom` tạo và nắm giữ `Player`.\n  - **Polymorphism**: `IDamageStrategy` cho các loại sát thương.\n- **GoF Design Patterns**:\n  - **Strategy**: Công thức tính sát thương vật lý / bạo kích.\n  - **Observer**: Khi máu đổi $\\rightarrow$ HUD cập nhật tự động.\n  - **State**: FSM nhân vật (`Idle`, `Moving`, `Attacking`).\n  - **Composite**: Ghép hiệu ứng nhiều Buff đồng thời.\n\n📚 [[01_Report_Notes/02_GRASP_9_Principles|Chi tiết 9 GRASP]] | [[01_Report_Notes/03_GoF_Patterns_Applied|Chi tiết GoF]]","x":500,"y":60,"width":420,"height":553,"color":"3"},
+		{"id":"n-oop","type":"text","text":"## 💻 4. CÀI ĐẶT MÃ NGUỒN (OOP)\n\n- **Dedicated Server (20Hz Tick)**: [[Src_Game/Server/README|Module Server]]\n  - Chạy vòng lặp tính toán độc quyền, gửi snapshot trạng thái.\n- **Client Canvas (60 FPS)**: [[Src_Game/UI/README|Module UI]]\n  - Đảm bảo Model-View Separation, vẽ 60fps mượt mà.\n- **Combat & Physics Engine**: [[Src_Game/Combat/README|Module Combat]]\n  - Hitbox va chạm AABB hình chữ nhật giới hạn.\n- **Data Mapper (Fowler PoEAA)**: [[Src_Game/Persistence/README|Module Persistence]]\n  - Tách rời hoàn toàn nghiệp vụ khỏi cơ sở dữ liệu.","x":-110,"y":106,"width":380,"height":461,"color":"4"}
+	],
+	"edges":[
+		{"id":"e-dash-inc","fromNode":"n-dashboard","fromSide":"right","toNode":"n-inception","toSide":"left","label":"Yêu cầu đồ án"},
+		{"id":"e-inc-ooa","fromNode":"n-inception","fromSide":"right","toNode":"n-ooa","toSide":"left","label":"Mô hình hóa"},
+		{"id":"e-ooa-ood","fromNode":"n-ooa","fromSide":"bottom","toNode":"n-ood","toSide":"top","label":"Áp dụng Patterns"},
+		{"id":"e-ood-oop","fromNode":"n-ood","fromSide":"left","toNode":"n-oop","toSide":"right","label":"Hiện thực hóa code"},
+		{"id":"e-oop-qa","fromNode":"n-oop","fromSide":"left","toNode":"n-qa-netcode","toSide":"right","label":"Kiểm thử & Tối ưu"},
+		{"id":"e-qa-dash","fromNode":"n-qa-netcode","fromSide":"top","toNode":"n-dashboard","toSide":"bottom","label":"Ghi nhận Nhật ký"}
+	]
 }
