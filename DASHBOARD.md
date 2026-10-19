@@ -43,7 +43,7 @@ flowchart TD
         R3["[[Docs_BaoCao/Phan_02_PhanTich_OOA|Phần II: Phân tích OOA (Domain Model)]]"]
         R4["[[Docs_BaoCao/Phan_03_ThietKe_OOD|Phần III: Thiết kế OOD (GRASP & DCD)]]"]
         R5["[[Docs_BaoCao/Phan_04_CaiDat_OOP|Phần IV: Cài đặt OOP & Netcode]]"]
-        R6["Phần V: Kiểm thử & Khắc phục Jitter"]
+        R6["[[Docs_BaoCao/Phan_05_KiemThu_va_ThucNghiem|Phần V: Kiểm thử & Khắc phục Jitter]]"]
     end
 
     subgraph CODE["🎮 MÃ NGUỒN GAME (SRC_GAME)"]
@@ -95,7 +95,7 @@ flowchart TD
    * [[Docs_BaoCao/Phan_02_PhanTich_OOA|🔍 Phần II: Phân tích Hướng đối tượng (OOA) — Use Cases, SSD & Domain Model]]
    * [[Docs_BaoCao/Phan_03_ThietKe_OOD|📐 Phần III: Thiết kế Hướng đối tượng (OOD) — 9 GRASP, Mẫu GoF & Sơ đồ Lớp Chi tiết (DCD)]]
    * [[Docs_BaoCao/Phan_04_CaiDat_OOP|💻 Phần IV: Cài đặt Hướng đối tượng (OOP) — Hiện thực hóa Java, Netcode & LERP]]
-   * `Phần V: Kiểm thử Phần mềm & Thực nghiệm Netcode` — Unit Test Suite, Benchmark độ trễ, Giải quyết triệt để lỗi giật hình (Micro-stutter / Jitter 20Hz vs 60fps).
+   * [[Docs_BaoCao/Phan_05_KiemThu_va_ThucNghiem|🧪 Phần V: Kiểm thử Phần mềm & Thực nghiệm Netcode — 11/11 Unit Tests & Triệt tiêu Jitter LERP]]
    * `Phần VI: Đánh giá Giới hạn & Hướng Phát triển` — Đóng gói đồ án và kết luận.
 
 ---

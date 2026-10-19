@@ -58,7 +58,7 @@
 | 2 | Phân tích OOA (Use Case, SSD, Domain Model) | `Docs_BaoCao/Phan_02_PhanTich_OOA.md` | ✅ Hoàn thành |
 | 3 | Thiết kế OOD (9 GRASP, DCD, GoF, Deployment) | `Docs_BaoCao/Phan_03_ThietKe_OOD.md` | ✅ Hoàn thành |
 | 4 | Cài đặt OOP + Netcode Java | `Docs_BaoCao/Phan_04_CaiDat_OOP.md` | ✅ Hoàn thành |
-| 5 | Kiểm thử & Đo lường Jitter | `Docs_BaoCao/Phan_05_...` | 🔲 Chưa làm |
+| 5 | Kiểm thử & Đo lường Jitter | `Docs_BaoCao/Phan_05_KiemThu_va_ThucNghiem.md` | ✅ Hoàn thành |
 | 6 | Kết luận & Phản biện Larman vs Hiện đại | `Docs_BaoCao/Phan_06_...` | 🔲 Chưa làm |
 | 7 | Tài liệu tham khảo (5 cuốn sách) | Đính kèm cuối | 🔲 Chưa làm |
 
