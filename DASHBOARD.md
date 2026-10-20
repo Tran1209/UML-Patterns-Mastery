@@ -66,8 +66,13 @@ flowchart TD
 
 ## 📚 1. CƠ SỞ TRI THỨC HỌC THUẬT (KNOWLEDGE BASE)
 
-> [!ABSTRACT] NGUỒN TÀI LIỆU KINH ĐIỂN
-> Toàn bộ trích đoạn giáo trình 38 chương của Craig Larman đã được bóc tách và phân loại tại thư mục `00_Raw_PDF/_Knowledge_Base_Larman/`.
+> [!ABSTRACT] NGUỒN TÀI LIỆU KINH ĐIỂN ĐÃ BÓC TÁCH (SECOND BRAIN KNOWLEDGE BASES)
+> Toàn bộ 5 cuốn sách kinh điển đã được bóc tách toàn văn theo từng chương độc lập (gồm file `content.md` và thư mục `images/` minh họa):
+> - 🏛️ **Craig Larman**: `00_Raw_PDF/_Knowledge_Base_Larman/chapters_extracted/` (38 chương)
+> - 🎮 **Robert Nystrom**: `00_Raw_PDF/_Knowledge_Base_Nystrom/chapters_extracted/` (21 chương)
+> - 📡 **Glazer & Madhav**: `00_Raw_PDF/_Knowledge_Base_Glazer_Madhav/chapters_extracted/` (14 chương)
+> - 💾 **Martin Fowler**: `00_Raw_PDF/_Knowledge_Base_Fowler/chapters_extracted/` (20 chương)
+> - 🛡️ **Vaughn Vernon**: `00_Raw_PDF/_Knowledge_Base_Vernon/chapters_extracted/` (3 chương)
 
 | Mã số  | Tên Chuyên đề Ghi chú                                                                               | Tác giả & Trụ cột             | Nội dung Học thuật Trọng tâm                                                                                       | Thẻ Phân loại                      |
 | :----: | :-------------------------------------------------------------------------------------------------- | :---------------------------- | :----------------------------------------------------------------------------------------------------------------- | :--------------------------------- |

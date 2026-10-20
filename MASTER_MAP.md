@@ -92,6 +92,13 @@ E:\UML-Patterns-Mastery\
 ├── 📋 DASHBOARD.md              ← Trang chủ Obsidian (Mở đây trước)
 ├── 📋 Architecture_Canvas.canvas ← Sơ đồ kiến trúc 2D trực quan
 │
+├── 📁 00_Raw_PDF\               ← Kho tri thức 5 cuốn sách (Bóc tách từng chương + ảnh)
+│   ├── _Knowledge_Base_Larman/         (Craig Larman - 38 chương)
+│   ├── _Knowledge_Base_Nystrom/        (Robert Nystrom - 21 chương)
+│   ├── _Knowledge_Base_Glazer_Madhav/  (Glazer & Madhav - 14 chương)
+│   ├── _Knowledge_Base_Fowler/         (Martin Fowler PoEAA - 20 chương)
+│   └── _Knowledge_Base_Vernon/         (Vaughn Vernon IDDD - 3 chương)
+│
 ├── 📚 01_Report_Notes\          ← 8 chuyên đề nghiên cứu lý thuyết
 │   ├── 01_Process_and_UML.md    (Craig Larman: UP & UML)
 │   ├── 02_GRASP_9_Principles.md (9 Nguyên lý GRASP)

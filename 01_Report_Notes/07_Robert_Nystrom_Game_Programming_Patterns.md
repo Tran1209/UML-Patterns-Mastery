@@ -5,14 +5,14 @@ created: 2026-10-19
 updated: 2026-10-20
 pillar: 2
 raw_pdf: "00_Raw_PDF/Game Programming Patterns.pdf"
-extracted_chapters: "00_Raw_PDF/chapters_md/Game_Programming_Patterns/"
+extracted_chapters: "00_Raw_PDF/_Knowledge_Base_Nystrom/chapters_extracted/"
 ---
 
 # 07. Robert Nystrom — Game Programming Patterns (Kỹ Nghệ Game Thực Chiến)
 
 > **Tác giả**: Robert Nystrom (Kỹ sư phần mềm kỳ cựu tại Electronic Arts, Google; thành viên nhóm thiết kế ngôn ngữ Dart)  
 > **Nguồn trích xuất gốc**: `00_Raw_PDF/Game Programming Patterns.pdf` (604 trang)  
-> **Thư mục chương Markdown bóc tách**: `00_Raw_PDF/chapters_md/Game_Programming_Patterns/`  
+> **Thư mục chương Markdown bóc tách**: `00_Raw_PDF/_Knowledge_Base_Nystrom/chapters_extracted/`  
 > **Vai trò trong Đồ án**: Cung cấp kiến trúc game loop chuẩn, giải thuật tối ưu hóa không gian $O(N)$ và giải pháp thành phần hóa (Component Pattern) khắc phục triệt để hạn chế của kế thừa sâu OOP truyền thống.
 
 ---

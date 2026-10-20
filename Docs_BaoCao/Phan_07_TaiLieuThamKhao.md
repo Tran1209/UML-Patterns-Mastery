@@ -27,7 +27,7 @@ Dự án được xây dựng dựa trên sự tổng hòa lý thuyết và kỹ
 ### [2] Robert Nystrom — Mẫu Thiết kế Game & Tối ưu Hóa Hiệu năng
 * **Tên tác phẩm**: *Game Programming Patterns*.
 * **Nhà xuất bản**: Genever Bench, 2014. ISBN: 978-0-9905829-0-8.
-* **File nguồn**: `00_Raw_PDF/Game Programming Patterns.pdf` (604 trang, đã bóc tách 30 chương tại `00_Raw_PDF/chapters_md/Game_Programming_Patterns/`).
+* **File nguồn**: `00_Raw_PDF/Game Programming Patterns.pdf` (604 trang, đã bóc tách 21 chương tại `00_Raw_PDF/_Knowledge_Base_Nystrom/chapters_extracted/`).
 * **Đóng góp cụ thể theo chương**:
   * **Game Loop Pattern** *(Sequencing Patterns — Trang 133 – 147)*: Cài đặt vòng lặp trò chơi với Fixed Timestep cho vật lý logic và Variable Timestep cho vẽ đồ họa Canvas 60 FPS nội suy.
   * **Component Pattern** *(Decoupling Patterns — Trang 219 – 239)*: Triết lý thành phần hóa thay thế cây kế thừa sâu phân cấp (Composition over Inheritance).
@@ -41,7 +41,7 @@ Dự án được xây dựng dựa trên sự tổng hòa lý thuyết và kỹ
 ### [3] Joshua Glazer & Sanjay Madhav — Lập trình Mạng & Netcode Thời gian thực
 * **Tên tác phẩm**: *Multiplayer Game Programming: Architecting Networked Games*.
 * **Nhà xuất bản**: Addison-Wesley Professional, 2015. ISBN: 978-0-13-403430-0.
-* **File nguồn**: `00_Raw_PDF/Multiplayer Game Programming.pdf` (385 trang, đã bóc tách 102 chuyên đề tại `00_Raw_PDF/chapters_md/Multiplayer_Game_Programming/`).
+* **File nguồn**: `00_Raw_PDF/Multiplayer Game Programming.pdf` (385 trang, đã bóc tách 14 chương tại `00_Raw_PDF/_Knowledge_Base_Glazer_Madhav/chapters_extracted/`).
 * **Đóng góp cụ thể theo chương**:
   * **Network Topologies & Client-Server** *(Chương 6 — Trang 184 – 217)*: Kiến trúc Dedicated Authoritative Server, máy chủ nắm quyền phán quyết tuyệt đối, Client không có quyền can thiệp vào logic thế giới.
   * **Latency, Jitter, and Reliability** *(Chương 7 — Trang 218 – 251)*: Bản chất của Network Jitter (sự biến thiên độ trễ truyền gói tin), kỹ thuật đo đạc và giả lập trễ mạng $\pm 25$ms.
@@ -55,7 +55,7 @@ Dự án được xây dựng dựa trên sự tổng hòa lý thuyết và kỹ
 ### [4] Martin Fowler — Mẫu Kiến trúc Ứng dụng Doanh nghiệp & Lưu trữ Dữ liệu
 * **Tên tác phẩm**: *Patterns of Enterprise Application Architecture* (PoEAA).
 * **Nhà xuất bản**: Addison-Wesley Professional, 2002. ISBN: 0-321-12742-0.
-* **File nguồn**: `00_Raw_PDF/Patterns of Enterprise Application Architecture - Martin Fowler.pdf`.
+* **File nguồn**: `00_Raw_PDF/Patterns of Enterprise Application Architecture - Martin Fowler.pdf` (559 trang, đã bóc tách 20 chương tại `00_Raw_PDF/_Knowledge_Base_Fowler/chapters_extracted/`).
 * **Đóng góp vào đồ án**:
   * **Data Mapper Pattern (Chương 10)**: Lớp trung gian ánh xạ đối tượng miền nghiệp vụ sang dữ liệu lưu trữ, giữ cho `LivingEntity` và `GameRoom` hoàn toàn không phụ thuộc vào thư viện file JSON hay cơ sở dữ liệu.
   * **Repository Pattern**: Interface trừu tượng cô lập thao tác lưu trữ dữ liệu lịch sử trận đấu (`IMatchRepository`).
@@ -65,7 +65,7 @@ Dự án được xây dựng dựa trên sự tổng hòa lý thuyết và kỹ
 ### [5] Vaughn Vernon — Thiết kế Hướng Miền Nghiệp vụ Hiện đại (Domain-Driven Design)
 * **Tên tác phẩm**: *Implementing Domain-Driven Design* (The Red Book).
 * **Nhà xuất bản**: Addison-Wesley Professional, 2013. ISBN: 978-0-321-83457-7.
-* **File nguồn**: `00_Raw_PDF/Implementing Domain-Driven Design.pdf`.
+* **File nguồn**: `00_Raw_PDF/Implementing Domain-Driven Design.pdf` (Đã bóc tách tại `00_Raw_PDF/_Knowledge_Base_Vernon/chapters_extracted/`).
 * **Đóng góp vào đồ án**:
   * **Aggregate Pattern & Aggregate Root (Chương 10)**: Thiết kế `GameRoom` và `Player` thành các cụm thực thể bảo vệ tính toàn vẹn và bất biến nghiệp vụ trong môi trường đa luồng.
   * **Value Objects (Chương 6)**: Thiết kế lớp `Vector2D` bất biến (Immutable), loại bỏ hoàn toàn các lỗi tranh chấp bộ nhớ (Race Condition).

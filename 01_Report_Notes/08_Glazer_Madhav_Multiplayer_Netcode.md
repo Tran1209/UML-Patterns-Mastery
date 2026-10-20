@@ -5,14 +5,14 @@ created: 2026-10-19
 updated: 2026-10-20
 pillar: 3
 raw_pdf: "00_Raw_PDF/Multiplayer Game Programming.pdf"
-extracted_chapters: "00_Raw_PDF/chapters_md/Multiplayer_Game_Programming/"
+extracted_chapters: "00_Raw_PDF/_Knowledge_Base_Glazer_Madhav/chapters_extracted/"
 ---
 
 # 08. Joshua Glazer & Sanjay Madhav — Multiplayer Game Programming (Kỹ Thuật Mạng Real-Time)
 
 > **Tác giả**: Joshua Glazer & Sanjay Madhav (Giảng viên Kỹ nghệ Game tại University of Southern California - USC; Cựu kỹ sư mạng tại Electronic Arts)  
 > **Nguồn trích xuất gốc**: `00_Raw_PDF/Multiplayer Game Programming.pdf` (385 trang)  
-> **Thư mục chương Markdown bóc tách**: `00_Raw_PDF/chapters_md/Multiplayer_Game_Programming/`  
+> **Thư mục chương Markdown bóc tách**: `00_Raw_PDF/_Knowledge_Base_Glazer_Madhav/chapters_extracted/`  
 > **Vai trò trong Đồ án**: Cung cấp cơ sở lý thuyết toán học và giải thuật mạng thời gian thực chuyên sâu; giải quyết triệt để lỗi giật hình (Micro-stutter / Jitter 20Hz vs 60fps), kiến trúc Server Authoritative và tuần tự hóa gói tin.
 
 ---
