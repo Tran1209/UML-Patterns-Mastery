@@ -46,6 +46,7 @@ flowchart TD
         R6["[[Docs_BaoCao/Phan_05_KiemThu_va_ThucNghiem|Phần V: Kiểm thử & Khắc phục Jitter]]"]
         R7["[[Docs_BaoCao/Phan_06_KetLuan_va_PhanBien|Phần VI: Kết luận & Phản biện]]"]
         R8["[[Docs_BaoCao/Phan_07_TaiLieuThamKhao|Phần VII: Tài liệu Tham khảo]]"]
+        R_LPC["[[Docs_BaoCao/BaoCao_ThietKe_NhanVat_OOP_LPC|Chuyên đề: Nhân vật OOP LPC]]"]
     end
 
     subgraph CODE["🎮 MÃ NGUỒN GAME (SRC_GAME)"]
@@ -105,6 +106,7 @@ flowchart TD
    * [[Docs_BaoCao/Phan_05_KiemThu_va_ThucNghiem|🧪 Phần V: Kiểm thử Phần mềm & Thực nghiệm Netcode — 11/11 Unit Tests & Triệt tiêu Jitter LERP]]
    * [[Docs_BaoCao/Phan_06_KetLuan_va_PhanBien|🎓 Phần VI: Kết luận & Phản biện Học thuật — Đối thoại Larman 2004 vs Kỹ nghệ 2026]]
    * [[Docs_BaoCao/Phan_07_TaiLieuThamKhao|📚 Phần VII: Danh mục Tài liệu Tham khảo Chuẩn IEEE/APA (Bộ Ngũ Trụ Cột)]]
+   * [[Docs_BaoCao/BaoCao_ThietKe_NhanVat_OOP_LPC|🎨 Báo cáo Chuyên đề: Phương pháp Thiết kế Nhân vật Định hướng OOP (Universal LPC Spritesheet Generator)]] *(MỚI)*
 
 ---
 

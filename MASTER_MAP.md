@@ -119,17 +119,19 @@ E:\UML-Patterns-Mastery\
 │   ├── Phan_05_KiemThu_va_ThucNghiem.md ← Chương 5 (✅ Hoàn thành)
 │   ├── Phan_06_KetLuan_va_PhanBien.md   ← Chương 6 (✅ Hoàn thành)
 │   ├── Phan_07_TaiLieuThamKhao.md       ← Chương 7 (✅ Hoàn thành)
+│   ├── BaoCao_ThietKe_NhanVat_OOP_LPC.md ← Báo cáo Chuyên đề Nhân vật OOP (LPC Generator) (✅ MỚI)
 │   ├── HocPhan_01_NenTang_OOAD.md   ← Lý thuyết nền OOAD & UP
 │   └── images\
 │       ├── Bia_BaoCao_Technical_Report.jpg  ← Ảnh bìa (Chiến binh)
 │       └── Bia_BaoCao_OOP_Architecture.jpg  ← Ảnh bìa (Thuần công nghệ)
 │
-├── 💻 Src_Game\                 ← Mã nguồn Java (5 module)
-│   ├── Core\       ← NAM: GameLoop, PlayerStateMachine
-│   ├── Server\     ← KIÊN: Dedicated Server 20Hz
-│   ├── Network\    ← KIÊN: Packet DTO, LERP Interpolator
-│   ├── Combat\     ← ANH: Hitbox AABB, Strategy Damage
-│   ├── UI\         ← HUY: Canvas 60fps, HUD Observer
+├── 💻 Src_Game\                 ← Mã nguồn Java (6 module)
+│   ├── Core\        ← NAM: GameLoop, PlayerStateMachine
+│   ├── Server\      ← KIÊN: Dedicated Server 20Hz
+│   ├── Network\     ← KIÊN: Packet DTO, LERP Interpolator
+│   ├── Combat\      ← ANH: Hitbox AABB, Strategy Damage
+│   ├── Render\      ← HUY: LPC Spritesheet Flyweight, Composite Visual, Builder (✅ MỚI)
+│   ├── UI\          ← HUY: Canvas 60fps, HUD Observer
 │   └── Persistence\ ← HOÀNG: Data Mapper, JSON Save
 │
 └── 🧪 Tests\                    ← HOÀNG: JUnit 5 Test Suite
