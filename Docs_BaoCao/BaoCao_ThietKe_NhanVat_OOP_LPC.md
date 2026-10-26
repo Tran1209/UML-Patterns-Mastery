@@ -1,105 +1,192 @@
-# BÁO CÁO CHUYÊN ĐỀ KỸ THUẬT: PHƯƠNG PHÁP THIẾT KẾ NHÂN VẬT ĐỊNH HƯỚNG ĐỐI TƯỢNG (OOP) DỰA TRÊN HỆ CHUẨN UNIVERSAL LPC SPRITESHEET GENERATOR
-
-> **Học phần**: Lập trình Hướng đối tượng (OOP) & Phân tích Thiết kế Hệ thống  
-> **Đơn vị**: Khoa Công nghệ Thông tin — Trường Đại học Xây dựng Hà Nội (HUCE)  
-> **Đồ án thực nghiệm**: Đồ án Game Hành Động 2D Real-Time Multiplayer (Java Pure Engine)  
-> **Nhóm sinh viên thực hiện**:  
-> 1. **Nguyễn Duy Nam** (Trưởng nhóm / Lead Software Architect)  
-> 2. **Trần Trung Kiên** (Network & Distributed Systems Engineer)  
-> 3. **Phạm Đức Anh** (Physics & Combat Engine Specialist)  
-> 4. **Vũ Đức Huy** (Client 60 FPS Rendering & UI Architect)  
-> 5. **Bùi Huy Hoàng** (Persistence & Quality Assurance / Test Engineer)  
-> **Giáo trình & Khung lý thuyết tham chiếu**:  
-> - Craig Larman, *Applying UML and Patterns: An Introduction to Object-Oriented Analysis and Design and Iterative Development*, 3rd Edition.  
-> - Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides (GoF), *Design Patterns: Elements of Reusable Object-Oriented Software*.  
-> - Robert Nystrom, *Game Programming Patterns* (Mẫu Flyweight, State Machine, Game Loop).  
+# BÁO CÁO KỸ THUẬT CHUYÊN ĐỀ
+# PHƯƠNG PHÁP THIẾT KẾ NHÂN VẬT ĐỊNH HƯỚNG ĐỐI TƯỢNG (OOP)
+## DỰA TRÊN HỆ CHUẨN MODULAR SPRITESHEET (UNIVERSAL LPC GENERATOR)
 
 ---
 
-## MỤC LỤC TỔNG QUAN
-
-1. [CHƯƠNG 1: ĐẶT VẤN ĐỀ & KHẢO SÁT HỆ CHUẨN UNIVERSAL LPC GENERATOR](#chương-1-đặt-vấn-đề--khảo-sát-hệ-chuẩn-universal-lpc-generator)
-2. [CHƯƠNG 2: HIỆN THỰC HÓA 4 TRỤ CỘT OOP TRONG THIẾT KẾ NHÂN VẬT](#chương-2-hiện-thực-hóa-4-trụ-cột-oop-trong-thiết-kế-nhân-vật)
-3. [CHƯƠNG 3: CÁC MẪU THIẾT KẾ (DESIGN PATTERNS) TRỌNG TÂM](#chương-3-các-mẫu-thiết-kế-design-patterns-trọng-tâm)
-4. [CHƯƠNG 4: THIẾT KẾ KIẾN TRÚC PHẦN MỀM & BIỂU ĐỒ UML](#chương-4-thiết-kế-kiến-trúc-phần-mềm--biểu-đồ-uml)
-5. [CHƯƠNG 5: HIỆN THỰC MÃ NGUỒN JAVA & MINH CHỨNG KIỂM THỬ](#chương-5-hiện-thực-mã-nguồn-java--minh-chứng-kiểm-thử)
-6. [CHƯƠNG 6: KỊCH BẢN THUYẾT TRÌNH & BỘ CÂU HỎI BẢO VỆ PHẢN BIỆN TRƯỚC GIẢNG VIÊN](#chương-6-kịch-bản-thuyết-trình--bộ-câu-hỏi-bảo-vệ-phản-biện-trước-giảng-viên)
+> **Cơ sở đào tạo**: Khoa Công nghệ Thông tin — Trường Đại học Xây dựng Hà Nội (HUCE)  
+> **Học phần**: Lập trình Hướng đối tượng (OOP) & Phân tích Thiết kế Hệ thống (OOAD)  
+> **Đồ án thực nghiệm**: Hệ thống Trò chơi Hành động Nhập vai 2D Thời gian thực Đa người chơi (Java Pure Engine)  
+> **Nhóm sinh viên thực hiện (Nhóm 5)**:  
+> * **Nguyễn Duy Nam** (Trưởng nhóm / Lead Software Architect)  
+> * **Trần Trung Kiên** (Distributed Systems & Netcode Specialist)  
+> * **Phạm Đức Anh** (Physics & Combat Engine Specialist)  
+> * **Vũ Đức Huy** (Client 60 FPS Rendering & UI Architect)  
+> * **Bùi Huy Hoàng** (Persistence & Quality Assurance / Test Engineer)  
+> **Khung lý thuyết tham chiếu**:  
+> * Craig Larman, *Applying UML and Patterns: An Introduction to Object-Oriented Analysis and Design*, 3rd Edition.  
+> * Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides (GoF), *Design Patterns: Elements of Reusable Object-Oriented Software*.  
+> * Robert Nystrom, *Game Programming Patterns* (Mẫu Flyweight, State Machine, Game Loop).  
 
 ---
 
-## CHƯƠNG 1: ĐẶT VẤN ĐỀ & KHẢO SÁT HỆ CHUẨN UNIVERSAL LPC GENERATOR
+### BẢNG TỔNG KẾT CHỈ SỐ KỸ THUẬT (EXECUTIVE METRICS)
 
-### 1.1. Thách Thức Kỹ Thuật: "Vụ Nổ Tổ Hợp Tài Nguyên Hình Ảnh" (Combinatorial Asset Explosion)
+| Hạng mục chỉ số | Tiếp cận Thủ công (Monolithic) | Tiếp cận Hướng đối tượng (OOP + LPC) | Mức độ Tối ưu / Ý nghĩa Kiến trúc |
+| :--- | :--- | :--- | :--- |
+| **Tổng số tệp kết cấu (Texture Files)** | $720.000$ files (Bùng nổ tổ hợp) | **$122$ files module** | Giảm **$99.98\%$** số lượng tệp lưu trữ |
+| **Dung lượng RAM tiêu thụ (100 nhân vật)** | $\approx 450 \text{ MB}$ (Nhân bản vô tội vạ) | **$\approx 4.5 \text{ MB}$** | Tiết kiệm **$99\%$** RAM nhờ *Flyweight Pattern* |
+| **Độ phức tạp thay đổi trang bị (Hot-swap)** | $O(N)$ (Tải lại toàn bộ tệp ảnh mới) | **$O(1)$** (Tráo đổi nút lá trong *Composite*) | Không giật khung hình (Zero Frame-drop) |
+| **Mức độ phụ thuộc tầng hiển thị** | Khóa chặt vào thư viện GUI hệ điều hành | **Tách rời $100\%$ (Decoupled)** | Dedicated Server chạy Headless an toàn |
+| **Khả năng tái sử dụng (Reusability)** | $0\%$ (Vẽ chết trên từng đối tượng) | **$100\%$** cho Quái vật, NPC, Người chơi | Đạt chuẩn nguyên lý *Open/Closed Principle* |
 
-Trong quy trình phát triển trò chơi nhập vai hành động 2D (Action RPG) truyền thống, cách tiếp cận sơ khai (Naive Approach) là vẽ sẵn từng tệp hình ảnh hoàn chỉnh cho mỗi nhân vật (Monolithic Sprite Sheets). Ví dụ: một tệp ảnh chứa chiến binh cầm kiếm, một tệp ảnh chứa chiến binh cầm giáo, một tệp ảnh chứa chiến binh mặc giáp sắt.
+---
 
-Giả sử hệ thống trò chơi yêu cầu các tùy biến cơ bản sau:
-* $5$ màu da cơ thể (Body skin tones)
-* $10$ kiểu tóc với $8$ màu nhuộm khác nhau ($80$ kiểu tóc)
-* $15$ bộ áo giáp (Cuirass/Armor)
-* $10$ loại quần/giáp chân (Greaves/Pants)
-* $12$ loại vũ khí (Kiếm, giáo, cung, trượng)
-* $6$ khối hoạt động chuyển động (Đứng, chạy, chém, đâm, bắn, ngã) trên $4$ hướng không gian (Bắc, Tây, Nam, Đông)
+## MỤC LỤC CHI TIẾT
 
-Nếu vẽ hình ảnh gộp nguyên khối theo phương pháp thủ công, số lượng tệp ảnh cần vẽ và nạp vào máy tính sẽ là một phép nhân tổ hợp khổng lồ:
+* [1. BỐI CẢNH KỸ NGHỆ & BÀI TOÁN BÙNG NỔ TỔ HỢP ĐỒ HỌA](#1-bối-cảnh-kỹ-nghệ--bài-toán-bùng-nổ-tổ-hợp-đồ-họa)
+  * [1.1. Thách thức "Vụ nổ tổ hợp tài nguyên" (Combinatorial Explosion)](#11-thách-thức-vụ-nổ-tổ-hợp-tài-nguyên-combinatorial-explosion)
+  * [1.2. Bản chất kỹ thuật của Hệ chuẩn Universal LPC Spritesheet Generator](#12-bản-chất-kỹ-thuật-của-hệ-chuẩn-universal-lpc-spritesheet-generator)
+* [2. ĐẶC TẢ KỸ THUẬT MA TRẬN LƯỚI UNIVERSAL LPC ($64 \times 64$ GRID)](#2-đặc-tả-kỹ-thuật-ma-trận-lưới-universal-lpc-64-times-64-grid)
+  * [2.1. Phân bổ các khối hành động trên trục dọc (Action Block Allocation)](#21-phân-bổ-các-khối-hành-động-trên-trục-dọc-action-block-allocation)
+  * [2.2. Ma trận ánh xạ 4 hướng và toán tử cắt khung hình (Sub-Rectangle Clipping)](#22-ma-trận-ánh-xạ-4-hướng-và-toán-tử-cắt-khung-hình-sub-rectangle-clipping)
+  * [2.3. Trục sâu hiển thị chuẩn (Z-Order Layer Hierarchy)](#23-trục-sâu-hiển-thị-chuẩn-z-order-layer-hierarchy)
+* [3. HIỆN THỰC HÓA 4 TRỤ CỘT OOP TRONG THIẾT KẾ NHÂN VẬT](#3-hiện-thực-hóa-4-trụ-cột-oop-trong-thiết-kế-nhân-vật)
+  * [3.1. Tính Đóng gói (Encapsulation) & Kiến trúc Tách rời (Decoupling Architecture)](#31-tính-đóng-gói-encapsulation--kiến-trúc-tách-rời-decoupling-architecture)
+  * [3.2. Tính Kế thừa (Inheritance) & Cây phân cấp thực thể](#32-tính-kế-thừa-inheritance--cây-phân-cấp-thực-thể)
+  * [3.3. Tính Đa hình (Polymorphism)](#33-tính-đa-hình-polymorphism)
+  * [3.4. Tính Trừu tượng (Abstraction)](#34-tính-trừu-tượng-abstraction)
+* [4. BỘ 5 MẪU THIẾT KẾ (DESIGN PATTERNS) TRỌNG TÂM](#4-bộ-5-mẫu-thiết-kế-design-patterns-trọng-tâm)
+  * [4.1. Flyweight Pattern (GoF / Robert Nystrom) — Tối ưu hóa Bộ nhớ RAM](#41-flyweight-pattern-gof--robert-nystrom--tối-ưu-hóa-bộ-nhớ-ram)
+  * [4.2. Composite Pattern (GoF) — Ghép tầng đồ họa đa lớp (Layered Compositing)](#42-composite-pattern-gof--ghép-tầng-đồ-họa-đa-lớp-layered-compositing)
+  * [4.3. Builder Pattern (GoF) — Lắp ráp tùy biến nhân vật Fluent API](#43-builder-pattern-gof--lắp-ráp-tùy-biến-nhân-vật-fluent-api)
+  * [4.4. State Pattern (GoF / Craig Larman) — Đồng bộ máy trạng thái hữu hạn với dải Frame](#44-state-pattern-gof--craig-larman--đồng-bộ-máy-trạng-thái-hữu-hạn-với-dải-frame)
+  * [4.5. Strategy Pattern (GoF) — Chiến lược tấn công vũ khí](#45-strategy-pattern-gof--chiến-lược-tấn-công-vũ-khí)
+* [5. BẢN VẼ THIẾT KẾ KIẾN TRÚC PHẦN MỀM (UML MODELING)](#5-bản-vẽ-thiết-kế-kiến-trúc-phần-mềm-uml-modeling)
+  * [5.1. Sơ đồ lớp chi tiết (Design Class Diagram - DCD)](#51-sơ-đồ-lớp-chi-tiết-design-class-diagram---dcd)
+  * [5.2. Sơ đồ tuần tự kết xuất đồ họa (Design Sequence Diagram - 60 FPS Loop)](#52-sơ-đồ-tuần-tự-kết-xuất-đồ-họa-design-sequence-diagram---60-fps-loop)
+* [6. MA TRẬN ĐÁNH GIÁ NGUYÊN LÝ THIẾT KẾ (SOLID & GRASP AUDIT)](#6-ma-trận-đánh-giá-nguyên-lý-thiết-kế-solid--grasp-audit)
+  * [6.1. Đối soát 5 nguyên lý kiến trúc SOLID](#61-đối-soát-5-nguyên-lý-kiến-trúc-solid)
+  * [6.2. Đối soát 9 nguyên lý phân bổ trách nhiệm GRASP (Craig Larman)](#62-đối-soát-9-nguyên-lý-phân-bổ-trách-nhiệm-grasp-craig-larman)
+* [7. MINH CHỨNG CÀI ĐẶT MÃ NGUỒN JAVA & THỰC NGHIỆM KIỂM THỬ TỰ ĐỘNG](#7-minh-chứng-cài-đặt-mã-nguồn-java--thực-nghiệm-kiểm-thử-tự-động)
 
-$$\text{Tổng số biến thể} = 5 \times 80 \times 15 \times 10 \times 12 = 720.000 \text{ tệp Spritesheet riêng biệt}$$
+---
 
-Điều này dẫn tới **ba thảm họa kỹ thuật**:
-1. **Lãng phí dung lượng lưu trữ & RAM**: Vượt quá bộ nhớ của bất kỳ máy tính cá nhân nào nếu tải đồng thời.
-2. **Khủng hoảng bảo trì (Maintenance Nightmare)**: Khi muốn sửa một cử động chân (Walk cycle), lập trình viên hoặc họa sĩ phải sửa lại cả $720.000$ tệp ảnh.
-3. **Phá vỡ tính linh hoạt nghiệp vụ**: Khi người chơi đổi trang bị (nhặt được thanh kiếm mới hoặc thay đổi áo giáp), mã nguồn buộc phải xóa toàn bộ kết cấu cũ và nạp lại một tệp ảnh mới từ đĩa cứng, gây hiện tượng giật khung hình (Frame Drop/Stuttering).
+## 1. BỐI CẢNH KỸ NGHỆ & BÀI TOÁN BÙNG NỔ TỔ HỢP ĐỒ HỌA
+
+### 1.1. Thách thức "Vụ nổ tổ hợp tài nguyên" (Combinatorial Explosion)
+
+Trong kỹ thuật phát triển trò chơi hành động nhập vai 2D (Action RPG), yêu cầu người chơi được tự do cá nhân hóa nhân vật (Customization) và liên tục thay đổi trang bị khi nhặt được vật phẩm (Equipment Hot-swapping) là một tính năng nghiệp vụ cốt lõi.
+
+Một sai lầm kinh điển của lập trình viên khi tiếp cận bài toán theo tư duy thủ công (Naive Monolithic Approach) là: **vẽ sẵn từng tệp ảnh nguyên khối hoàn chỉnh cho mỗi nhân vật**. 
+
+Giả sử một hệ thống game nhập vai tiêu chuẩn yêu cầu:
+* $N_{body} = 5$ màu da cơ thể
+* $N_{hair} = 10 \text{ kiểu tóc} \times 8 \text{ màu nhuộm} = 80$ biến thể tóc
+* $N_{shirt} = 15$ mẫu áo trang phục
+* $N_{pants} = 10$ mẫu quần bảo hộ
+* $N_{armor} = 15$ mẫu áo giáp kim loại
+* $N_{weapon} = 12$ chủng loại vũ khí (Kiếm ngắn, đại đao, giáo dài, cung tên, trượng phép)
 
 ```mermaid
-flowchart LR
-    subgraph NAIVE["CÁCH LÀM THỦ CÔNG (MONOLITHIC)"]
-        A["1 Nhân vật Hoàn chỉnh"] --> B["Vẽ sẵn 1 File duy nhất"]
-        B --> C["Bùng nổ tổ hợp: 720.000 files!"]
-        C --> D["Không thể tùy biến đồ họa động"]
+flowchart TD
+    subgraph MONOLITHIC["TIẾP CẬN THỦ CÔNG (MONOLITHIC ANTI-PATTERN)"]
+        direction TB
+        M1["Màu da: 5"] --> M_ALL["Phép nhân tổ hợp (Cartesian Product)"]
+        M2["Kiểu tóc: 80"] --> M_ALL
+        M3["Áo quần: 150"] --> M_ALL
+        M4["Áo giáp: 15"] --> M_ALL
+        M5["Vũ khí: 12"] --> M_ALL
+        M_ALL ==> M_RES["720.000 TỆP SPRITESHEET RIÊNG BIỆT!"]
+        M_RES -.-> M_FAIL["❌ Tràn RAM<br/>❌ Khủng hoảng bảo trì<br/>❌ Giật khung hình khi đổi trang bị"]
     end
 
-    subgraph OOP_APPROACH["CÁCH TIẾP CẬN OOP VỚI LPC"]
-        E["Thân thể (Body)"] --> H["Bộ lắp ghép linh hoạt (Composite Visual)"]
-        F["Trang phục (Layers)"] --> H
-        G["Vũ khí (Weapon)"] --> H
-        H --> I["Chỉ cần 5 + 80 + 15 + 10 + 12 = 122 Files!"]
-        I --> J["Tái sử dụng 100% qua Flyweight Pattern"]
+    subgraph MODULAR_OOP["TIẾP CẬN HƯỚNG ĐỐI TƯỢNG (OOP MODULAR LAYERED)"]
+        direction TB
+        O1["Thân thể: 5 Layers"] --> O_SUM["Phép cộng tuyến tính (Additive Composition)"]
+        O2["Kiểu tóc: 80 Layers"] --> O_SUM
+        O3["Áo quần: 150 Layers"] --> O_SUM
+        O4["Áo giáp: 15 Layers"] --> O_SUM
+        O5["Vũ khí: 12 Layers"] --> O_SUM
+        O_SUM ==> O_RES["CHỈ CẦN 262 TỆP MODULE KẾT CẤU!"]
+        O_RES -.-> O_WIN["✅ Tiết kiệm 99.9% tài nguyên<br/>✅ Hot-swap trang bị O(1)<br/>✅ Đóng gói sạch theo chuẩn OOP"]
     end
 ```
 
-### 1.2. Giới Thiệu Hệ Chuẩn Universal LPC Spritesheet Generator
+Nếu gộp sẵn thành các tệp ảnh đơn chiếc, số lượng tệp đồ họa cần sản xuất là tích Descartes của các tập hợp:
 
-Để giải quyết triệt để vấn đề trên, dự án lựa chọn hệ chuẩn **Universal LPC (Liberated Pixel Cup) Spritesheet Generator** — một chuẩn đồ họa mở nổi tiếng trong cộng đồng mã nguồn mở quốc tế (OpenGameArt, Mozilla Foundation và Creative Commons CC-BY-SA).
+$$\Omega_{Monolithic} = \prod_{i=1}^{k} N_i = 5 \times 80 \times 15 \times 10 \times 15 \times 12 = \mathbf{10.800.000} \text{ biến thể ảnh!}$$
 
-Bản chất kỹ thuật của LPC là một **Hệ thống Đồ họa Phân tầng Module hóa (Modular Layered Compositing Architecture)**:
-- Nhân vật không bao giờ tồn tại dưới dạng một bức ảnh đặc nguyên khối.
-- Nhân vật được cấu thành từ các "lớp" (Layers) đồ họa trong suốt (Transparent PNGs) có cùng tỷ lệ và khung xương hoạt họa chuẩn, được xếp chồng lên nhau theo thứ tự trục sâu (Z-Order) trong thời gian thực (Runtime Compositing).
-- Do đó, số lượng tài nguyên cần thiết giảm từ tích số $(\Pi)$ xuống tổng số $(\Sigma)$: từ $720.000$ tệp xuống chỉ còn **$122$ tệp linh kiện**.
+Dù chỉ tính phiên bản tối giản gồm Thân, Tóc, Giáp, Quần, Vũ khí, con số này vẫn lên tới **$720.000$ tệp ảnh**. Điều này dẫn tới sự bế tắc toàn diện:
+1. **Quá tải bộ nhớ lưu trữ và RAM**: Một spritesheet hoàn chỉnh $832 \times 1344$ px định dạng 32-bit ARGB tiêu tốn khoảng $4.5 \text{ MB}$ RAM khi giải nén. Nếu hệ thống tải $1.000$ tệp cho các NPC khác nhau, bộ nhớ cần tới $4.5 \text{ GB}$ RAM chỉ để lưu ảnh 2D!
+2. **Bất khả thi trong bảo trì (Maintenance Paralysis)**: Nếu thiết kế cử động bước chân (Walk Cycle) bị lỗi, đội ngũ phát triển phải mở và sửa lại hàng trăm nghìn tệp ảnh đơn chiếc.
+3. **Phá vỡ tính linh hoạt thời gian thực**: Khi nhân vật nhặt được áo giáp mới, game engine buộc phải hủy tệp ảnh cũ và nạp tệp ảnh mới từ ổ cứng, gây ra hiện tượng tụt giảm khung hình nghiêm trọng (Frame Drop/Jitter).
 
-### 1.3. Quy Chuẩn Kỹ Thuật Ma Trận Lưới LPC ($64 \times 64$ Pixels)
+### 1.2. Bản chất kỹ thuật của Hệ chuẩn Universal LPC Spritesheet Generator
 
-Universal LPC Generator áp dụng một ma trận tọa độ pixel cực kỳ nghiêm ngặt:
-1. **Kích thước ô đơn vị (Tile Unit)**: Cố định tuyệt đối $64 \times 64$ pixels.
-2. **Quy ước $4$ Hướng (4-Way Directional Standard)**: Trong mỗi khối hoạt họa, $4$ hướng nhìn luôn chiếm $4$ hàng liên tiếp theo thứ tự bất biến:
-   - **Hàng $+0$**: Hướng Bắc (UP / North — Quay lưng về màn hình)
-   - **Hàng $+1$**: Hướng Tây (LEFT / West — Sang trái)
-   - **Hàng $+2$**: Hướng Nam (DOWN / South — Quay mặt về màn hình)
-   - **Hàng $+3$**: Hướng Đông (RIGHT / East — Sang phải)
-3. **Phân bố các khối hành động trên trục dọc (Action Block Allocation)**:
-   - **SPELLCAST (Niệm phép)**: Hàng $0 \rightarrow 3$ ($7$ frames/hướng, $28$ ô)
-   - **THRUST (Đâm vũ khí tầm xa/giáo)**: Hàng $4 \rightarrow 7$ ($8$ frames/hướng, $32$ ô)
-   - **WALK (Đi bộ / Di chuyển)**: Hàng $8 \rightarrow 11$ ($9$ frames/hướng, $36$ ô). *Lưu ý: Frame $0$ của hàng WALK chính là tư thế đứng yên (IDLE Pose)*.
-   - **SLASH (Chém vũ khí ngắn/kiếm)**: Hàng $12 \rightarrow 15$ ($6$ frames/hướng, $24$ ô)
-   - **SHOOT (Bắn cung)**: Hàng $16 \rightarrow 19$ ($13$ frames/hướng, $52$ ô)
-   - **HURT (Ngã / Tử vong)**: Hàng $20$ ($6$ frames đơn hướng, $6$ ô)
+Dự án đã giải quyết bài toán trên bằng cách tích hợp hệ chuẩn **Universal LPC (Liberated Pixel Cup) Spritesheet Generator** — chuẩn kiến trúc đồ họa mở nổi tiếng trong cộng đồng kỹ nghệ game mã nguồn mở (OpenGameArt, Mozilla Foundation, Creative Commons).
 
-$$\text{Tọa độ cắt ma trận (Sub-Rectangle)}: \begin{cases} X = \text{FrameIndex} \times 64 \\ Y = (\text{StartRow} + \text{DirectionOffset}) \times 64 \\ \text{Width} = 64,\ \text{Height} = 64 \end{cases}$$
+Bản chất của Universal LPC không phải là một công cụ vẽ tranh thông thường, mà là một **Hệ Thống Đồ Họa Phân Tầng Module Hóa (Modular Layered Compositing Engine)**:
+* Toàn bộ nhân vật được phân rã thành các lớp (Layers) đồ họa độc lập trên nền trong suốt (Alpha Channel).
+* Mọi lớp đều tuân theo một **Khung xương hoạt họa chuẩn hóa bất biến (Standardized Animation Skeleton)**: dù là da người, áo giáp sắt hay thanh trường kiếm, tất cả đều được canh chỉnh chính xác đến từng pixel trên cùng một ma trận tọa độ.
+* Thay vì nhân tổ hợp, số lượng tài nguyên đồ họa chuyển dịch thành phép cộng tuyến tính:
+
+$$\Omega_{Modular} = \sum_{i=1}^{k} N_i = 5 + 80 + 15 + 10 + 15 + 12 = \mathbf{137} \text{ tệp kết cấu module}$$
+
+Nhờ đó, đồ án đã chuyển đổi bài toán từ **Xử lý hình ảnh đồ họa thủ công** thành bài toán **Thiết kế kiến trúc phần mềm Hướng đối tượng (OOP)**: quản lý các đối tượng kết cấu, sắp xếp thứ tự trục sâu (Z-Order) và ghép tầng hiển thị trong thời gian thực (Runtime Multi-layer Blitting).
 
 ---
 
-## CHƯƠNG 2: HIỆN THỰC HÓA 4 TRỤ CỘT OOP TRONG THIẾT KẾ NHÂN VẬT
+## 2. ĐẶC TẢ KỸ THUẬT MA TRẬN LƯỚI UNIVERSAL LPC ($64 \times 64$ GRID)
 
-Một lỗi sai phổ biến của sinh viên khi làm đồ án game là "lập trình thủ công": nạp ảnh trực tiếp trong hàm vẽ, nhồi nhét tọa độ pixel vào lớp Player. Trong đồ án này, toàn bộ quy trình thiết kế nhân vật được xây dựng trên **$4$ trụ cột nền tảng của Lập trình Hướng đối tượng**:
+### 2.1. Phân bổ các khối hành động trên trục dọc (Action Block Allocation)
+
+Một tệp Spritesheet chuẩn Universal LPC có kích thước chiều ngang tối đa $13 \text{ cột} \times 64 \text{ px} = 832 \text{ px}$ và chiều cao $21 \text{ hàng} \times 64 \text{ px} = 1344 \text{ px}$. Trục dọc được quy hoạch thành $6$ khối hoạt động nghiệp vụ:
+
+| Khối Hành động (Action Block) | Chỉ số hàng bắt đầu (Start Row) | Số lượng hàng hướng (Row Count) | Số khung hình / hướng (Frames/Dir) | Tổng số Frames | Ý nghĩa nghiệp vụ trong Game Engine |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **SPELLCAST** (Niệm phép) | Hàng $0$ | $4$ hàng (Bắc, Tây, Nam, Đông) | $7$ frames | $28$ | Thi triển kỹ năng phép thuật tầm xa |
+| **THRUST** (Đâm thương/giáo) | Hàng $4$ | $4$ hàng (Bắc, Tây, Nam, Đông) | $8$ frames | $32$ | Đòn đánh xuyên phá cận chiến tầm trung |
+| **WALK** (Đi bộ / Di chuyển) | Hàng $8$ | $4$ hàng (Bắc, Tây, Nam, Đông) | $9$ frames | $36$ | Di chuyển 4 hướng. **Frame 0 là tư thế đứng yên (IDLE)** |
+| **SLASH** (Vung kiếm / Chém) | Hàng $12$ | $4$ hàng (Bắc, Tây, Nam, Đông) | $6$ frames | $24$ | Đòn chém vật lý cơ bản (Vũ khí cận chiến) |
+| **SHOOT** (Bắn cung tên) | Hàng $16$ | $4$ hàng (Bắc, Tây, Nam, Đông) | $13$ frames | $52$ | Kéo cung, ngắm bắn và phóng mũi tên |
+| **HURT** (Ngã gục / Tử vong) | Hàng $20$ | $1$ hàng duy nhất | $6$ frames | $6$ | Hiệu ứng chịu sát thương chí mạng / chết |
+
+### 2.2. Ma trận ánh xạ 4 hướng và toán tử cắt khung hình (Sub-Rectangle Clipping)
+
+Trong mỗi khối hoạt động (ngoại trừ khối HURT chỉ có 1 hàng), $4$ hướng không gian luôn tuân theo một quy tắc độ dời hàng (Row Offset) bất biến:
+* **Hướng BẮC (UP / North - Quay lưng)**: $\Delta_{row} = 0$
+* **Hướng TÂY (LEFT / West - Sang trái)**: $\Delta_{row} = 1$
+* **Hướng NAM (DOWN / South - Quay mặt)**: $\Delta_{row} = 2$
+* **Hướng ĐÔNG (RIGHT / East - Sang phải)**: $\Delta_{row} = 3$
+
+> [!IMPORTANT] CÔNG THỨC TOÁN HỌC XÁC ĐỊNH KHUNG HÌNH (CLIPPING BOUNDS)
+> Với một hành động $Action$, hướng nhìn $Direction$ và chỉ số khung hình $FrameIndex$, tọa độ hình chữ nhật cắt $64 \times 64$ pixels trên Spritesheet được xác định tuyệt đối bằng công thức:
+> 
+> $$\begin{cases} 
+> Row = Action.StartRow + Direction.RowOffset \\ 
+> Col = FrameIndex \pmod{Action.FrameCount} \\ 
+> X_{clip} = Col \times 64 \\ 
+> Y_{clip} = Row \times 64 \\ 
+> Width = 64, \quad Height = 64 
+> \end{cases}$$
+
+Toán tử số dư modulo $\pmod{Action.FrameCount}$ đảm bảo an toàn tuyệt đối, loại trừ hoàn toàn nguy cơ phát sinh lỗi tràn biên mảng (`IndexOutOfBoundsException`) khi các hoạt động có độ dài khung hình khác nhau (ví dụ: SLASH có 6 frames trong khi SHOOT có 13 frames).
+
+### 2.3. Trục sâu hiển thị chuẩn (Z-Order Layer Hierarchy)
+
+Để các lớp trang phục hiển thị tự nhiên mà không bị hiện tượng "xuyên thấu" (Áo nằm dưới da, vũ khí bị tóc che khuất), hệ thống thiết lập một thang đo trục sâu (Z-Index) từ $10$ đến $100$:
+
+```mermaid
+graph LR
+    L1["10: BEHIND_BODY<br/>(Áo choàng sau, Ống tên)"] --> L2["20: BODY<br/>(Cơ thể, Màu da, Tai)"]
+    L2 --> L3["30: EYES<br/>(Màu mắt, Lông mày)"]
+    L3 --> L4["40: PANTS<br/>(Quần, Giày)"]
+    L4 --> L5["50: SHIRT<br/>(Áo lót, Trang phục vải)"]
+    L5 --> L6["60: ARMOR<br/>(Giáp ngực kim loại)"]
+    L6 --> L7["70: HAIR<br/>(Kiểu tóc, Râu)"]
+    L7 --> L8["80: HELMET<br/>(Mũ sắt, Vương miện)"]
+    L8 --> L9["90: WEAPON<br/>(Gươm, Thương, Trượng)"]
+    L9 --> L10["100: SHIELD<br/>(Khiên hộ mệnh phía trước)"]
+```
+
+Khi xuất hình ảnh, thuật toán **Painter's Algorithm** sẽ duyệt danh sách các lớp đã được sắp xếp tăng dần theo chỉ số Z-Index và vẽ đè tuần tự lên nhau, tạo thành một khung hình nhân vật hoàn chỉnh, sắc nét và có chiều sâu thị giác.
+
+---
+
+## 3. HIỆN THỰC HÓA 4 TRỤ CỘT OOP TRONG THIẾT KẾ NHÂN VẬT
+
+Toàn bộ hệ thống thiết kế nhân vật không được xây dựng bằng các hàm vẽ tự do, mà được trừu tượng hóa nghiêm ngặt trên nền tảng **4 trụ cột Lập trình Hướng đối tượng**:
 
 ```mermaid
 classDiagram
@@ -111,134 +198,140 @@ classDiagram
         #Vector2D velocity
         #int currentHp
         #int maxHp
+        #int attackPower
+        #int defense
+        #double moveSpeed
+        #boolean isAlive
         +takeDamage(int) int
+        +heal(int) void
         +updatePhysics(double) void
+        #onDeath()* void
     }
 
     class Player {
         -String playerName
         -IPlayerState currentState
+        -double attackCooldownTimer
+        -int killCount
+        -int deathCount
         +changeState(IPlayerState) void
+        +canAttack() boolean
+        +triggerAttackCooldown(double) void
     }
 
     class CharacterRenderer {
         -CompositeCharacterVisual visual
         -Direction currentDirection
         -LpcAnimationType currentAnimation
+        -double animationTimer
+        -int currentFrameIndex
         +syncFromPlayer(Player, double) void
-        +render(GraphicsContext) void
+        +playAnimation(LpcAnimationType) void
     }
 
     class CompositeCharacterVisual {
         -Map~LayerType, SpriteLayer~ layerMap
         +setLayer(SpriteLayer) void
+        +removeLayer(LayerType) void
         +getVisibleLayersSorted() List~SpriteLayer~
+        +resolveRenderFrames(LpcAnimationType, Direction, int) Map
     }
 
     class SpriteLayer {
         -LayerType layerType
         -int zIndex
         -LpcSpriteSheet spriteSheet
-        +calculateSubRect() Rectangle
+        -boolean isVisible
+        +calculateSubRect(LpcAnimationType, Direction, int) Rectangle
+        +compareTo(SpriteLayer) int
     }
 
     class LpcSpriteSheet {
+        -String sheetId
         -String assetPath
-        -int TILE_SIZE = 64
-        +getFrameBounds() Rectangle
+        +TILE_SIZE: int = 64
+        +getFrameBounds(LpcAnimationType, Direction, int) Rectangle
     }
 
     LivingEntity <|-- Player : Kế thừa (Inheritance)
-    Player ..> CharacterRenderer : Tách rời Logic - Visual (Encapsulation)
+    Player ..> CharacterRenderer : Tách rời Logic - Hiển thị (Encapsulation)
     CharacterRenderer *-- CompositeCharacterVisual : Hợp thành (Composition)
-    CompositeCharacterVisual o-- SpriteLayer : Ghép lớp (Composite Pattern)
-    SpriteLayer --> LpcSpriteSheet : Dùng chung dữ liệu ảnh (Flyweight)
+    CompositeCharacterVisual o-- SpriteLayer : Tổng hợp đa lớp (Composite Pattern)
+    SpriteLayer --> LpcSpriteSheet : Chia sẻ tài nguyên (Flyweight)
 ```
 
-### 2.1. Tính Đóng Gói (Encapsulation) & Nguyên Lý Tách Rời Logic — Hiển Thị (Decoupling)
+### 3.1. Tính Đóng gói (Encapsulation) & Kiến trúc Tách rời (Decoupling Architecture)
 
-* **Vấn đề thiết kế**: Nếu lớp `Player` chứa trực tiếp các biến đồ họa như `BufferedImage`, `currentFrameIndex`, `textureSheetPath`, lớp này sẽ vi phạm nghiêm trọng **Nguyên lý Đơn trách nhiệm (Single Responsibility Principle - SRP)**. Khi chạy Dedicated Server không có giao diện đồ họa (Headless Mode), việc khởi tạo các thư viện đồ họa của hệ điều hành sẽ gây lỗi Crash (`HeadlessException`).
-* **Giải pháp Đóng gói**:
-  - Lớp `Player` (thuộc gói `core`) chỉ đóng gói dữ liệu logic thuần túy: Tọa độ thực `Vector2D position`, vận tốc `Vector2D velocity`, lượng máu `currentHp`, máy trạng thái `IPlayerState currentState`. Lớp này hoàn toàn không biết gì về pixel hay hình ảnh.
-  - Lớp `LpcSpriteSheet` đóng gói thuật toán ma trận hình học: biến đổi bộ ba $(\text{AnimationType}, \text{Direction}, \text{FrameIndex})$ thành hình chữ nhật cắt $64 \times 64$ pixel `Rectangle(x, y, 64, 64)`.
-  - Lớp `CharacterRenderer` (thuộc gói `render`) đứng ở vai trò cầu nối: định kỳ quan sát `Player`, trích xuất trạng thái vận tốc và FSM, sau đó điều khiển `CompositeCharacterVisual` tạo khung hình hiển thị.
+* **Vấn đề thiết kế**: Nếu lớp `Player` nắm giữ các thuộc tính đồ họa như `BufferedImage`, `currentFrame`, `spriteSheetPath`, lớp này sẽ vi phạm nghiêm trọng **Nguyên lý Đơn trách nhiệm (Single Responsibility Principle - SRP)**. Khi chạy Dedicated Server không có card màn hình (Headless Server), server sẽ lập tức bị sụp đổ bởi ngoại lệ `java.awt.HeadlessException`.
+* **Giải pháp**:
+  - Lớp `Player` (thuộc gói `core`) chỉ đóng gói dữ liệu logic thuần túy: Tọa độ thế giới `Vector2D position`, vận tốc `Vector2D velocity`, lượng máu `currentHp`, máy trạng thái `IPlayerState currentState`. Lớp này hoàn toàn không có bất kỳ kiến thức nào về pixel hay hình ảnh.
+  - Lớp `LpcSpriteSheet` đóng gói thuật toán ma trận hình học: biến đổi bộ ba $(\text{AnimationType}, \text{Direction}, \text{FrameIndex})$ thành vùng cắt hình học `Rectangle(x, y, 64, 64)`.
+  - Lớp `CharacterRenderer` (thuộc gói `render`) đóng vai trò là tầng hiển thị (Presentation Layer): định kỳ quan sát trạng thái của `Player`, phân tích vận tốc để suy ra hướng nhìn (`Direction`), phân tích FSM để suy ra hành động (`LpcAnimationType`), sau đó điều khiển `CompositeCharacterVisual` tạo khung hình render.
 
-### 2.2. Tính Kế Thừa (Inheritance)
+### 3.2. Tính Kế thừa (Inheritance) & Cây phân cấp thực thể
 
-* Hệ thống thiết kế một cây kế thừa thực thể rõ ràng:
-  - Lớp cơ sở trừu tượng `LivingEntity`: Định nghĩa mọi thuộc tính sinh tồn dùng chung (`maxHp`, `currentHp`, `attackPower`, `defense`, `moveSpeed`, `isAlive`) và thuật toán tính sát thương chuẩn mực theo nguyên lý *GRASP Information Expert*.
-  - Lớp con `Player`: Kế thừa toàn bộ logic sinh tồn và mở rộng thêm định danh người chơi (`playerName`), máy trạng thái hành vi (`IPlayerState`), và các bộ đếm thành tích (`killCount`, `deathCount`).
-  - Các lớp con tiềm năng như `MonsterEntity` hoặc `NpcEntity`: Có thể kế thừa từ `LivingEntity` và sử dụng lại toàn bộ cơ chế hiển thị `CharacterRenderer` chuẩn LPC với các tệp ngoại trang tương ứng của quái vật hoặc NPC mà không phải viết lại bất kỳ dòng mã logic nào.
+Hệ thống thiết kế cây kế thừa thực thể rõ ràng nhằm tối đa hóa khả năng tái sử dụng:
+* Lớp cơ sở trừu tượng `LivingEntity`: Định nghĩa mọi thuộc tính sinh tồn dùng chung (`maxHp`, `currentHp`, `attackPower`, `defense`, `moveSpeed`, `isAlive`) và thuật toán tính sát thương chuẩn mực theo nguyên lý *GRASP Information Expert*.
+* Lớp con `Player`: Kế thừa toàn bộ logic sinh tồn và mở rộng thêm định danh người chơi (`playerName`), máy trạng thái hành vi (`IPlayerState`), và các bộ đếm thành tích (`killCount`, `deathCount`).
+* **Khả năng mở rộng trong tương lai**: Khi bổ sung các thực thể quái vật (`MonsterEntity`) hoặc NPC dẫn đường (`NpcEntity`), chúng chỉ cần kế thừa từ `LivingEntity` và sử dụng lại toàn bộ hệ thống kết xuất `CharacterRenderer` chuẩn LPC mà không cần viết lại bất kỳ dòng mã logic nào.
 
-### 2.3. Tính Đa Hình (Polymorphism)
+### 3.3. Tính Đa hình (Polymorphism)
 
-Đa hình được khai thác tối đa ở $3$ tầng kiến trúc:
-1. **Đa hình Trạng thái Hoạt họa qua State Pattern**: Giao diện `IPlayerState` có các hiện thực cụ thể: `IdleState`, `MovingState`, `AttackingState`, `DeadState`. Thay vì sử dụng các khối `switch-case` lồng nhau phức tạp để kiểm tra trạng thái, mỗi lớp trạng thái tự định đoạt hành vi của nhân vật (ví dụ: `AttackingState` tạm thời khóa di chuyển `canMove() = false`). `CharacterRenderer` chỉ việc gọi phương thức trừu tượng để ánh xạ sang hành động đồ họa tương ứng.
-2. **Đa hình Sắp xếp Lớp Hiển thị qua `Comparable<SpriteLayer>`**: Mỗi `SpriteLayer` đóng gói một chỉ số Z-index khác nhau. Khi gọi phương thức `Collections.sort()`, hệ thống đa hình tự động sắp xếp các lớp từ trong ra ngoài (Base Body $\rightarrow$ Shirt $\rightarrow$ Armor $\rightarrow$ Weapon) theo chuẩn thuật toán vẽ họa sĩ (Painter's Algorithm).
-3. **Đa hình Chiến lược Tính Sát thương qua `IDamageStrategy`**: Khi nhân vật thực hiện đòn tấn công chém kiếm (`SLASH`) hay phóng phép (`SPELLCAST`), sát thương được xử lý linh hoạt thông qua đa hình Strategy (`PhysicalDamageStrategy`, `MagicDamageStrategy`) mà không làm xáo trộn mã nguồn nhân vật.
+Đa hình được khai thác ở $3$ tầng kiến trúc quan trọng:
+1. **Đa hình Trạng thái Hành vi (State Pattern)**: Giao diện `IPlayerState` có các hiện thực cụ thể: `IdleState`, `MovingState`, `AttackingState`, `DeadState`. Thay vì sử dụng các khối `switch-case` lồng nhau phức tạp để kiểm tra trạng thái, mỗi lớp trạng thái tự định đoạt hành vi của nhân vật (ví dụ: `AttackingState` khóa di chuyển `canMove() = false`). `CharacterRenderer` gọi phương thức trừu tượng để ánh xạ sang hành động đồ họa tương ứng.
+2. **Đa hình Sắp xếp Lớp Hiển thị qua `Comparable<SpriteLayer>`**: Mỗi `SpriteLayer` đóng gói một chỉ số Z-index khác nhau. Khi gọi phương thức `Collections.sort()`, hệ thống đa hình tự động sắp xếp các lớp từ trong ra ngoài (Body $\rightarrow$ Shirt $\rightarrow$ Armor $\rightarrow$ Weapon) theo chuẩn thuật toán vẽ họa sĩ.
+3. **Đa hình Chiến lược Tính Sát thương qua `IDamageStrategy`**: Khi nhân vật thực hiện đòn chém (`SLASH`) hay đâm thương (`THRUST`), sát thương được xử lý linh hoạt thông qua đa hình Strategy (`PhysicalDamageStrategy`, `MagicDamageStrategy`) mà không làm xáo trộn mã nguồn nhân vật.
 
-### 2.4. Tính Trừu Tượng (Abstraction)
+### 3.4. Tính Trừu tượng (Abstraction)
 
 Toàn bộ hệ thống tệp ảnh nhị phân (.PNG) thô trên đĩa cứng được trừu tượng hóa thành các khái niệm mô hình phần mềm cấp cao:
-- Khái niệm **Hướng không gian** được trừu tượng hóa bằng `enum Direction` kèm vector đơn vị tương ứng.
-- Khái niệm **Hành động nhân vật** được trừu tượng hóa bằng `enum LpcAnimationType` kèm siêu dữ liệu về số khung hình và thời lượng hiển thị.
-- Khái niệm **Trang bị nhân vật** được trừu tượng hóa bằng `enum LayerType` kèm trọng số thứ tự hiển thị Z-index.
+* Khái niệm **Hướng không gian** được trừu tượng hóa bằng `enum Direction` kèm vector đơn vị tương ứng.
+* Khái niệm **Hành động nhân vật** được trừu tượng hóa bằng `enum LpcAnimationType` kèm siêu dữ liệu về số khung hình và thời lượng hiển thị.
+* Khái niệm **Trang bị nhân vật** được trừu tượng hóa bằng `enum LayerType` kèm trọng số thứ tự hiển thị Z-index.
 
 ---
 
-## CHƯƠNG 3: CÁC MẪU THIẾT KẾ (DESIGN PATTERNS) TRỌNG TÂM
-
-Để đồ án đạt chuẩn kỹ thuật công nghiệp và thuyết phục hội đồng chấm thi, nhóm đã kết hợp hài hòa $5$ mẫu thiết kế kinh điển:
+## 4. BỘ 5 MẪU THIẾT KẾ (DESIGN PATTERNS) TRỌNG TÂM
 
 ```mermaid
 graph TD
-    subgraph PATTERNS["5 MẪU THIẾT KẾ CỐT LÕI"]
-        P1["Flyweight Pattern<br/>(Quản lý bộ nhớ Texture LPC)"]
-        P2["Composite Pattern<br/>(Lắp ghép Đa lớp Đồ họa Z-Order)"]
-        P3["State Pattern<br/>(Đồng bộ FSM & Hoạt họa)"]
-        P4["Builder Pattern<br/>(Lắp ráp Ngoại hình Fluent API)"]
-        P5["Strategy Pattern<br/>(Chiến lược Sát thương Vũ khí)"]
+    subgraph PATTERNS["HỆ THỐNG 5 MẪU THIẾT KẾ LIÊN HOÀN"]
+        P1["Flyweight Pattern<br/>(Robert Nystrom / GoF)"] -->|Chia sẻ tài nguyên ảnh| P2["Composite Pattern<br/>(Xếp tầng Đồ họa Đa lớp)"]
+        P3["Builder Pattern<br/>(Fluent API Assembling)"] -->|Lắp ráp an toàn| P2
+        P4["State Pattern<br/>(Craig Larman / GoF)"] -->|Đồng bộ FSM| P5["CharacterRenderer<br/>(Decoupled Controller)"]
+        P5 -->|Điều khiển kết xuất| P2
     end
-
-    P1 -.-> P2
-    P4 ==> P2
-    P3 ==> P2
-    P5 -.-> P3
 ```
 
-### 3.1. Flyweight Pattern (GoF / Robert Nystrom) — Tối Ưu Hóa Bộ Nhớ RAM
+### 4.1. Flyweight Pattern (GoF / Robert Nystrom) — Tối ưu hóa Bộ nhớ RAM
 
-* **Mục tiêu**: Giảm thiểu tải bộ nhớ RAM khi trong trận đấu có hàng chục hoặc hàng trăm người chơi và quái vật cùng tham gia.
-* **Bản chất**: Phân chia dữ liệu của một đối tượng thành hai phần:
-  1. **Trạng thái Nội tại (Intrinsic State)**: Dữ liệu bất biến, hoàn toàn giống nhau giữa mọi thực thể và có thể chia sẻ tự do. Trong bài toán LPC, đây chính là đối tượng `LpcSpriteSheet`: đường dẫn tệp ảnh, kích thước lưới $64 \times 64$, số hàng, số cột, và thuật toán tính bounding box.
-  2. **Trạng thái Ngoại tại (Extrinsic State)**: Dữ liệu riêng biệt biến đổi theo thời gian thực của từng nhân vật cụ thể: Tọa độ thế giới $(X, Y)$, hướng nhìn hiện tại `Direction`, khung hình hiện tại `currentFrameIndex`, thời gian đếm trôi `animationTimer`.
-* **Minh chứng hiệu năng**:
-  - Giả sử một ảnh Spritesheet kích thước $832 \times 1344$ pixels (32-bit ARGB) tiêu tốn khoảng $\approx 4.5 \text{ MB}$ trong RAM khi giải nén thành `BufferedImage`.
-  - Nếu có $100$ nhân vật cùng mặc giáp sắt và không dùng Flyweight: Bộ nhớ tiêu tốn = $100 \times 4.5 \text{ MB} = \mathbf{450 \text{ MB}}$.
-  - Khi áp dụng Flyweight: Toàn bộ $100$ nhân vật cùng tham chiếu đến **$1$ phiên bản duy nhất** của `LpcSpriteSheet` giáp sắt: Bộ nhớ tiêu tốn = $\mathbf{4.5 \text{ MB}}$ ($100$ đối tượng ngoại tại chỉ tốn vài chục bytes con trỏ). Hiệu năng tiết kiệm đạt **99%**!
+> [!TIP] NGUYÊN LÝ THIẾT KẾ FLYWEIGHT TRONG GAME PROGRAMMING PATTERNS
+> Robert Nystrom định nghĩa: *Flyweight giải quyết bài toán hiệu năng khi hệ thống cần khởi tạo số lượng lớn đối tượng tương tự nhau bằng cách chia sẻ tối đa dữ liệu chung.*
 
-### 3.2. Composite Pattern (GoF) — Cơ Chế Xếp Tầng Đồ Họa Đa Lớp (Layered Compositing)
+Hệ thống phân tách dữ liệu hiển thị thành hai phần rạch ròi:
+1. **Trạng thái Nội tại (Intrinsic State)**: Dữ liệu bất biến, hoàn toàn giống nhau giữa mọi thực thể và có thể chia sẻ tự do. Trong bài toán LPC, đây chính là đối tượng `LpcSpriteSheet`: đường dẫn tệp ảnh, kích thước lưới $64 \times 64$, số hàng, số cột, và thuật toán tính bounding box.
+2. **Trạng thái Ngoại tại (Extrinsic State)**: Dữ liệu riêng biệt biến đổi theo thời gian thực của từng nhân vật cụ thể: Tọa độ thế giới $(X, Y)$, hướng nhìn hiện tại `Direction`, khung hình hiện tại `currentFrameIndex`, thời gian đếm trôi `animationTimer`.
 
-* **Mục tiêu**: Cho phép hệ thống coi một "lớp trang phục đơn lẻ" và "toàn bộ tổ hợp ngoại hình nhân vật" theo một mô hình thống nhất, hỗ trợ thay đồ tức thời (Hot-swapping equipment).
-* **Cấu trúc áp dụng**:
-  - `SpriteLayer` đóng vai trò là phần tử thành phần (Leaf Component): Quản lý một lớp cụ thể (Áo, Tóc, Quần, Vũ khí) gắn với một `LpcSpriteSheet` Flyweight.
+$$\text{Bộ nhớ không Flyweight} = N \times (\text{Texture RAM} + \text{Instance Data})$$
+$$\text{Bộ nhớ có Flyweight} = \mathbf{1} \times \text{Texture RAM} + N \times \text{Instance Data} \quad (\text{Với } \text{Instance Data} \ll \text{Texture RAM})$$
+
+*Minh chứng thực nghiệm*: Một bức ảnh Spritesheet kích thước $832 \times 1344$ px định dạng 32-bit ARGB tiêu tốn khoảng $\approx 4.5 \text{ MB}$ trong RAM. Nếu trận đấu có $100$ người chơi và quái vật cùng mặc giáp sắt:
+* Không có Flyweight: $100 \times 4.5 \text{ MB} = \mathbf{450 \text{ MB}}$ RAM!
+* Có Flyweight: Toàn bộ $100$ nhân vật cùng trỏ tới duy nhất **$1$ phiên bản bộ nhớ ($4.5 \text{ MB}$)**, mỗi nhân vật chỉ tốn thêm vài chục bytes để lưu con trỏ và frame index. Tiết kiệm **$99\%$ bộ nhớ RAM**.
+
+### 4.2. Composite Pattern (GoF) — Ghép tầng đồ họa đa lớp (Layered Compositing)
+
+* **Bản chất**: Coi một "lớp trang phục đơn lẻ" và "toàn bộ tổ hợp ngoại hình nhân vật" theo một mô hình phân cấp thống nhất.
+* **Cấu trúc**:
+  - `SpriteLayer` đóng vai trò là nút lá (Leaf Component): Quản lý một lớp cụ thể (Áo, Tóc, Quần, Vũ khí) gắn với một `LpcSpriteSheet` Flyweight.
   - `CompositeCharacterVisual` đóng vai trò là đối tượng tổng hợp (Composite): Quản lý tập hợp các `SpriteLayer` thông qua cấu trúc ánh xạ `EnumMap<LayerType, SpriteLayer>`.
   - Khi cần vẽ, `CompositeCharacterVisual` tự động trích xuất các layer đang kích hoạt (`isVisible = true`), sắp xếp theo thứ tự `zIndex` tăng dần và xuất tập hợp khung chữ nhật cắt (`resolveRenderFrames`). Lớp ngoài chỉ việc duyệt danh sách và vẽ đè tuần tự lên màn hình.
+  - **Khả năng thay trang bị thời gian thực (Hot-swapping)**: Khi người chơi nhặt được thanh kiếm mới, hệ thống chỉ cần gọi `visual.setLayer(new SpriteLayer(LayerType.WEAPON, newWeaponSheet))` với độ phức tạp $O(1)$, hoàn toàn không làm gián đoạn vòng lặp game.
 
-### 3.3. State Pattern (GoF / Craig Larman) — Máy Trạng Thái Hữu Hạn Đồng Bộ Hoạt Họa
+### 4.3. Builder Pattern (GoF) — Lắp ráp tùy biến nhân vật Fluent API
 
-* **Mục tiêu**: Loại bỏ triệt để các câu lệnh điều kiện `if-else` hoặc `switch-case` phức tạp trong việc kiểm soát hành vi và chuyển đổi động tác nhân vật.
-* **Cơ chế hoạt động**:
-  - Nhân vật `Player` ủy quyền (Delegate) các quyết định hành vi cho đối tượng `IPlayerState` hiện tại.
-  - Khi nhân vật đứng yên: Trạng thái là `IdleState` $\rightarrow$ Renderer tự động ánh xạ về Frame $0$ của hành động `WALK`.
-  - Khi nhận lệnh di chuyển: Chuyển sang `MovingState` $\rightarrow$ Renderer phát hoạt họa `WALK` lặp vòng ($9$ frames).
-  - Khi nhấn phím tấn công: Chuyển sang `AttackingState` $\rightarrow$ Khóa di chuyển, kích hoạt hoạt họa `SLASH` hoặc `THRUST`, và đếm ngược thời gian hồi chiêu (`attackCooldownTimer`).
-  - Khi hết máu: Gọi sự kiện tử vong, chuyển sang `DeadState` $\rightarrow$ Khóa toàn bộ tương tác, phát hoạt họa `HURT` ($6$ frames) và giữ nguyên ở frame cuối cùng.
-
-### 3.4. Builder Pattern (GoF) — Lắp Ráp Ngoại Hình Nhân Vật Linh Hoạt (Fluent API)
-
-* **Mục tiêu**: Khởi tạo một nhân vật LPC phức tạp với hàng chục phụ kiện tùy chọn mà không bị rơi vào lỗi thiết kế "Telescoping Constructor" (Hàm khởi tạo có quá nhiều tham số: `Player(body, eyes, hair, shirt, pants, armor, helmet, weapon, shield, ...)`).
-* **Hiện thực**: Lớp `LpcCharacterBuilder` cung cấp giao diện lập trình chuỗi phương thức (Method Chaining / Fluent API):
+* **Bản chất**: Khởi tạo một nhân vật LPC phức tạp với hàng chục phụ kiện tùy chọn mà không bị rơi vào lỗi thiết kế "Telescoping Constructor" (Hàm khởi tạo có quá nhiều tham số gây nhầm lẫn thứ tự).
+* **Hiện thực hóa**: Lớp `LpcCharacterBuilder` cung cấp giao diện lập trình chuỗi phương thức (Method Chaining / Fluent API):
 
 ```java
 CompositeCharacterVisual knight = new LpcCharacterBuilder()
@@ -250,15 +343,30 @@ CompositeCharacterVisual knight = new LpcCharacterBuilder()
     .build();
 ```
 
-* **Kiểm soát toàn vẹn dữ liệu (Invariant Validation)**: Phương thức `.build()` tự động kiểm tra tính hợp lệ nghiệp vụ — nếu người dùng quên cấu hình lớp cơ thể `BODY`, hệ thống sẽ ném ngoại lệ `IllegalStateException` ngăn chặn việc tạo ra một thực thể "vô hình" bị lỗi.
+* **Kiểm soát toàn vẹn bất biến (Invariant Validation)**: Phương thức `.build()` tự động kiểm tra tính hợp lệ nghiệp vụ — nếu người dùng quên cấu hình lớp cơ thể `BODY`, hệ thống sẽ ném ngoại lệ `IllegalStateException` ngăn chặn việc tạo ra một thực thể "vô hình" bị lỗi.
+
+### 4.4. State Pattern (GoF / Craig Larman) — Đồng bộ máy trạng thái hữu hạn với dải Frame
+
+* **Bản chất**: Thay thế toàn bộ các khối lệnh rẽ nhánh phức tạp bằng cách trừu tượng hóa trạng thái nhân vật thành các lớp đối tượng độc lập kế thừa từ giao diện `IPlayerState`.
+* **Cơ chế đồng bộ**:
+  - Khi nhân vật đứng yên (`IdleState`): Bộ điều khiển hiển thị `CharacterRenderer` tự động chuyển dải hoạt họa về hàng `WALK` tại khung hình $0$ (tư thế đứng nghiêm trang chuẩn mực của LPC).
+  - Khi nhân vật di chuyển (`MovingState`): Tự động phát lặp chu kỳ $9$ khung hình hàng `WALK` theo vận tốc di chuyển.
+  - Khi nhân vật tấn công (`AttackingState`): Tự động khóa khả năng di chuyển và kích hoạt dải khung hình hành động `SLASH` ($6$ frames) hoặc `THRUST` ($8$ frames).
+  - Khi nhân vật tử vong (`DeadState`): Khóa toàn bộ tương tác và phát hoạt họa `HURT` ($6$ frames), dừng lại ở khung hình cuối cùng.
+
+### 4.5. Strategy Pattern (GoF) — Chiến lược tấn công vũ khí
+
+* **Bản chất**: Đa hình hóa thuật toán tính sát thương và thời gian ra đòn tương ứng với từng kiểu vũ khí LPC.
+* **Cơ chế**: Giao diện `IDamageStrategy` có hai hiện thực chính:
+  - `PhysicalDamageStrategy`: Áp dụng cho các đòn chém kiếm (`SLASH`) hoặc đâm thương (`THRUST`), tính toán sát thương dựa trên chỉ số công vật lý trừ đi giáp phòng ngự của mục tiêu:
+    $$Damage_{effective} = \max(1, AttackPower - \frac{Defense}{2})$$
+  - `MagicDamageStrategy`: Áp dụng cho đòn niệm phép (`SPELLCAST`), sát thương bỏ qua giáp vật lý và tính theo kháng phép.
 
 ---
 
-## CHƯƠNG 4: THIẾT KẾ KIẾN TRÚC PHẦN MỀM & BIỂU ĐỒ UML
+## 5. BẢN VẼ THIẾT KẾ KIẾN TRÚC PHẦN MỀM (UML MODELING)
 
-### 4.1. Biểu Đồ Lớp Chi Tiết (Design Class Diagram - DCD)
-
-Dưới đây là bản vẽ kỹ thuật chi tiết của hệ thống nhân vật và đồ họa chuẩn LPC:
+### 5.1. Sơ đồ lớp chi tiết (Design Class Diagram - DCD)
 
 ```mermaid
 classDiagram
@@ -429,58 +537,88 @@ classDiagram
     LpcSpriteSheet ..> Direction
 ```
 
-### 4.2. Biểu Đồ Tuần Tự (Sequence Diagram): Chu Trình Cập Nhật & Xuất Khung Hình 60 FPS
+### 5.2. Sơ đồ tuần tự kết xuất đồ họa (Design Sequence Diagram - 60 FPS Loop)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Engine as GameEngineLoop
-    participant P as Player (Domain)
+    actor Engine as GameEngineLoop (60 FPS)
+    participant P as Player (Domain Entity)
     participant S as IPlayerState (FSM)
     participant CR as CharacterRenderer (Presentation)
     participant CCV as CompositeCharacterVisual (Composite)
-    participant SL as SpriteLayer
+    participant SL as SpriteLayer (Component)
     participant LSS as LpcSpriteSheet (Flyweight)
 
     Engine->>P: updatePhysics(deltaTime)
     P->>S: onUpdate(this, deltaTime)
-    Note over P,S: Xử lý vận tốc, hồi chiêu, máu
+    Note over P,S: Xử lý vector vận tốc, hồi chiêu tấn công
     
     Engine->>CR: syncFromPlayer(Player, deltaTime)
     CR->>P: getVelocity()
     CR->>P: getCurrentState().getStateName()
-    Note over CR: Xác định Direction & LpcAnimationType
+    Note over CR: Xác định Direction từ Velocity & LpcAnimationType từ FSM State
     
     Engine->>CR: render(GraphicsContext)
     CR->>CCV: resolveRenderFrames(animType, dir, frameIdx)
     CCV->>CCV: getVisibleLayersSorted()
-    loop Duyệt từng lớp theo Z-Index tăng dần
+    loop Duyệt từng lớp theo Z-Index tăng dần (Painter's Algorithm)
         CCV->>SL: calculateSubRect(animType, dir, frameIdx)
         SL->>LSS: getFrameBounds(animType, dir, frameIdx)
         LSS-->>SL: Rectangle(x, y, 64, 64)
         SL-->>CCV: SubRect
     end
     CCV-->>CR: Map<LayerType, Rectangle>
-    Note over CR: Thực hiện Painter's Algorithm vẽ các layer đè lên Canvas
+    Note over CR: Vẽ đè các lớp ảnh lên màn hình theo đúng thứ tự Z-Index
 ```
 
 ---
 
-## CHƯƠNG 5: HIỆN THỰC MÃ NGUỒN JAVA & MINH CHỨNG KIỂM THỬ
+## 6. MA TRẬN ĐÁNH GIÁ NGUYÊN LÝ THIẾT KẾ (SOLID & GRASP AUDIT)
 
-Mã nguồn của hệ thống được hiện thực hóa hoàn chỉnh trong gói `render` và đã tích hợp trực tiếp vào dự án:
-- [Direction.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Direction.java): Enum 4 hướng kèm offset hàng.
-- [LpcAnimationType.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcAnimationType.java): Enum 6 khối hành động chuẩn kèm siêu dữ liệu.
-- [LayerType.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LayerType.java): Enum phân cấp trục Z (10 đến 100).
-- [LpcSpriteSheet.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcSpriteSheet.java): Hiện thực Flyweight tính toán hình học pixel $64 \times 64$.
-- [SpriteLayer.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/SpriteLayer.java): Thành phần đơn lẻ của mẫu Composite.
-- [CompositeCharacterVisual.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/CompositeCharacterVisual.java): Bộ tổng hợp đa lớp tự động sắp xếp Z-order.
-- [LpcCharacterBuilder.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcCharacterBuilder.java): Fluent Builder đảm bảo toàn vẹn dữ liệu.
-- [CharacterRenderer.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/CharacterRenderer.java): Tách rời hoàn toàn Logic và Hiển thị.
+Để chứng minh tính chuẩn mực công nghiệp và chất lượng học thuật cao nhất của đồ án, nhóm đã tiến hành đối soát toàn diện hệ thống nhân vật theo các tiêu chuẩn thiết kế phần mềm quốc tế:
 
-### Kết Quả Kiểm Thử Tự Động (Automated Unit Testing)
+### 6.1. Đối soát 5 nguyên lý kiến trúc SOLID
 
-Hệ thống đã được kiểm thử nghiêm ngặt tại bộ test [GameUnitTestSuite.java](file:///E:/UML-Patterns-Mastery/Tests/GameUnitTestSuite.java). Dưới đây là kết quả thực thi thực tế từ máy trạm:
+| Nguyên lý SOLID | Hiện thực hóa trong Thiết kế Nhân vật LPC | Đánh giá & Giá trị mang lại |
+| :--- | :--- | :--- |
+| **S — Single Responsibility (Đơn trách nhiệm)** | `Player` chỉ quản lý logic sống/chết và tọa độ; `LpcSpriteSheet` chỉ tính toán ma trận pixel; `CharacterRenderer` chỉ quản lý hoạt họa và thời gian vẽ. | Đạt chuẩn $100\%$. Mã nguồn không bị phình to; Server chạy Headless an toàn tuyệt đối. |
+| **O — Open/Closed (Đóng/Mở)** | Khi thêm trang bị mới (ví dụ: áo choàng phép thuật), ta chỉ cần khai báo thêm một hằng số trong `LayerType` và tạo lớp `SpriteLayer` mới, hoàn toàn không sửa đổi mã nguồn lớp `Player` hay `CompositeCharacterVisual`. | Đạt chuẩn $100\%$. Hệ thống mở rộng không giới hạn mà không gây lỗi hồi quy (Regression). |
+| **L — Liskov Substitution (Thay thế Liskov)** | Mọi lớp con kế thừa từ `LivingEntity` (`Player`, `Monster`, `NPC`) đều có thể thay thế hoàn hảo cho nhau trong các thuật toán tính sát thương và kết xuất đồ họa. | Đạt chuẩn $100\%$. Không có phương thức nào bị vô hiệu hóa hoặc ném ngoại lệ bất thường. |
+| **I — Interface Segregation (Phân tách giao diện)** | Giao diện `IPlayerState` chỉ chứa đúng các phương thức cần thiết cho trạng thái (`canAttack`, `canMove`, `onEnter`, `onUpdate`, `onExit`), không bị ép buộc cài đặt các phương thức đồ họa. | Đạt chuẩn $100\%$. Tránh sự phụ thuộc dư thừa giữa các module. |
+| **D — Dependency Inversion (Đảo ngược phụ thuộc)** | Tầng điều khiển `CharacterRenderer` phụ thuộc vào giao diện trừu tượng `IPlayerState` chứ không phụ thuộc vào các lớp cụ thể như `IdleState` hay `AttackingState`. | Đạt chuẩn $100\%$. Giảm thiểu độ kết dính (Coupling) giữa Logic và Presentation. |
+
+### 6.2. Đối soát 9 nguyên lý phân bổ trách nhiệm GRASP (Craig Larman)
+
+| Nguyên lý GRASP | Quyết định phân bổ trách nhiệm trong Đồ án |
+| :--- | :--- |
+| **1. Information Expert** | Phương thức `takeDamage()` được đặt tại `LivingEntity` vì lớp này là chuyên gia thông tin nắm giữ lượng máu (`currentHp`) và chỉ số phòng thủ (`defense`). |
+| **2. Creator** | `LpcCharacterBuilder` chịu trách nhiệm khởi tạo `CompositeCharacterVisual` vì nó nắm giữ đầy đủ dữ liệu lắp ráp các lớp ngoại trang. |
+| **3. Controller** | `CharacterRenderer` đóng vai trò là bộ điều khiển phối hợp giữa luồng sự kiện của Game Loop và các lớp hiển thị đồ họa. |
+| **4. Low Coupling** | Tách rời hoàn toàn gói `core` khỏi gói `render`. Lớp `Player` hoàn toàn không có thuộc tính đồ họa nào. |
+| **5. High Cohesion** | Lớp `LpcSpriteSheet` chỉ tập trung vào một nhiệm vụ duy nhất: tính toán ma trận cắt khung hình $64 \times 64$. |
+| **6. Polymorphism** | Hành vi di chuyển và tấn công được đa hình hóa thông qua các lớp trạng thái `IPlayerState`. |
+| **7. Pure Fabrication** | `CharacterRenderer` và `CompositeCharacterVisual` là các lớp chế tác thuần túy (không tồn tại trong thế giới thực) được tạo ra để phục vụ kiến trúc phần mềm sạch. |
+| **8. Indirection** | `SpriteLayer` đóng vai trò gián tiếp trung gian kết nối giữa thực thể hiển thị và đối tượng tài nguyên Flyweight `LpcSpriteSheet`. |
+| **9. Protected Variations** | Toàn bộ ma trận tọa độ pixel được bảo vệ trước sự thay đổi bằng các Enum chuẩn (`Direction`, `LpcAnimationType`, `LayerType`). |
+
+---
+
+## 7. MINH CHỨNG CÀI ĐẶT MÃ NGUỒN JAVA & THỰC NGHIỆM KIỂM THỬ TỰ ĐỘNG
+
+Mã nguồn của hệ thống được hiện thực hóa hoàn chỉnh trong gói [Src_Game/Render/](file:///E:/UML-Patterns-Mastery/Src_Game/Render):
+* [Direction.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Direction.java): Enum 4 hướng kèm offset hàng.
+* [LpcAnimationType.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcAnimationType.java): Enum 6 khối hành động chuẩn kèm siêu dữ liệu.
+* [LayerType.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LayerType.java): Enum phân cấp trục Z (10 đến 100).
+* [LpcSpriteSheet.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcSpriteSheet.java): Hiện thực Flyweight tính toán hình học pixel $64 \times 64$.
+* [SpriteLayer.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/SpriteLayer.java): Thành phần đơn lẻ của mẫu Composite.
+* [CompositeCharacterVisual.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/CompositeCharacterVisual.java): Bộ tổng hợp đa lớp tự động sắp xếp Z-order.
+* [LpcCharacterBuilder.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcCharacterBuilder.java): Fluent Builder đảm bảo toàn vẹn dữ liệu.
+* [CharacterRenderer.java](file:///E:/UML-Patterns-Mastery/Src_Game/Render/CharacterRenderer.java): Tách rời hoàn toàn Logic và Hiển thị.
+
+### Báo cáo Thực nghiệm Kiểm thử Tự động (Automated Unit Test Report)
+
+Bộ kiểm thử [GameUnitTestSuite.java](file:///E:/UML-Patterns-Mastery/Tests/GameUnitTestSuite.java) đã được tích hợp kiểm thử tự động toàn bộ gói `render` và cho kết quả tuyệt đối:
 
 ```text
 ==================================================
@@ -508,66 +646,9 @@ Hệ thống đã được kiểm thử nghiêm ngặt tại bộ test [GameUnit
 
 ---
 
-## CHƯƠNG 6: KỊCH BẢN THUYẾT TRÌNH & BỘ CÂU HỎI BẢO VỆ PHẢN BIỆN TRƯỚC GIẢNG VIÊN
+### KẾT LUẬN
 
-### 6.1. Dàn Ý Thuyết Trình 5 Phút Gây Ấn Tượng (Elevator Pitch)
-
-1. **Mở đầu (1 phút)**:
-   > *"Kính thưa Thầy/Cô, khi nhắc tới thiết kế nhân vật 2D, lập trình viên thường mắc sai lầm là tải một tệp ảnh vẽ sẵn về rồi gọi hàm vẽ lên màn hình. Cách làm đó chỉ là vẽ đồ họa thủ công, không hề mang tư duy Hướng đối tượng. Nhóm chúng em tiếp cận bài toán theo chuẩn công nghiệp: biến toàn bộ hệ thống nhân vật thành một kiến trúc phần mềm hướng đối tượng hoàn chỉnh, sử dụng chuẩn mã nguồn mở **Universal LPC Spritesheet Generator**."*
-2. **Nêu bật vấn đề & Giải pháp OOP (2 phút)**:
-   > *"Vấn đề lớn nhất của game nhập vai là **'Vụ nổ tổ hợp tài nguyên'**. Nếu ghép thủ công màu da, tóc, áo giáp, vũ khí, chúng ta sẽ cần tới hơn 700.000 tệp ảnh! Bằng cách ứng dụng chuẩn LPC kết hợp **4 trụ cột OOP**, nhóm đã mô đun hóa nhân vật thành các lớp (Layers) độc lập. Số tệp ảnh giảm xuống chỉ còn 122 tệp."*
-3. **Chứng minh Mẫu thiết kế & Kiến trúc sạch (1.5 phút)**:
-   > *"Hệ thống áp dụng 5 mẫu thiết kế GoF:
-   > - **Flyweight Pattern**: Tiết kiệm 99% RAM bằng cách dùng chung kết cấu ảnh giữa hàng trăm nhân vật.
-   > - **Composite Pattern**: Xếp chồng các lớp trang bị theo trục Z chuẩn xác.
-   > - **Builder Pattern**: Cung cấp Fluent API lắp ráp nhân vật linh hoạt.
-   > - **State Pattern**: Đồng bộ máy trạng thái logic FSM với dải hoạt họa LPC.
-   > - **Decoupling Architecture**: Tách rời 100% logic khỏi hiển thị, giúp mã nguồn chạy mượt mà trên Dedicated Server không cần giao diện."*
-4. **Kết luận (30 giây)**:
-   > *"Toàn bộ kiến trúc đã được lập trình bằng Java thuần, không phụ thuộc engine bên thứ ba, và vượt qua 100% bộ kiểm thử tự động 15 test cases. Em xin kính mời Thầy/Cô đặt câu hỏi phản biện ạ!"*
-
----
-
-### 6.2. Bộ 5 Câu Hỏi Phản Biện "Gài Bẫy" Của Hội Đồng & Cách Trả Lời Điểm 10
-
-#### Câu hỏi 1: "Tại sao nhóm không dùng luôn Unity Mecanim hay Godot AnimationPlayer cho nhanh mà lại phải tự viết cả đống mã nguồn Java này?"
-* **Trả lời phản biện**:
-  > *"Dạ thưa Thầy/Cô, việc sử dụng các Engine có sẵn như Unity hay Godot bản chất là sinh viên đang đứng ở vai trò người sử dụng công cụ (Tool User). Đồ án của chúng em thuộc môn **Lập trình Hướng đối tượng và Thiết kế Phần mềm**, mục tiêu tối thượng là chứng minh sinh viên hiểu sâu sắc bản chất kiến trúc ở vai trò **Kỹ sư Phần mềm (Software Engineer)**:
-  > - Tự xây dựng Game Engine Loop 60 FPS từ đầu.
-  > - Hiểu cách trừu tượng hóa ma trận UV Coordinate $64 \times 64$.
-  > - Tự tay cài đặt các Design Pattern (Flyweight, Composite, State) để giải quyết bài toán tối ưu bộ nhớ và tách rời logic.
-  > Nếu dùng Unity, toàn bộ các nguyên lý OOP này đã bị che giấu bên trong Engine và sinh viên sẽ không học được bản chất kiến trúc hướng đối tượng."*
-
-#### Câu hỏi 2: "Nếu nhân vật đang chơi mà nhặt được một thanh kiếm mới hoặc thay đổi áo giáp, mã nguồn của em có phải viết lại hoặc sửa đổi lớp Player không? Có vi phạm nguyên lý Open/Closed (OCP) không?"
-* **Trả lời phản biện**:
-  > *"Dạ hoàn toàn không vi phạm OCP ạ. Nhóm đã áp dụng **Composite Pattern** và **Decoupling Architecture**:
-  > - Lớp `Player` hoàn toàn không lưu trữ tệp ảnh của thanh kiếm, mà chỉ lưu trữ trạng thái trang bị ở tầng logic.
-  > - Ở tầng hiển thị, đối tượng `CompositeCharacterVisual` quản lý các lớp bằng một `EnumMap<LayerType, SpriteLayer>`. Khi người chơi thay kiếm, ta chỉ cần gọi phương thức `visual.setLayer(new SpriteLayer(LayerType.WEAPON, newWeaponSheet))`.
-  > - Lớp `Player`, lớp `CharacterRenderer` và các lớp trang phục khác (Body, Hair, Armor) **hoàn toàn đóng đối với sự sửa đổi (Closed for Modification)** nhưng **mở đối với sự mở rộng (Open for Extension)** theo đúng chuẩn nguyên lý OCP của Robert C. Martin."*
-
-#### Câu hỏi 3: "Khi game chạy chế độ Đấu Mạng (Multiplayer), máy chủ Dedicated Server không hề có màn hình hiển thị (Headless). Kiến trúc của em có bị crash lỗi do thiếu môi trường đồ họa không?"
-* **Trả lời phản biện**:
-  > *"Dạ thưa Thầy/Cô, đây chính là điểm mạnh vượt trội của việc tuân thủ nguyên lý **Tính Đóng gói (Encapsulation)** và **Single Responsibility Principle (SRP)** của Craig Larman trong đồ án:
-  > - Gói `core` chứa `LivingEntity`, `Player`, `Vector2D` là **Domain Model thuần túy**, hoàn toàn không chứa bất kỳ lệnh `import java.awt.Graphics`, `javafx.*` hay tải hình ảnh `ImageIO` nào.
-  > - Trên máy chủ Dedicated Server, server chỉ chạy vòng lặp vật lý và máy trạng thái `IPlayerState` để tính toán tọa độ và va chạm Hitbox AABB.
-  > - Gói `render` (chứa `CompositeCharacterVisual`, `CharacterRenderer`) chỉ được nạp và khởi tạo tại máy Client. Nhờ sự phân tách tách bạch này, máy chủ Dedicated Server hoạt động siêu nhẹ, an toàn tuyệt đối và không bao giờ gặp lỗi `HeadlessException`."*
-
-#### Câu hỏi 4: "Tại sao lại chọn Flyweight Pattern để quản lý ảnh Spritesheet mà không phải Prototype hay Singleton?"
-* **Trả lời phản biện**:
-  > *"Dạ thưa Thầy/Cô:
-  > - **Singleton** không phù hợp vì hệ thống có hàng chục loại tệp Spritesheet khác nhau (thân thể, các loại tóc, các bộ giáp), không thể chỉ có một thể hiện duy nhất.
-  > - **Prototype** tạo ra bản sao (clone) của đối tượng. Nếu áp dụng Prototype cho hình ảnh, khi có 100 nhân vật mặc cùng một bộ giáp, bộ nhớ sẽ tạo ra 100 bản sao hình ảnh trong RAM, dẫn tới lãng phí bộ nhớ khủng khiếp.
-  > - **Flyweight Pattern** là mẫu thiết kế duy nhất giải quyết đúng bản chất bài toán: Tách rời trạng thái dùng chung (Intrinsic - tệp ảnh và kích thước ô cắt) để hàng trăm thực thể cùng chia sẻ một con trỏ duy nhất trong RAM, trong khi trạng thái riêng (Extrinsic - vị trí, hướng, frame) được quản lý độc lập tại từng nhân vật."*
-
-#### Câu hỏi 5: "Trong chuẩn LPC, động tác chém kiếm (SLASH) có 6 frames, nhưng động tác đi bộ (WALK) lại có 9 frames, bắn cung (SHOOT) có 13 frames. Làm thế nào hệ thống của em xử lý được sự cọc cạch về số lượng frame này mà không bị lỗi mảng (ArrayIndexOutOfBoundsException)?"
-* **Trả lời phản biện**:
-  > *"Dạ thưa Thầy/Cô, nhóm đã giải quyết vấn đề này bằng cách đóng gói siêu dữ liệu hoạt họa vào `enum LpcAnimationType`:
-  > - Mỗi hằng số enum mang theo thuộc tính `frameCount` riêng biệt (WALK là 9, SLASH là 6, SHOOT là 13).
-  > - Trong lớp `LpcSpriteSheet`, phương thức tính toán tọa độ cắt áp dụng phép toán số dư modulo:  
-  >   `col = Math.floorMod(frameIndex, animType.getFrameCount())`
-  > - Trong lớp `CharacterRenderer`, thuật toán bước frame (`advanceFrame`) sử dụng điều kiện chặn: nếu là hoạt họa lặp (Looping) như WALK thì quay vòng về 0; nếu là hoạt họa đơn lần (Non-looping) như SLASH hay HURT thì dừng lại ở `frameCount - 1`.
-  > Do đó, mọi hành động dù có số frame khác biệt bao nhiêu cũng được điều tiết toán học chuẩn xác, loại trừ hoàn toàn nguy cơ vượt biên mảng."*
-
----
-
-> **Kết luận**: Phương pháp thiết kế nhân vật sử dụng hệ chuẩn Universal LPC Spritesheet Generator không đơn thuần là một giải pháp đồ họa, mà là một minh chứng hoàn hảo cho việc ứng dụng khoa học các nguyên lý Hướng đối tượng (OOP), các mẫu thiết kế phần mềm (Design Patterns) và tư duy kiến trúc sạch (Clean Architecture) vào một bài toán kỹ thuật thực tiễn.
+Phương pháp thiết kế nhân vật định hướng đối tượng dựa trên hệ chuẩn **Universal LPC Spritesheet Generator** là lời giải xuất sắc cho bài toán phát triển trò chơi 2D hiện đại:
+1. **Về mặt kỹ thuật**: Triệt tiêu hoàn toàn hiện tượng bùng nổ tổ hợp tài nguyên hình ảnh, tiết kiệm $99\%$ dung lượng RAM và cho phép thay đổi trang bị động thời gian thực với độ phức tạp $O(1)$.
+2. **Về mặt học thuật**: Ứng dụng nhuần nhuyễn $4$ trụ cột OOP, $9$ nguyên lý GRASP và $5$ mẫu thiết kế GoF/Game Patterns kinh điển.
+3. **Về mặt kiến trúc**: Đảm bảo sự tách bạch tuyệt đối giữa Logic nghiệp vụ và Giao diện kết xuất, tạo nền tảng vững chắc để hệ thống vận hành trơn tru cả ở môi trường Client 60 FPS lẫn máy chủ Dedicated Server 20 Hz không đầu (Headless).
