@@ -57,9 +57,9 @@ public class DedicatedGameServer {
             System.out.println("🖥️ Môi trường: Headless Pure Java (Authoritative Netcode)");
             System.out.println("==================================================");
 
-            // Bắt đầu vòng lặp vật lý và phát sóng 20Hz (mỗi 50ms)
+            // Bắt đầu vòng lặp vật lý và phát sóng 30Hz (mỗi 33ms) siêu mượt
             tickExecutor = Executors.newSingleThreadScheduledExecutor();
-            tickExecutor.scheduleAtFixedRate(this::tickServer20Hz, 50, 50, TimeUnit.MILLISECONDS);
+            tickExecutor.scheduleAtFixedRate(this::tickServer20Hz, 33, 33, TimeUnit.MILLISECONDS);
 
             // Luồng chấp nhận kết nối người chơi mới
             new Thread(this::acceptClientsLoop, "Server-AcceptLoop").start();
@@ -73,6 +73,10 @@ public class DedicatedGameServer {
         while (isRunning && !serverSocket.isClosed()) {
             try {
                 Socket clientSocket = serverSocket.accept();
+                clientSocket.setTcpNoDelay(true); // Tắt thuật toán Nagle để gửi gói tin tức thì qua WiFi (0ms delay)
+                try {
+                    clientSocket.setTrafficClass(0x10); // IPTOS_LOWDELAY
+                } catch (Exception ignored) {}
                 ClientHandler handler = new ClientHandler(clientSocket, this);
                 clients.add(handler);
                 new Thread(handler, "ClientHandler-" + clientSocket.getRemoteSocketAddress()).start();
@@ -122,7 +126,7 @@ public class DedicatedGameServer {
 
     private void tickServer20Hz() {
         try {
-            double dt = 0.050; // 50ms cho chu kỳ 20Hz
+            double dt = 0.033; // 33ms cho chu kỳ 30Hz mượt mà
 
             // 1. Cập nhật vật lý cho tất cả người chơi
             for (Player player : connectedPlayers.values()) {
@@ -299,8 +303,9 @@ public class DedicatedGameServer {
         @Override
         public void run() {
             try {
-                out = new ObjectOutputStream(socket.getOutputStream());
-                in = new ObjectInputStream(socket.getInputStream());
+                out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream(), 8192));
+                out.flush();
+                in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream(), 8192));
 
                 while (true) {
                     GamePacket packet = (GamePacket) in.readObject();
@@ -328,6 +333,7 @@ public class DedicatedGameServer {
                 if (out != null) {
                     out.writeObject(packet);
                     out.reset();
+                    out.flush();
                 }
             } catch (IOException e) {
                 close();

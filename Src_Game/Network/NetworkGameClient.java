@@ -9,8 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Trình khách mạng (Network Game Client) kết nối với Dedicated Server.
- * Tích hợp bộ giải thuật Snapshot Interpolation (LERP) của Joshua Glazer & Sanjay Madhav (Ch. 7).
- * Triệt tiêu hoàn toàn hiện tượng giật lắc hình (Micro-stutter) giữa gói tin 20Hz và render 60 FPS.
+ * Tích hợp:
+ * 1. Luồng gửi bất đồng bộ (Non-blocking Async Sender Thread 30Hz) — Không bao giờ làm khựng luồng Render 60 FPS.
+ * 2. Client-Side Prediction & Dead Reckoning Smooth LERP — Triệt tiêu hoàn toàn độ trễ cảm ứng (Input Lag)
+ *    và hiện tượng giật cục (WiFi Packet Jitter) trên điện thoại Android.
  */
 public class NetworkGameClient {
     private final String host;
@@ -25,24 +27,32 @@ public class NetworkGameClient {
     private String assignedPlayerId;
     private final SnapshotInterpolator interpolator;
     private final Map<String, WorldSnapshotPayload.EntityState> latestStates = new ConcurrentHashMap<>();
+    private final Map<String, Vector2D> smoothedPositions = new ConcurrentHashMap<>();
     private volatile int currentWave = 1;
+
+    // Biến đệm Input bất đồng bộ (Non-blocking Input State)
+    private volatile double pendingVx = 0.0;
+    private volatile double pendingVy = 0.0;
+    private volatile boolean pendingAttack = false;
+    private volatile boolean hasNewInput = false;
 
     public NetworkGameClient(String host, int port, String playerName) {
         this.host = host;
         this.port = port;
         this.playerName = playerName;
-        this.interpolator = new SnapshotInterpolator(100); // 100ms đệm nội suy = 2 ticks của 20Hz
+        this.interpolator = new SnapshotInterpolator(65); // 65ms đệm nội suy tối ưu phản hồi nhanh
     }
 
     public boolean connect() {
         try {
             this.socket = new Socket();
             this.socket.setTcpNoDelay(true);
+            this.socket.setTrafficClass(0x10); // IPTOS_LOWDELAY ưu tiên gói tin game thời gian thực
             this.socket.connect(new InetSocketAddress(host, port), 4000);
 
-            this.out = new ObjectOutputStream(socket.getOutputStream());
+            this.out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream(), 8192));
             this.out.flush();
-            this.in = new ObjectInputStream(socket.getInputStream());
+            this.in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream(), 8192));
             this.isConnected = true;
 
             // Gửi yêu cầu gia nhập (JOIN_REQUEST)
@@ -59,8 +69,16 @@ public class NetworkGameClient {
                         host, port, assignedPlayerId, playerName);
             }
 
-            // Bắt đầu luồng lắng nghe World Snapshot từ Server (20Hz)
-            new Thread(this::listenLoop, "ClientNet-Listener").start();
+            // 1. Luồng lắng nghe World Snapshot từ Server (20Hz)
+            Thread listenerThread = new Thread(this::listenLoop, "ClientNet-Listener");
+            listenerThread.setDaemon(true);
+            listenerThread.start();
+
+            // 2. Luồng gửi Input độc lập (30Hz) - Giải phóng 100% cho luồng vẽ 60 FPS!
+            Thread senderThread = new Thread(this::senderLoop, "ClientNet-Sender");
+            senderThread.setDaemon(true);
+            senderThread.start();
+
             return true;
 
         } catch (Exception e) {
@@ -80,25 +98,21 @@ public class NetworkGameClient {
                     WorldSnapshotPayload snapshot = (WorldSnapshotPayload) packet.getPayload();
                     this.currentWave = snapshot.wave;
 
-                    // Dùng đồng hồ cục bộ của Client khi gói tin tới để tránh lệch múi giờ/đồng hồ giữa PC và Điện thoại
+                    // Dùng đồng hồ cục bộ của Client khi gói tin tới để tránh lệch đồng hồ giữa PC và Điện thoại
                     long receiveTime = System.currentTimeMillis();
 
-                    // Đưa dữ liệu tọa độ từng thực thể vào bộ đệm nội suy LERP
+                    Set<String> activeIds = new HashSet<>();
                     for (WorldSnapshotPayload.EntityState entity : snapshot.entities) {
-                        interpolator.pushTransform(
-                                entity.id,
-                                new Vector2D(entity.posX, entity.posY),
-                                receiveTime
-                        );
+                        activeIds.add(entity.id);
+                        Vector2D serverPos = new Vector2D(entity.posX, entity.posY);
+                        interpolator.pushTransform(entity.id, serverPos, receiveTime);
                         latestStates.put(entity.id, entity);
+                        smoothedPositions.putIfAbsent(entity.id, serverPos);
                     }
 
-                    // Dọn dẹp thực thể không còn tồn tại trong snapshot
-                    Set<String> activeIds = new HashSet<>();
-                    for (WorldSnapshotPayload.EntityState e : snapshot.entities) {
-                        activeIds.add(e.id);
-                    }
+                    // Dọn dẹp thực thể đã bị tiêu diệt
                     latestStates.keySet().removeIf(id -> !activeIds.contains(id));
+                    smoothedPositions.keySet().removeIf(id -> !activeIds.contains(id));
                 }
             }
         } catch (Exception ignored) {
@@ -107,25 +121,109 @@ public class NetworkGameClient {
         }
     }
 
-    public void sendInput(double vx, double vy, boolean isAttacking) {
-        if (!isConnected || out == null || assignedPlayerId == null) return;
+    /**
+     * Luồng chuyên trách gửi gói tin điều khiển ở tần số 30Hz (33ms).
+     * Giúp hàm sendInput() gọi từ vòng lặp Render 60 FPS không bao giờ bị nghẽn bởi Socket I/O!
+     */
+    private void senderLoop() {
+        double lastSentVx = 0.0;
+        double lastSentVy = 0.0;
+
         try {
-            synchronized (out) {
-                PlayerInputPayload payload = new PlayerInputPayload(vx, vy, isAttacking);
-                out.writeObject(new GamePacket(PacketType.PLAYER_INPUT, assignedPlayerId, payload));
-                out.reset();
-                out.flush();
+            while (isConnected && !socket.isClosed()) {
+                if (assignedPlayerId != null && out != null) {
+                    double vx = this.pendingVx;
+                    double vy = this.pendingVy;
+                    boolean atk = this.pendingAttack;
+                    this.pendingAttack = false;
+
+                    // Chỉ gửi khi vận tốc thay đổi, đang di chuyển, hoặc có lệnh tấn công
+                    boolean moving = Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01;
+                    boolean velocityChanged = Math.abs(vx - lastSentVx) > 0.01 || Math.abs(vy - lastSentVy) > 0.01;
+
+                    if (atk || moving || velocityChanged || hasNewInput) {
+                        hasNewInput = false;
+                        lastSentVx = vx;
+                        lastSentVy = vy;
+
+                        synchronized (out) {
+                            PlayerInputPayload payload = new PlayerInputPayload(vx, vy, atk);
+                            out.writeObject(new GamePacket(PacketType.PLAYER_INPUT, assignedPlayerId, payload));
+                            out.reset();
+                            out.flush();
+                        }
+                    }
+                }
+                Thread.sleep(30); // ~33Hz gửi mượt mà mà không làm nghẽn băng thông WiFi
             }
-        } catch (IOException e) {
-            disconnect();
+        } catch (Exception ignored) {
         }
     }
 
     /**
-     * Lấy tọa độ mượt mà của thực thể tại thời điểm vẽ 60 FPS thông qua thuật toán LERP.
+     * Ghi nhận Input tức thời (0ms Non-blocking) từ luồng Game Loop / Cảm ứng.
+     */
+    public void sendInput(double vx, double vy, boolean isAttacking) {
+        this.pendingVx = vx;
+        this.pendingVy = vy;
+        if (isAttacking) {
+            this.pendingAttack = true;
+        }
+        this.hasNewInput = true;
+
+        // Tiên đoán chuyển động phía Client (Client-Side Prediction) cho nhân vật của chính mình
+        if (assignedPlayerId != null) {
+            Vector2D cur = smoothedPositions.get(assignedPlayerId);
+            if (cur != null) {
+                double dt = 1.0 / 60.0;
+                double nextX = Math.max(40, Math.min(1560, cur.getX() + vx * dt));
+                double nextY = Math.max(40, Math.min(1160, cur.getY() + vy * dt));
+                smoothedPositions.put(assignedPlayerId, new Vector2D(nextX, nextY));
+            }
+        }
+    }
+
+    /**
+     * Lấy tọa độ siêu mượt 60 FPS của thực thể:
+     * - Đối với nhân vật chính (Local Player): Kết hợp Client-Side Prediction (phản hồi tức thì 0ms) + Server Reconciliation.
+     * - Đối với Quái vật & Đồng đội: Kết hợp Snapshot Interpolator + Exponential Smoothing chống giật cục WiFi.
      */
     public Vector2D getInterpolatedPosition(String entityId, long clientTime) {
-        return interpolator.interpolate(entityId, clientTime);
+        WorldSnapshotPayload.EntityState state = latestStates.get(entityId);
+        Vector2D targetPos = interpolator.interpolate(entityId, clientTime);
+        if (targetPos == null && state != null) {
+            targetPos = new Vector2D(state.posX, state.posY);
+        }
+        if (targetPos == null) return null;
+
+        Vector2D currentSmooth = smoothedPositions.get(entityId);
+        if (currentSmooth == null) {
+            smoothedPositions.put(entityId, targetPos);
+            return targetPos;
+        }
+
+        boolean isLocalPlayer = entityId.equals(assignedPlayerId);
+        if (isLocalPlayer && state != null) {
+            // Server Reconciliation: Nếu lệch nhỏ thì trượt nhẹ (0.12), nếu lệch quá xa (>120px) thì kéo nhanh về
+            Vector2D authPos = new Vector2D(state.posX, state.posY);
+            double dist = currentSmooth.distanceTo(authPos);
+            double blend = (dist > 120.0) ? 0.5 : 0.12;
+            Vector2D next = new Vector2D(
+                    currentSmooth.getX() + (authPos.getX() - currentSmooth.getX()) * blend,
+                    currentSmooth.getY() + (authPos.getY() - currentSmooth.getY()) * blend
+            );
+            smoothedPositions.put(entityId, next);
+            return next;
+        } else {
+            // Làm mịn chuyển động 60 FPS cho Quái vật và Đồng đội (chống giật khi gói tin WiFi trễ)
+            double blend = 0.25;
+            Vector2D next = new Vector2D(
+                    currentSmooth.getX() + (targetPos.getX() - currentSmooth.getX()) * blend,
+                    currentSmooth.getY() + (targetPos.getY() - currentSmooth.getY()) * blend
+            );
+            smoothedPositions.put(entityId, next);
+            return next;
+        }
     }
 
     public String getAssignedPlayerId() {

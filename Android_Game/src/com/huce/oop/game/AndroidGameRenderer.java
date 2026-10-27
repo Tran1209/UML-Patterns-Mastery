@@ -449,17 +449,15 @@ public class AndroidGameRenderer {
                 // Thân Goblin xanh lá
                 paint.setColor(Color.rgb(46, 139, 87));
                 canvas.drawCircle(sx, sy, 16, paint);
-                // Tai nhọn Goblin
-                Path earPath = new Path();
-                earPath.moveTo(sx - 16, sy - 4);
-                earPath.lineTo(sx - 26, sy - 14);
-                earPath.lineTo(sx - 10, sy - 10);
-                canvas.drawPath(earPath, paint);
-                Path earPath2 = new Path();
-                earPath2.moveTo(sx + 16, sy - 4);
-                earPath2.lineTo(sx + 26, sy - 14);
-                earPath2.lineTo(sx + 10, sy - 10);
-                canvas.drawPath(earPath2, paint);
+                // Tai nhọn Goblin (tái sử dụng slashPath để Zero GC Allocation)
+                slashPath.reset();
+                slashPath.moveTo(sx - 16, sy - 4);
+                slashPath.lineTo(sx - 26, sy - 14);
+                slashPath.lineTo(sx - 10, sy - 10);
+                slashPath.moveTo(sx + 16, sy - 4);
+                slashPath.lineTo(sx + 26, sy - 14);
+                slashPath.lineTo(sx + 10, sy - 10);
+                canvas.drawPath(slashPath, paint);
                 // Mắt đỏ hung hăng
                 paint.setColor(Color.RED);
                 canvas.drawCircle(sx - 5, sy - 4, 3, paint);
