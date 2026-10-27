@@ -37,6 +37,10 @@ public final class Vector2D {
         return Math.sqrt(x * x + y * y);
     }
 
+    public double distanceTo(Vector2D other) {
+        return this.subtract(other).length();
+    }
+
     public Vector2D normalize() {
         double len = length();
         if (len < 1e-6) {

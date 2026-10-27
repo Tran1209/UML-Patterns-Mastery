@@ -1,6 +1,5 @@
 package network;
 
-import core.Vector2D;
 import java.io.Serializable;
 import java.util.List;
 
@@ -8,10 +7,10 @@ import java.util.List;
  * Bản sao trạng thái thế giới (World Snapshot) do Dedicated Server phát sóng (Broadcast) 20Hz.
  */
 public class WorldSnapshotPayload implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     public static class EntityState implements Serializable {
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 2L;
 
         public final String id;
         public final String name;
@@ -20,9 +19,10 @@ public class WorldSnapshotPayload implements Serializable {
         public final int hp;
         public final int maxHp;
         public final String stateName;
+        public final String dirName;
         public final boolean isMonster;
 
-        public EntityState(String id, String name, double posX, double posY, int hp, int maxHp, String stateName, boolean isMonster) {
+        public EntityState(String id, String name, double posX, double posY, int hp, int maxHp, String stateName, String dirName, boolean isMonster) {
             this.id = id;
             this.name = name;
             this.posX = posX;
@@ -30,6 +30,7 @@ public class WorldSnapshotPayload implements Serializable {
             this.hp = hp;
             this.maxHp = maxHp;
             this.stateName = stateName;
+            this.dirName = dirName;
             this.isMonster = isMonster;
         }
     }
