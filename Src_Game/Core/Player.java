@@ -1,5 +1,8 @@
 package core;
 
+import combat.Hitbox;
+import render.Direction;
+
 /**
  * Thực thể nhân vật người chơi trong thế giới game.
  * Kế thừa LivingEntity và tích hợp State Machine quản lý trạng thái hành vi.
@@ -7,18 +10,56 @@ package core;
 public class Player extends LivingEntity {
     private final String playerName;
     private IPlayerState currentState;
+    private Direction facingDirection;
     private double attackCooldownTimer;
     private int killCount;
     private int deathCount;
+    private final Hitbox hitbox;
 
     public Player(String id, String playerName, Vector2D spawnPosition) {
-        super(id, spawnPosition, 100, 20, 10, 200.0);
+        super(id, spawnPosition, 100, 25, 10, 220.0);
         this.playerName = playerName;
         this.currentState = new IdleState();
+        this.facingDirection = Direction.DOWN;
         this.attackCooldownTimer = 0.0;
         this.killCount = 0;
         this.deathCount = 0;
+        this.hitbox = new Hitbox(spawnPosition.getX(), spawnPosition.getY(), 40, 40);
         this.currentState.onEnter(this);
+    }
+
+    public Direction getFacingDirection() {
+        return facingDirection;
+    }
+
+    public void setFacingDirection(Direction facingDirection) {
+        if (facingDirection != null) {
+            this.facingDirection = facingDirection;
+        }
+    }
+
+    public Hitbox getHitbox() {
+        hitbox.updateCenter(position);
+        return hitbox;
+    }
+
+    /**
+     * Tạo một Hitbox hình quạt/khu vực chém vũ khí trước mặt nhân vật theo hướng nhìn.
+     */
+    public Hitbox getAttackArea() {
+        double reach = 50.0;
+        double attackX = position.getX() + facingDirection.getDirX() * reach;
+        double attackY = position.getY() + facingDirection.getDirY() * reach;
+        return new Hitbox(attackX, attackY, 65, 65);
+    }
+
+    public void respawn(Vector2D spawnPosition) {
+        this.position = spawnPosition;
+        this.velocity = new Vector2D(0, 0);
+        this.currentHp = this.maxHp;
+        this.isAlive = true;
+        this.attackCooldownTimer = 0.0;
+        changeState(new IdleState());
     }
 
     public String getPlayerName() {
@@ -60,6 +101,9 @@ public class Player extends LivingEntity {
     @Override
     public void updatePhysics(double deltaTime) {
         super.updatePhysics(deltaTime);
+        if (velocity.length() > 1e-3) {
+            this.facingDirection = Direction.fromVelocity(velocity.getX(), velocity.getY(), this.facingDirection);
+        }
         if (attackCooldownTimer > 0) {
             attackCooldownTimer = Math.max(0, attackCooldownTimer - deltaTime);
         }

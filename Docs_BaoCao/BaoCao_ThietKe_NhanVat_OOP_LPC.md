@@ -4,15 +4,6 @@
 
 ---
 
-> **Cơ sở đào tạo**: Khoa Công nghệ Thông tin — Trường Đại học Xây dựng Hà Nội (HUCE)  
-> **Học phần**: Lập trình Hướng đối tượng (OOP) & Phân tích Thiết kế Hệ thống (OOAD)  
-> **Đồ án thực nghiệm**: Hệ thống Trò chơi Hành động Nhập vai 2D Thời gian thực Đa người chơi (Java Pure Engine)  
-> **Nhóm sinh viên thực hiện (Nhóm 5)**:  
-> * **Nguyễn Duy Nam** (Trưởng nhóm / Lead Software Architect)  
-> * **Trần Trung Kiên** (Distributed Systems & Netcode Specialist)  
-> * **Phạm Đức Anh** (Physics & Combat Engine Specialist)  
-> * **Vũ Đức Huy** (Client 60 FPS Rendering & UI Architect)  
-> * **Bùi Huy Hoàng** (Persistence & Quality Assurance / Test Engineer)  
 > **Khung lý thuyết tham chiếu**:  
 > * Craig Larman, *Applying UML and Patterns: An Introduction to Object-Oriented Analysis and Design*, 3rd Edition.  
 > * Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides (GoF), *Design Patterns: Elements of Reusable Object-Oriented Software*.  

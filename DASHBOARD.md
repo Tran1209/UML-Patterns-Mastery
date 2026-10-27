@@ -18,6 +18,15 @@ status: active
 
 ---
 
+> [!TIP] 🎮 HƯỚNG DẪN CHƠI GAME TRỰC TIẾP (INSTANT PLAYABLE BUILD ĐÃ HOÀN TẤT)
+> Toàn bộ trò chơi 2D Action RPG Arena đã được lập trình hoàn chỉnh bằng Java thuần và đóng gói thành tệp JAR tự thực thi:
+> - 🚀 **Khởi động Game Client (60 FPS Canvas)**: Double-click file `run_game.bat` (hoặc lệnh `java -jar build/UmlPatternsMasteryGame.jar`).
+> - 🌐 **Khởi động Dedicated Server (20Hz Headless)**: Double-click file `run_server.bat` (cổng mạng 7777).
+> - 🔨 **Biên dịch & Đóng gói lại từ mã nguồn**: Chạy file `build.bat`.
+> - ⌨️ **Phím điều khiển**: `[W/A/S/D]` Di chuyển 8 hướng | `[SPACE / J]` Chém kiếm quét quái | `[R]` Tái sinh khi tử trận | `[F1]` Bật/Tắt khung va chạm Hitbox AABB & Spatial Grid.
+
+---
+
 > [!ABSTRACT] ẢNH BÌA BÁO CÁO KỸ THUẬT CHUẨN KIẾN TRÚC OOP (PURE TECH COVER)
 > ![[Docs_BaoCao/images/Bia_BaoCao_OOP_Architecture.jpg|380]]
 > *Tác phẩm bìa học thuật: Kiến trúc Phân tầng Hướng đối tượng 3D Isometric (Presentation $\rightarrow$ Core Domain Model $\rightarrow$ Distributed Network Synchronization $\rightarrow$ Persistence Data Layer).*

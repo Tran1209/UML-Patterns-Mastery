@@ -150,14 +150,15 @@ E:\UML-Patterns-Mastery\
 - [ ] Mời 4 thành viên vào GitHub repo `Tran1209/UML-Patterns-Mastery`
 
 ### Tuần 2-3 (Iteration 1 — Elaboration):
-- [ ] Chương 2: Use Case `UC-01` Fully Dressed + Domain Model (không method!)
-- [ ] Code Java: `Player.java`, `GameLoop.java`, `PlayerStateMachine.java`
-- [ ] Server Socket cơ bản kết nối 2 Client
+- [x] Chương 2: Use Case `UC-01` Fully Dressed + Domain Model
+- [x] Code Java: `Player.java`, `GameEngineLoop.java`, `PlayerStateMachine` (FSM) (✅ Đã build xong)
+- [x] Server Socket cơ bản kết nối Client (✅ DedicatedGameServer 20Hz)
 
 ### Tuần 4-5 (Iteration 2):
-- [ ] Chương 3: DCD + 9 GRASP + Deployment Diagram
-- [ ] Code: Combat Engine, LERP Interpolator, HUD Observer
-- [ ] JUnit Test: Va chạm AABB + Benchmark Jitter
+- [x] Chương 3: DCD + 9 GRASP + Deployment Diagram
+- [x] Code: `CombatEngine.java`, `SnapshotInterpolator.java` LERP, `HudObserver.java`, `LpcCanvasRenderer.java` (✅ Đã build xong)
+- [x] JUnit Test: Va chạm AABB + Benchmark Jitter + LPC Render (15/15 Pass) (✅ Đã build xong)
+- [x] File thực thi: `build/UmlPatternsMasteryGame.jar`, `run_game.bat`, `run_server.bat` (✅ Đã đóng gói xong)
 
 ### Tuần 6-7 (Hoàn thiện & Nộp):
 - [ ] Chương 4, 5, 6 + Tổng hợp 100 trang
