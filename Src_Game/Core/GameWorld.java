@@ -177,8 +177,12 @@ public class GameWorld {
     }
 
     public boolean handlePlayerSkill(int skillId) {
+        return handlePlayerSkill(skillId, 0.0, 0.0);
+    }
+
+    public boolean handlePlayerSkill(int skillId, double aimX, double aimY) {
         if (player.isAlive() && player.canCastSkill(skillId)) {
-            combatEngine.executePlayerSkill(player, skillId, monsters);
+            combatEngine.executePlayerSkill(player, skillId, aimX, aimY, monsters);
             return true;
         }
         return false;

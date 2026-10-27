@@ -120,6 +120,130 @@ public class AndroidGameRenderer {
         renderMultiplayerHUD(canvas, myState, networkClient.getCurrentWave(), roomCode, playerCount, monsterCount, screenW, screenH, states, clientTime, networkClient);
     }
 
+    /**
+     * Vẽ Vùng Chọn Kéo Thả / Mũi Tên Định Hướng 360° chuẩn Liên Quân Mobile (AOV Skill Indicator).
+     * - Chiêu 1 (⚡ Xung Kích): Mũi tên băng giá xoay 360° quanh chân tướng + Điểm đáp.
+     * - Chiêu 2 (🔥 Vòng Xoáy Lửa): Vòng giới hạn tầm xa 210px + Vòng tròn lửa AoE 120px di chuyển theo tay kéo.
+     * - Chiêu 3 (☄️ Thiên Phạt Ultimate): Vòng tầm xa 280px + Hồng tâm thiên thạch 165px di chuyển theo tay kéo.
+     * - Khi kéo tay vào nút HỦY CHIÊU: Toàn bộ vùng chọn chuyển sang màu ĐỎ CẢNH BÁO!
+     */
+    public void renderSkillTargetIndicator(Canvas canvas, Camera2D camera, double heroWorldX, double heroWorldY,
+                                           Direction fallbackDir, int activeSkillId, double aimX, double aimY, boolean isCancelHovered) {
+        if (canvas == null || camera == null || activeSkillId < 1 || activeSkillId > 3) return;
+
+        float sx = (float) camera.worldToScreenX(heroWorldX);
+        float sy = (float) camera.worldToScreenY(heroWorldY);
+
+        double mag = Math.hypot(aimX, aimY);
+        if (mag < 0.06 && fallbackDir != null) {
+            aimX = fallbackDir.getDirX() * (activeSkillId == 1 ? 1.0 : 0.55);
+            aimY = fallbackDir.getDirY() * (activeSkillId == 1 ? 1.0 : 0.55);
+            mag = Math.hypot(aimX, aimY);
+        }
+        if (mag > 1.0) {
+            aimX /= mag;
+            aimY /= mag;
+            mag = 1.0;
+        }
+
+        int mainR, mainG, mainB;
+        if (isCancelHovered) {
+            mainR = 255; mainG = 45; mainB = 45; // Đỏ cảnh báo hủy chiêu
+        } else if (activeSkillId == 1) {
+            mainR = 0; mainG = 229; mainB = 255; // Xanh băng giá
+        } else if (activeSkillId == 2) {
+            mainR = 255; mainG = 145; mainB = 0; // Cam rực lửa
+        } else {
+            mainR = 224; mainG = 64; mainB = 251; // Tím Hoàng Kim Ultimate
+        }
+
+        if (activeSkillId == 1) {
+            // CHIÊU 1: MŨI TÊN ĐỊNH HƯỚNG 360° (Directional Skillshot Arrow)
+            float range = (float) CombatEngine.SKILL1_MAX_RANGE;
+            double ux = (mag > 0.01) ? (aimX / mag) : 0.0;
+            double uy = (mag > 0.01) ? (aimY / mag) : 1.0;
+            float endX = sx + (float) (ux * range);
+            float endY = sy + (float) (uy * range);
+
+            // 1. Vòng tròn tầm lướt quanh chân tướng
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(22, mainR, mainG, mainB));
+            canvas.drawCircle(sx, sy, range, paint);
+
+            strokePaint.setStyle(Paint.Style.STROKE);
+            strokePaint.setStrokeWidth(2.5f);
+            strokePaint.setColor(Color.argb(120, mainR, mainG, mainB));
+            canvas.drawCircle(sx, sy, range, strokePaint);
+
+            // 2. Thân mũi tên định hướng (Corridor Box + Arrowhead)
+            float px = (float) -uy;
+            float py = (float) ux;
+            float halfW = 24f;
+            float headLen = 36f;
+            float bodyEndX = endX - (float) (ux * headLen);
+            float bodyEndY = endY - (float) (uy * headLen);
+
+            slashPath.reset();
+            slashPath.moveTo(sx + px * halfW, sy + py * halfW);
+            slashPath.lineTo(bodyEndX + px * halfW, bodyEndY + py * halfW);
+            slashPath.lineTo(bodyEndX + px * (halfW * 1.65f), bodyEndY + py * (halfW * 1.65f));
+            slashPath.lineTo(endX, endY);
+            slashPath.lineTo(bodyEndX - px * (halfW * 1.65f), bodyEndY - py * (halfW * 1.65f));
+            slashPath.lineTo(bodyEndX - px * halfW, bodyEndY - py * halfW);
+            slashPath.lineTo(sx - px * halfW, sy - py * halfW);
+            slashPath.close();
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(85, mainR, mainG, mainB));
+            canvas.drawPath(slashPath, paint);
+
+            strokePaint.setStrokeWidth(4f);
+            strokePaint.setColor(Color.argb(230, mainR, mainG, mainB));
+            canvas.drawPath(slashPath, strokePaint);
+
+            // 3. Tâm điểm đáp ở đầu mũi tên
+            canvas.drawCircle(endX, endY, 18f, strokePaint);
+        } else {
+            // CHIÊU 2 & CHIÊU 3: CHỌN VÙNG TRÒN MẶT ĐẤT (Ground AoE Target Circle)
+            float maxRange = (float) (activeSkillId == 2 ? CombatEngine.SKILL2_MAX_RANGE : CombatEngine.SKILL3_MAX_RANGE);
+            float aoeRadius = (float) (activeSkillId == 2 ? CombatEngine.SKILL2_AOE_RADIUS : CombatEngine.SKILL3_AOE_RADIUS);
+
+            float targetX = sx + (float) (aimX * maxRange);
+            float targetY = sy + (float) (aimY * maxRange);
+
+            // 1. Vòng tròn giới hạn tầm thi triển lớn quanh tướng
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(18, mainR, mainG, mainB));
+            canvas.drawCircle(sx, sy, maxRange, paint);
+
+            strokePaint.setStyle(Paint.Style.STROKE);
+            strokePaint.setStrokeWidth(2.5f);
+            strokePaint.setColor(Color.argb(135, mainR, mainG, mainB));
+            canvas.drawCircle(sx, sy, maxRange, strokePaint);
+
+            // 2. Đường dẫn tia ngắm từ chân tướng tới tâm vùng chọn
+            strokePaint.setStrokeWidth(3f);
+            strokePaint.setColor(Color.argb(170, mainR, mainG, mainB));
+            canvas.drawLine(sx, sy, targetX, targetY, strokePaint);
+
+            // 3. Vòng tròn vùng nổ AoE di chuyển theo ngón tay kéo
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(75, mainR, mainG, mainB));
+            canvas.drawCircle(targetX, targetY, aoeRadius, paint);
+
+            strokePaint.setStrokeWidth(4.5f);
+            strokePaint.setColor(Color.argb(240, mainR, mainG, mainB));
+            canvas.drawCircle(targetX, targetY, aoeRadius, strokePaint);
+
+            // 4. Hồng tâm ngắm (Bullseye Crosshair) bên trong vùng chọn
+            strokePaint.setStrokeWidth(2f);
+            strokePaint.setColor(Color.argb(200, 255, 245, 180));
+            canvas.drawCircle(targetX, targetY, aoeRadius * 0.45f, strokePaint);
+            canvas.drawLine(targetX - 18f, targetY, targetX + 18f, targetY, strokePaint);
+            canvas.drawLine(targetX, targetY - 18f, targetX, targetY + 18f, strokePaint);
+        }
+    }
+
     private void renderSnapshotMonster(Canvas canvas, network.WorldSnapshotPayload.EntityState state, Vector2D pos, Camera2D camera) {
         float sx = (float) camera.worldToScreenX(pos.getX());
         float sy = (float) camera.worldToScreenY(pos.getY());

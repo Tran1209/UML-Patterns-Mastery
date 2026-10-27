@@ -21,6 +21,14 @@ public class CombatEngine {
     public static final int COLOR_GREEN = 0xFF00E676;
     public static final int COLOR_PURPLE = 0xFFE040FB;
 
+    // Thông số Tầm xa (Cast Range) & Bán kính vùng ảnh hưởng (AoE Radius) chuẩn Liên Quân Mobile (AOV)
+    public static final double SKILL1_MAX_RANGE = 165.0;
+    public static final double SKILL1_CORRIDOR_WIDTH = 64.0;
+    public static final double SKILL2_MAX_RANGE = 210.0;
+    public static final double SKILL2_AOE_RADIUS = 120.0;
+    public static final double SKILL3_MAX_RANGE = 280.0;
+    public static final double SKILL3_AOE_RADIUS = 165.0;
+
     public static class FloatingText {
         public double x, y;
         public final String text;
@@ -252,38 +260,87 @@ public class CombatEngine {
     }
 
     /**
-     * Thực thi 3 Kỹ năng (Skills) chuẩn phong cách Liên Quân Mobile (AOV):
-     * - Skill 1 (⚡ XUNG KÍCH - Lướt chém xuyên phá): Lướt 155px về phía trước, gây sát thương dọc đường lướt.
-     * - Skill 2 (🔥 VÒNG XOÁY LỬA - Kiếm Khí AoE + Hồi phục): Xoáy lửa bán kính 135px quanh thân + Hồi 18 HP.
-     * - Skill 3 (☄️ THIÊN PHẠT - Ultimate Đại Địa Chấn): Nổ thiên thạch bán kính 210px, sát thương chí mạng x3.5 + Đẩy lùi!
+     * Thực thi 3 Kỹ năng (Skills) chuẩn phong cách Liên Quân Mobile (AOV) kèm Chọn Vùng Kéo Thả (aimX, aimY):
+     * - Skill 1 (⚡ XUNG KÍCH - Mũi tên định hướng 360°): Lướt 165px theo hướng kéo (aimX, aimY), chém xuyên phá.
+     * - Skill 2 (🔥 VÒNG XOÁY LỬA - Chọn vùng tròn tầm trung 210px): Nổ lửa bán kính 120px tại tâm ngắm + Hồi 18 HP.
+     * - Skill 3 (☄️ THIÊN PHẠT - Chọn vùng Ultimate tầm xa 280px): Giáng thiên thạch bán kính 165px tại tâm ngắm, Chí mạng + Đẩy lùi!
      */
     public int executePlayerSkill(Player caster, int skillId, List<Monster> monsters) {
+        return executePlayerSkill(caster, skillId, 0.0, 0.0, monsters);
+    }
+
+    public int executePlayerSkill(Player caster, int skillId, double aimX, double aimY, List<Monster> monsters) {
         if (caster == null || !caster.canCastSkill(skillId)) return 0;
 
         caster.triggerSkillCooldown(skillId);
         caster.changeState(new Player.AttackingState());
-        Direction dir = caster.getFacingDirection();
         double startX = caster.getPosition().getX();
         double startY = caster.getPosition().getY();
+
+        // Nếu người chơi bấm nhanh (Quick Tap) không kéo tâm ngắm -> Tự động khóa mục tiêu quái gần nhất trong tầm (Smart Auto-Aim AOV)
+        double aimMag = Math.hypot(aimX, aimY);
+        if (aimMag < 0.08) {
+            double maxRange = (skillId == 1) ? SKILL1_MAX_RANGE : ((skillId == 2) ? SKILL2_MAX_RANGE : SKILL3_MAX_RANGE);
+            Monster nearest = null;
+            double bestDist = maxRange + 80.0;
+            for (Monster m : monsters) {
+                if (!m.isAlive()) continue;
+                double d = m.getPosition().distanceTo(caster.getPosition());
+                if (d < bestDist) {
+                    bestDist = d;
+                    nearest = m;
+                }
+            }
+            if (nearest != null && bestDist > 1.0) {
+                double dx = nearest.getPosition().getX() - startX;
+                double dy = nearest.getPosition().getY() - startY;
+                if (skillId == 1) {
+                    aimX = dx / bestDist;
+                    aimY = dy / bestDist;
+                } else {
+                    double ratio = Math.min(1.0, bestDist / maxRange);
+                    aimX = (dx / bestDist) * ratio;
+                    aimY = (dy / bestDist) * ratio;
+                }
+            } else {
+                Direction fDir = caster.getFacingDirection();
+                aimX = fDir.getDirX() * (skillId == 1 ? 1.0 : 0.55);
+                aimY = fDir.getDirY() * (skillId == 1 ? 1.0 : 0.55);
+            }
+            aimMag = Math.hypot(aimX, aimY);
+        }
+
+        // Chuẩn hóa vector tâm ngắm không vượt quá bán kính tối đa 1.0
+        if (aimMag > 1.0) {
+            aimX /= aimMag;
+            aimY /= aimMag;
+            aimMag = 1.0;
+        }
+
+        if (aimMag > 0.05) {
+            caster.setFacingDirection(Direction.fromVelocity(aimX, aimY, caster.getFacingDirection()));
+        }
+
         int hitCount = 0;
 
         if (skillId == 1) {
-            // CHIÊU 1: ⚡ XUNG KÍCH (Lướt nhanh 155px + Chém xuyên thấu)
-            double dashDist = 155.0;
-            double endX = Math.max(40, Math.min(1560, startX + dir.getDirX() * dashDist));
-            double endY = Math.max(40, Math.min(1160, startY + dir.getDirY() * dashDist));
+            // CHIÊU 1: ⚡ XUNG KÍCH (Định hướng mũi tên 360 độ - Lướt nhanh 165px)
+            double ux = (aimMag > 0.01) ? (aimX / aimMag) : caster.getFacingDirection().getDirX();
+            double uy = (aimMag > 0.01) ? (aimY / aimMag) : caster.getFacingDirection().getDirY();
+            double endX = Math.max(40, Math.min(1560, startX + ux * SKILL1_MAX_RANGE));
+            double endY = Math.max(40, Math.min(1160, startY + uy * SKILL1_MAX_RANGE));
             double midX = (startX + endX) * 0.5;
             double midY = (startY + endY) * 0.5;
 
             caster.setPosition(new Vector2D(endX, endY));
-            spawnSkillVisualOnly(startX, startY, dir, 1);
+            spawnSkillVisualOnly(startX, startY, ux, uy, 1);
 
             for (Monster m : monsters) {
                 if (!m.isAlive()) continue;
                 double dStart = m.getPosition().distanceTo(new Vector2D(startX, startY));
                 double dMid = m.getPosition().distanceTo(new Vector2D(midX, midY));
                 double dEnd = m.getPosition().distanceTo(new Vector2D(endX, endY));
-                if (dStart <= 85 || dMid <= 85 || dEnd <= 95) {
+                if (dStart <= 80 || dMid <= 80 || dEnd <= 92) {
                     int dmg = (int) (physicalStrategy.calculateDamage(15, caster, m) * 1.5);
                     int actual = m.takeDamage(dmg);
                     hitCount++;
@@ -293,16 +350,20 @@ public class CombatEngine {
                 }
             }
         } else if (skillId == 2) {
-            // CHIÊU 2: 🔥 VÒNG XOÁY LỬA (Xoáy AoE bán kính 135px + Hút máu chiến trường +18 HP)
+            // CHIÊU 2: 🔥 VÒNG XOÁY LỬA (Chọn vùng tròn bán kính 120px trong tầm 210px + Hồi 18 HP)
+            double targetX = Math.max(40, Math.min(1560, startX + aimX * SKILL2_MAX_RANGE));
+            double targetY = Math.max(40, Math.min(1160, startY + aimY * SKILL2_MAX_RANGE));
+            Vector2D targetPos = new Vector2D(targetX, targetY);
+
             caster.heal(18);
             for (IEntityEventListener listener : eventListeners) {
                 listener.onHealthChanged(caster.getId(), caster.getCurrentHp(), caster.getMaxHp());
             }
-            spawnSkillVisualOnly(startX, startY, dir, 2);
+            spawnSkillVisualOnly(startX, startY, aimX, aimY, 2);
 
             for (Monster m : monsters) {
                 if (!m.isAlive()) continue;
-                if (m.getPosition().distanceTo(caster.getPosition()) <= 140.0) {
+                if (m.getPosition().distanceTo(targetPos) <= SKILL2_AOE_RADIUS + 18.0) {
                     int dmg = (int) (physicalStrategy.calculateDamage(20, caster, m) * 1.8);
                     int actual = m.takeDamage(dmg);
                     hitCount++;
@@ -312,26 +373,28 @@ public class CombatEngine {
                 }
             }
         } else if (skillId == 3) {
-            // CHIÊU 3 (ULTIMATE): ☄️ THIÊN PHẠT (Đại Địa Chấn Hoàng Kim bán kính 215px + Chí mạng x3.2 + Đẩy lùi)
-            double impactX = startX + dir.getDirX() * 55;
-            double impactY = startY + dir.getDirY() * 55;
+            // CHIÊU 3 (ULTIMATE): ☄️ THIÊN PHẠT (Chọn vùng thiên thạch tầm xa 280px, bán kính nổ 165px + Chí mạng + Đẩy lùi)
+            double impactX = Math.max(40, Math.min(1560, startX + aimX * SKILL3_MAX_RANGE));
+            double impactY = Math.max(40, Math.min(1160, startY + aimY * SKILL3_MAX_RANGE));
             Vector2D impactPos = new Vector2D(impactX, impactY);
-            spawnSkillVisualOnly(startX, startY, dir, 3);
+            spawnSkillVisualOnly(startX, startY, aimX, aimY, 3);
 
             for (Monster m : monsters) {
                 if (!m.isAlive()) continue;
                 double dist = m.getPosition().distanceTo(impactPos);
-                if (dist <= 215.0) {
+                if (dist <= SKILL3_AOE_RADIUS + 20.0) {
                     int dmg = (int) (physicalStrategy.calculateDamage(32, caster, m) * 2.8);
                     int actual = m.takeDamage(dmg);
                     hitCount++;
                     spawnDamageNumber(m.getPosition().getX(), m.getPosition().getY(), "💥 CRIT -" + actual, COLOR_PURPLE);
                     spawnHitParticles(m.getPosition().getX(), m.getPosition().getY(), COLOR_YELLOW, 16);
 
-                    // Hiệu ứng Đẩy lùi (Knockback) chuẩn Ultimate AOV
-                    if (m.isAlive() && dist > 1.0) {
-                        double kx = m.getPosition().getX() + ((m.getPosition().getX() - impactX) / dist) * 65.0;
-                        double ky = m.getPosition().getY() + ((m.getPosition().getY() - impactY) / dist) * 65.0;
+                    // Hiệu ứng Đẩy lùi (Knockback) văng ra khỏi tâm vùng chọn chuẩn Ultimate AOV
+                    if (m.isAlive()) {
+                        double pushDirX = (dist > 1.0) ? ((m.getPosition().getX() - impactX) / dist) : 1.0;
+                        double pushDirY = (dist > 1.0) ? ((m.getPosition().getY() - impactY) / dist) : 0.0;
+                        double kx = m.getPosition().getX() + pushDirX * 70.0;
+                        double ky = m.getPosition().getY() + pushDirY * 70.0;
                         m.setPosition(new Vector2D(
                                 Math.max(40, Math.min(1560, kx)),
                                 Math.max(40, Math.min(1160, ky))
@@ -345,34 +408,50 @@ public class CombatEngine {
     }
 
     /**
-     * Khởi tạo hiệu ứng thị giác của 3 chiêu thức (dùng chung cho cả Offline lẫn Multiplayer).
+     * Khởi tạo hiệu ứng thị giác của 3 chiêu thức theo tọa độ vùng chọn (dùng chung cho cả Offline lẫn Multiplayer).
      */
     public void spawnSkillVisualOnly(double startX, double startY, Direction dir, int skillId) {
         if (dir == null) dir = Direction.DOWN;
+        spawnSkillVisualOnly(startX, startY, dir.getDirX(), dir.getDirY(), skillId);
+    }
+
+    public void spawnSkillVisualOnly(double startX, double startY, double aimX, double aimY, int skillId) {
+        double mag = Math.hypot(aimX, aimY);
+        if (mag > 1.0) {
+            aimX /= mag;
+            aimY /= mag;
+            mag = 1.0;
+        }
+        Direction dir = Direction.fromVelocity(aimX, aimY, Direction.DOWN);
+
         if (skillId == 1) {
-            double endX = Math.max(40, Math.min(1560, startX + dir.getDirX() * 155.0));
-            double endY = Math.max(40, Math.min(1160, startY + dir.getDirY() * 155.0));
+            double ux = (mag > 0.01) ? (aimX / mag) : dir.getDirX();
+            double uy = (mag > 0.01) ? (aimY / mag) : dir.getDirY();
+            double endX = Math.max(40, Math.min(1560, startX + ux * SKILL1_MAX_RANGE));
+            double endY = Math.max(40, Math.min(1160, startY + uy * SKILL1_MAX_RANGE));
             double midX = (startX + endX) * 0.5;
             double midY = (startY + endY) * 0.5;
 
             skillRings.add(new SkillRingEffect(startX, startY, 55, COLOR_CYAN, 0.30, 1));
             skillRings.add(new SkillRingEffect(midX, midY, 65, COLOR_CYAN, 0.35, 1));
             skillRings.add(new SkillRingEffect(endX, endY, 85, COLOR_CYAN, 0.40, 1));
-            slashEffects.add(new SlashEffect(endX + dir.getDirX() * 28, endY + dir.getDirY() * 28, dir, 0.28));
+            slashEffects.add(new SlashEffect(endX + ux * 28, endY + uy * 28, dir, 0.28));
             spawnHitParticles(endX, endY, COLOR_CYAN, 14);
             spawnDamageNumber(endX, endY - 25, "⚡ XUNG KÍCH!", COLOR_CYAN);
         } else if (skillId == 2) {
-            skillRings.add(new SkillRingEffect(startX, startY, 140, COLOR_ORANGE, 0.45, 2));
-            skillRings.add(new SkillRingEffect(startX, startY, 95, COLOR_YELLOW, 0.38, 2));
-            spawnHitParticles(startX, startY, COLOR_ORANGE, 20);
-            spawnDamageNumber(startX, startY - 30, "🔥 VÒNG XOÁY LỬA (+18 HP)", COLOR_GREEN);
+            double targetX = Math.max(40, Math.min(1560, startX + aimX * SKILL2_MAX_RANGE));
+            double targetY = Math.max(40, Math.min(1160, startY + aimY * SKILL2_MAX_RANGE));
+            skillRings.add(new SkillRingEffect(targetX, targetY, SKILL2_AOE_RADIUS, COLOR_ORANGE, 0.48, 2));
+            skillRings.add(new SkillRingEffect(targetX, targetY, SKILL2_AOE_RADIUS * 0.68, COLOR_YELLOW, 0.38, 2));
+            spawnHitParticles(targetX, targetY, COLOR_ORANGE, 22);
+            spawnDamageNumber(targetX, targetY - 30, "🔥 VÒNG XOÁY LỬA (+18 HP)", COLOR_GREEN);
         } else if (skillId == 3) {
-            double impactX = startX + dir.getDirX() * 55;
-            double impactY = startY + dir.getDirY() * 55;
-            skillRings.add(new SkillRingEffect(impactX, impactY, 215, COLOR_YELLOW, 0.60, 3));
-            skillRings.add(new SkillRingEffect(impactX, impactY, 155, COLOR_PURPLE, 0.50, 3));
-            skillRings.add(new SkillRingEffect(impactX, impactY, 90, COLOR_RED, 0.40, 3));
-            spawnHitParticles(impactX, impactY, COLOR_YELLOW, 25);
+            double impactX = Math.max(40, Math.min(1560, startX + aimX * SKILL3_MAX_RANGE));
+            double impactY = Math.max(40, Math.min(1160, startY + aimY * SKILL3_MAX_RANGE));
+            skillRings.add(new SkillRingEffect(impactX, impactY, SKILL3_AOE_RADIUS, COLOR_YELLOW, 0.62, 3));
+            skillRings.add(new SkillRingEffect(impactX, impactY, SKILL3_AOE_RADIUS * 0.72, COLOR_PURPLE, 0.50, 3));
+            skillRings.add(new SkillRingEffect(impactX, impactY, SKILL3_AOE_RADIUS * 0.42, COLOR_RED, 0.40, 3));
+            spawnHitParticles(impactX, impactY, COLOR_YELLOW, 26);
             spawnHitParticles(impactX, impactY, COLOR_PURPLE, 18);
             spawnDamageNumber(impactX, impactY - 35, "☄️ THIÊN PHẠT (ULTIMATE)!", COLOR_YELLOW);
         }

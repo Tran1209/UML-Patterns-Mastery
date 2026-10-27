@@ -35,6 +35,8 @@ public class NetworkGameClient {
     private volatile double pendingVy = 0.0;
     private volatile boolean pendingAttack = false;
     private volatile int pendingSkillId = 0;
+    private volatile double pendingSkillAimX = 0.0;
+    private volatile double pendingSkillAimY = 0.0;
     private volatile boolean hasNewInput = false;
 
     public NetworkGameClient(String host, int port, String playerName) {
@@ -137,6 +139,8 @@ public class NetworkGameClient {
                     double vy = this.pendingVy;
                     boolean atk = this.pendingAttack;
                     int skill = this.pendingSkillId;
+                    double aimX = this.pendingSkillAimX;
+                    double aimY = this.pendingSkillAimY;
                     this.pendingAttack = false;
                     this.pendingSkillId = 0;
 
@@ -150,7 +154,7 @@ public class NetworkGameClient {
                         lastSentVy = vy;
 
                         synchronized (out) {
-                            PlayerInputPayload payload = new PlayerInputPayload(vx, vy, atk, skill);
+                            PlayerInputPayload payload = new PlayerInputPayload(vx, vy, atk, skill, aimX, aimY);
                             out.writeObject(new GamePacket(PacketType.PLAYER_INPUT, assignedPlayerId, payload));
                             out.reset();
                             out.flush();
@@ -171,6 +175,10 @@ public class NetworkGameClient {
     }
 
     public void sendInput(double vx, double vy, boolean isAttacking, int skillId) {
+        sendInput(vx, vy, isAttacking, skillId, 0.0, 0.0);
+    }
+
+    public void sendInput(double vx, double vy, boolean isAttacking, int skillId, double skillAimX, double skillAimY) {
         this.pendingVx = vx;
         this.pendingVy = vy;
         if (isAttacking) {
@@ -178,6 +186,8 @@ public class NetworkGameClient {
         }
         if (skillId > 0) {
             this.pendingSkillId = skillId;
+            this.pendingSkillAimX = skillAimX;
+            this.pendingSkillAimY = skillAimY;
         }
         this.hasNewInput = true;
 
@@ -188,6 +198,13 @@ public class NetworkGameClient {
                 double dt = 1.0 / 60.0;
                 double nextX = Math.max(40, Math.min(1560, cur.getX() + vx * dt));
                 double nextY = Math.max(40, Math.min(1160, cur.getY() + vy * dt));
+                if (skillId == 1) {
+                    double mag = Math.hypot(skillAimX, skillAimY);
+                    if (mag > 0.05) {
+                        nextX = Math.max(40, Math.min(1560, cur.getX() + (skillAimX / mag) * 165.0));
+                        nextY = Math.max(40, Math.min(1160, cur.getY() + (skillAimY / mag) * 165.0));
+                    }
+                }
                 smoothedPositions.put(assignedPlayerId, new Vector2D(nextX, nextY));
             }
         }

@@ -14,6 +14,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.Path2D;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +41,18 @@ public class GameCanvas extends JPanel {
     private long lastFpsUpdateTime = System.currentTimeMillis();
     private boolean attackRequested = false;
     private int skillRequested = 0;
+    private double skillAimRequestedX = 0.0;
+    private double skillAimRequestedY = 0.0;
+
+    // Trạng thái giữ kéo chọn vùng kỹ năng chuẩn Liên Quân Mobile (AOV) trên PC
+    private int activeAimingSkill = 0;
+    private double currentAimX = 0.0;
+    private double currentAimY = 0.0;
+    private int lastMouseX = -1;
+    private int lastMouseY = -1;
+    private boolean draggingFromSkillBar = false;
+    private int dragStartBoxCenterX = 0;
+    private int dragStartBoxCenterY = 0;
 
     public GameCanvas(GameWorld world, NetworkGameClient networkClient, int width, int height) {
         this.world = world;
@@ -59,21 +75,24 @@ public class GameCanvas extends JPanel {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                pressedKeys.add(e.getKeyCode());
-
                 int code = e.getKeyCode();
+                boolean isNewPress = pressedKeys.add(code);
+
                 if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_J) {
                     if (networkClient != null && networkClient.isConnected()) {
                         attackRequested = true;
                     } else {
                         world.handlePlayerAttack();
                     }
-                } else if (code == KeyEvent.VK_1 || code == KeyEvent.VK_U) {
-                    triggerDesktopSkill(1);
-                } else if (code == KeyEvent.VK_2 || code == KeyEvent.VK_I) {
-                    triggerDesktopSkill(2);
-                } else if (code == KeyEvent.VK_3 || code == KeyEvent.VK_O) {
-                    triggerDesktopSkill(3);
+                } else if ((code == KeyEvent.VK_1 || code == KeyEvent.VK_U) && isNewPress) {
+                    startDesktopSkillAim(1);
+                } else if ((code == KeyEvent.VK_2 || code == KeyEvent.VK_I) && isNewPress) {
+                    startDesktopSkillAim(2);
+                } else if ((code == KeyEvent.VK_3 || code == KeyEvent.VK_O) && isNewPress) {
+                    startDesktopSkillAim(3);
+                } else if (code == KeyEvent.VK_ESCAPE) {
+                    activeAimingSkill = 0;
+                    draggingFromSkillBar = false;
                 } else if (code == KeyEvent.VK_R) {
                     if (networkClient == null && !world.getPlayer().isAlive()) {
                         world.restartGame();
@@ -85,23 +104,175 @@ public class GameCanvas extends JPanel {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                pressedKeys.remove(e.getKeyCode());
+                int code = e.getKeyCode();
+                pressedKeys.remove(code);
+
+                if ((code == KeyEvent.VK_1 || code == KeyEvent.VK_U) && activeAimingSkill == 1 && !draggingFromSkillBar) {
+                    triggerDesktopSkill(1, currentAimX, currentAimY);
+                    activeAimingSkill = 0;
+                } else if ((code == KeyEvent.VK_2 || code == KeyEvent.VK_I) && activeAimingSkill == 2 && !draggingFromSkillBar) {
+                    triggerDesktopSkill(2, currentAimX, currentAimY);
+                    activeAimingSkill = 0;
+                } else if ((code == KeyEvent.VK_3 || code == KeyEvent.VK_O) && activeAimingSkill == 3 && !draggingFromSkillBar) {
+                    triggerDesktopSkill(3, currentAimX, currentAimY);
+                    activeAimingSkill = 0;
+                }
+            }
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                requestFocusInWindow();
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    activeAimingSkill = 0;
+                    draggingFromSkillBar = false;
+                    return;
+                }
+
+                // Kiểm tra nếu nhấn chuột trực tiếp vào 1 trong 3 ô kỹ năng dưới màn hình để kéo thả như điện thoại
+                int clickedBoxSkill = getHoveredSkillBox(e.getX(), e.getY());
+                if (clickedBoxSkill >= 1 && clickedBoxSkill <= 3) {
+                    if (world.getPlayer().canCastSkill(clickedBoxSkill)) {
+                        activeAimingSkill = clickedBoxSkill;
+                        draggingFromSkillBar = true;
+                        int boxW = 148, gap = 14;
+                        int totalW = boxW * 3 + gap * 2;
+                        int startX = getWidth() / 2 - totalW / 2;
+                        dragStartBoxCenterX = startX + (clickedBoxSkill - 1) * (boxW + gap) + boxW / 2;
+                        dragStartBoxCenterY = getHeight() - 88 + 22;
+                        currentAimX = 0.0;
+                        currentAimY = 0.0;
+                    }
+                    return;
+                }
+
+                // Nếu đang bật ngắm bằng phím và click chuột trái lên bản đồ -> Tung chiêu ngay tại vị trí con trỏ
+                if (activeAimingSkill >= 1 && activeAimingSkill <= 3) {
+                    updateAimFromMouse(e.getX(), e.getY());
+                    triggerDesktopSkill(activeAimingSkill, currentAimX, currentAimY);
+                    activeAimingSkill = 0;
+                    draggingFromSkillBar = false;
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (draggingFromSkillBar && activeAimingSkill >= 1 && activeAimingSkill <= 3) {
+                    triggerDesktopSkill(activeAimingSkill, currentAimX, currentAimY);
+                    activeAimingSkill = 0;
+                    draggingFromSkillBar = false;
+                }
+            }
+        });
+
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+                if (activeAimingSkill >= 1 && activeAimingSkill <= 3 && !draggingFromSkillBar) {
+                    updateAimFromMouse(e.getX(), e.getY());
+                }
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+                if (activeAimingSkill >= 1 && activeAimingSkill <= 3) {
+                    if (draggingFromSkillBar) {
+                        double dx = e.getX() - dragStartBoxCenterX;
+                        double dy = e.getY() - dragStartBoxCenterY;
+                        double maxDrag = 95.0;
+                        double dist = Math.hypot(dx, dy);
+                        if (dist > maxDrag && dist > 0.001) {
+                            currentAimX = dx / dist;
+                            currentAimY = dy / dist;
+                        } else {
+                            currentAimX = dx / maxDrag;
+                            currentAimY = dy / maxDrag;
+                        }
+                    } else {
+                        updateAimFromMouse(e.getX(), e.getY());
+                    }
+                }
             }
         });
     }
 
-    private void triggerDesktopSkill(int skillId) {
+    private int getHoveredSkillBox(int mx, int my) {
+        int boxW = 148, boxH = 44, gap = 14;
+        int totalW = boxW * 3 + gap * 2;
+        int startX = getWidth() / 2 - totalW / 2;
+        int boxY = getHeight() - 88;
+        if (my < boxY || my > boxY + boxH) return 0;
+        for (int i = 0; i < 3; i++) {
+            int bx = startX + i * (boxW + gap);
+            if (mx >= bx && mx <= bx + boxW) return i + 1;
+        }
+        return 0;
+    }
+
+    private void startDesktopSkillAim(int skillId) {
+        if (!world.getPlayer().canCastSkill(skillId)) return;
+        activeAimingSkill = skillId;
+        draggingFromSkillBar = false;
+        if (lastMouseX >= 0 && lastMouseY >= 0) {
+            updateAimFromMouse(lastMouseX, lastMouseY);
+        } else {
+            Direction dir = world.getPlayer().getFacingDirection();
+            currentAimX = dir.getDirX() * (skillId == 1 ? 1.0 : 0.55);
+            currentAimY = dir.getDirY() * (skillId == 1 ? 1.0 : 0.55);
+        }
+    }
+
+    private void updateAimFromMouse(int mx, int my) {
+        double heroWorldX = (networkClient != null && networkClient.isConnected())
+                ? camera.getX()
+                : world.getPlayer().getPosition().getX();
+        double heroWorldY = (networkClient != null && networkClient.isConnected())
+                ? camera.getY()
+                : world.getPlayer().getPosition().getY();
+        double heroSx = camera.worldToScreenX(heroWorldX);
+        double heroSy = camera.worldToScreenY(heroWorldY);
+
+        double dx = mx - heroSx;
+        double dy = my - heroSy;
+        double maxRange = (activeAimingSkill == 1) ? CombatEngine.SKILL1_MAX_RANGE
+                : ((activeAimingSkill == 2) ? CombatEngine.SKILL2_MAX_RANGE : CombatEngine.SKILL3_MAX_RANGE);
+        double dist = Math.hypot(dx, dy);
+        if (dist > maxRange && dist > 0.001) {
+            currentAimX = dx / dist;
+            currentAimY = dy / dist;
+        } else {
+            currentAimX = dx / maxRange;
+            currentAimY = dy / maxRange;
+        }
+    }
+
+    private void triggerDesktopSkill(int skillId, double aimX, double aimY) {
         Player player = world.getPlayer();
         if (!player.canCastSkill(skillId)) return;
 
         if (networkClient != null && networkClient.isConnected()) {
             player.triggerSkillCooldown(skillId);
             skillRequested = skillId;
+            skillAimRequestedX = aimX;
+            skillAimRequestedY = aimY;
+            if (Math.hypot(aimX, aimY) < 0.08) {
+                Direction dir = player.getFacingDirection();
+                aimX = dir.getDirX() * (skillId == 1 ? 1.0 : 0.55);
+                aimY = dir.getDirY() * (skillId == 1 ? 1.0 : 0.55);
+            }
             world.getCombatEngine().spawnSkillVisualOnly(
-                    camera.getX(), camera.getY(), player.getFacingDirection(), skillId
+                    camera.getX(), camera.getY(), aimX, aimY, skillId
             );
         } else {
-            world.handlePlayerSkill(skillId);
+            world.handlePlayerSkill(skillId, aimX, aimY);
         }
     }
 
@@ -136,9 +307,11 @@ public class GameCanvas extends JPanel {
 
             boolean isAttacking = attackRequested;
             int skill = skillRequested;
+            double aimX = skillAimRequestedX;
+            double aimY = skillAimRequestedY;
             attackRequested = false;
             skillRequested = 0;
-            networkClient.sendInput(vx * speed, vy * speed, isAttacking, skill);
+            networkClient.sendInput(vx * speed, vy * speed, isAttacking, skill, aimX, aimY);
         } else {
             // Chế độ Chơi Đơn Offline
             Player player = world.getPlayer();
@@ -348,6 +521,10 @@ public class GameCanvas extends JPanel {
     }
 
     private void renderCombatEffects(Graphics2D g2d) {
+        if (activeAimingSkill >= 1 && activeAimingSkill <= 3) {
+            renderDesktopSkillIndicator(g2d);
+        }
+
         CombatEngine ce = world.getCombatEngine();
 
         for (CombatEngine.SkillRingEffect ring : ce.getSkillRings()) {
@@ -544,8 +721,8 @@ public class GameCanvas extends JPanel {
             }
         }
 
-        String guide = isOnline ? "🌐 ĐẤU MẠNG: [WASD]: Di chuyển | [SPACE/J]: Đánh thường | [1/2/3] hoặc [U/I/O]: Tung 3 Chiêu AOV"
-                : "⌨️ CHƠI ĐƠN: [WASD]: Di chuyển | [SPACE/J]: Đánh thường | [1/2/3] hoặc [U/I/O]: 3 Chiêu AOV | [R]: Tái sinh";
+        String guide = isOnline ? "🌐 ĐẤU MẠNG: [WASD]: Di chuyển | [SPACE/J]: Đánh | Giữ [1/2/3] hoặc Kéo ô chiêu để Chọn Vùng -> Thả ra để Tung Chiêu!"
+                : "⌨️ CHƠI ĐƠN: [WASD]: Di chuyển | [SPACE/J]: Đánh | Giữ [1/2/3] hoặc Kéo ô chiêu để Chọn Vùng (Chuột phải: Hủy)";
         g2d.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         FontMetrics fm = g2d.getFontMetrics();
         int gW = fm.stringWidth(guide);
@@ -554,6 +731,103 @@ public class GameCanvas extends JPanel {
         g2d.fillRoundRect(width / 2 - gW / 2 - 12, height - 36, gW + 24, 26, 8, 8);
         g2d.setColor(new Color(200, 205, 220));
         g2d.drawString(guide, width / 2 - gW / 2, height - 19);
+    }
+
+    /**
+     * Vẽ Vùng Chọn Kéo Thả / Mũi Tên Định Hướng 360° chuẩn Liên Quân Mobile (AOV) trên PC.
+     */
+    private void renderDesktopSkillIndicator(Graphics2D g2d) {
+        double heroWorldX = (networkClient != null && networkClient.isConnected())
+                ? camera.getX()
+                : world.getPlayer().getPosition().getX();
+        double heroWorldY = (networkClient != null && networkClient.isConnected())
+                ? camera.getY()
+                : world.getPlayer().getPosition().getY();
+        double sx = camera.worldToScreenX(heroWorldX);
+        double sy = camera.worldToScreenY(heroWorldY);
+
+        double aimX = currentAimX;
+        double aimY = currentAimY;
+        double mag = Math.hypot(aimX, aimY);
+        if (mag < 0.06) {
+            Direction fDir = world.getPlayer().getFacingDirection();
+            aimX = fDir.getDirX() * (activeAimingSkill == 1 ? 1.0 : 0.55);
+            aimY = fDir.getDirY() * (activeAimingSkill == 1 ? 1.0 : 0.55);
+            mag = Math.hypot(aimX, aimY);
+        }
+        if (mag > 1.0) {
+            aimX /= mag;
+            aimY /= mag;
+            mag = 1.0;
+        }
+
+        Color mainColor = (activeAimingSkill == 1) ? new Color(0, 229, 255)
+                : ((activeAimingSkill == 2) ? new Color(255, 145, 0) : new Color(224, 64, 251));
+
+        if (activeAimingSkill == 1) {
+            int range = (int) CombatEngine.SKILL1_MAX_RANGE;
+            double ux = (mag > 0.01) ? (aimX / mag) : 0.0;
+            double uy = (mag > 0.01) ? (aimY / mag) : 1.0;
+            double endX = sx + ux * range;
+            double endY = sy + uy * range;
+
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 25));
+            g2d.fillOval((int) sx - range, (int) sy - range, range * 2, range * 2);
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 130));
+            g2d.setStroke(new BasicStroke(2f));
+            g2d.drawOval((int) sx - range, (int) sy - range, range * 2, range * 2);
+
+            double px = -uy;
+            double py = ux;
+            double halfW = 24.0;
+            double headLen = 36.0;
+            double bodyEndX = endX - ux * headLen;
+            double bodyEndY = endY - uy * headLen;
+
+            Path2D arrow = new Path2D.Double();
+            arrow.moveTo(sx + px * halfW, sy + py * halfW);
+            arrow.lineTo(bodyEndX + px * halfW, bodyEndY + py * halfW);
+            arrow.lineTo(bodyEndX + px * (halfW * 1.65), bodyEndY + py * (halfW * 1.65));
+            arrow.lineTo(endX, endY);
+            arrow.lineTo(bodyEndX - px * (halfW * 1.65), bodyEndY - py * (halfW * 1.65));
+            arrow.lineTo(bodyEndX - px * halfW, bodyEndY - py * halfW);
+            arrow.lineTo(sx - px * halfW, sy - py * halfW);
+            arrow.closePath();
+
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 85));
+            g2d.fill(arrow);
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 230));
+            g2d.setStroke(new BasicStroke(3.5f));
+            g2d.draw(arrow);
+            g2d.setStroke(new BasicStroke(1f));
+        } else {
+            int maxRange = (int) (activeAimingSkill == 2 ? CombatEngine.SKILL2_MAX_RANGE : CombatEngine.SKILL3_MAX_RANGE);
+            int aoeRadius = (int) (activeAimingSkill == 2 ? CombatEngine.SKILL2_AOE_RADIUS : CombatEngine.SKILL3_AOE_RADIUS);
+            int targetX = (int) (sx + aimX * maxRange);
+            int targetY = (int) (sy + aimY * maxRange);
+
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 22));
+            g2d.fillOval((int) sx - maxRange, (int) sy - maxRange, maxRange * 2, maxRange * 2);
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 140));
+            g2d.setStroke(new BasicStroke(2f));
+            g2d.drawOval((int) sx - maxRange, (int) sy - maxRange, maxRange * 2, maxRange * 2);
+
+            g2d.drawLine((int) sx, (int) sy, targetX, targetY);
+
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 75));
+            g2d.fillOval(targetX - aoeRadius, targetY - aoeRadius, aoeRadius * 2, aoeRadius * 2);
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 235));
+            g2d.setStroke(new BasicStroke(3.5f));
+            g2d.drawOval(targetX - aoeRadius, targetY - aoeRadius, aoeRadius * 2, aoeRadius * 2);
+
+            g2d.setColor(new Color(255, 245, 180, 200));
+            g2d.setStroke(new BasicStroke(1.8f));
+            int innerR = (int) (aoeRadius * 0.45);
+            g2d.drawOval(targetX - innerR, targetY - innerR, innerR * 2, innerR * 2);
+            g2d.drawLine(targetX - 16, targetY, targetX + 16, targetY);
+            g2d.drawLine(targetX, targetY - 16, targetX, targetY + 16);
+            g2d.setStroke(new BasicStroke(1f));
+        }
     }
 
     private void renderGameOverOverlay(Graphics2D g2d, int width, int height) {

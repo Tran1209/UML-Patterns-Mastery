@@ -120,7 +120,7 @@ public class DedicatedGameServer {
         }
 
         if (input.skillId >= 1 && input.skillId <= 3 && player.canCastSkill(input.skillId)) {
-            combatEngine.executePlayerSkill(player, input.skillId, new ArrayList<>(monsters));
+            combatEngine.executePlayerSkill(player, input.skillId, input.skillAimX, input.skillAimY, new ArrayList<>(monsters));
         } else if (input.isAttacking && player.canAttack()) {
             combatEngine.executePlayerAttack(player, new ArrayList<>(monsters));
         }

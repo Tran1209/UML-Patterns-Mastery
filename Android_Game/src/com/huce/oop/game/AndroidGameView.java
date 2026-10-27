@@ -51,12 +51,19 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
     private TouchButton skill1Btn;
     private TouchButton skill2Btn;
     private TouchButton skill3Btn;
+    private TouchButton cancelSkillBtn;
     private TouchButton weaponBtn;
     private TouchButton exitBtn;
     private TouchButton copyCodeBtn;
 
     private volatile boolean attackRequested = false;
     private volatile int skillRequested = 0;
+    private volatile double skillAimRequestedX = 0.0;
+    private volatile double skillAimRequestedY = 0.0;
+
+    // Trạng thái giữ kéo chọn vùng kỹ năng chuẩn Liên Quân Mobile (AOV)
+    private volatile int activeAimingSkill = 0;
+    private volatile boolean isCancelHovered = false;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int currentWeaponIndex = 0;
     private final String[] weaponNames = {"Kiếm Sắt", "Thương Dài", "Chùy Gai"};
@@ -144,23 +151,32 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
         float skillR = atkR * 0.68f;
         float ultR = atkR * 0.76f;
 
-        // Chiêu 1 (Góc 174 độ - Bên trái nút Đánh thường): ⚡ Xung Kích
+        // Chiêu 1 (Góc 174 độ - Bên trái nút Đánh thường): ⚡ Xung Kích (Kéo thả mũi tên 360°)
         double rad1 = Math.toRadians(174.0);
         float s1X = atkX + (float) (Math.cos(rad1) * arcRadius);
         float s1Y = atkY - (float) (Math.sin(rad1) * arcRadius);
-        this.skill1Btn = new TouchButton(s1X, s1Y, skillR, "⚡", "XUNG KÍCH", Color.rgb(0, 145, 234), Color.rgb(64, 196, 255));
+        this.skill1Btn = new TouchButton(s1X, s1Y, skillR, "⚡", "XUNG KÍCH", Color.rgb(0, 145, 234), Color.rgb(64, 196, 255))
+                .setDragAimable(true);
 
-        // Chiêu 2 (Góc 130 độ - Chéo trên trái nút Đánh thường): 🔥 Xoáy Lửa
+        // Chiêu 2 (Góc 130 độ - Chéo trên trái nút Đánh thường): 🔥 Xoáy Lửa (Kéo thả chọn vùng tròn)
         double rad2 = Math.toRadians(130.0);
         float s2X = atkX + (float) (Math.cos(rad2) * arcRadius);
         float s2Y = atkY - (float) (Math.sin(rad2) * arcRadius);
-        this.skill2Btn = new TouchButton(s2X, s2Y, skillR, "🔥", "XOÁY LỬA", Color.rgb(230, 81, 0), Color.rgb(255, 145, 0));
+        this.skill2Btn = new TouchButton(s2X, s2Y, skillR, "🔥", "XOÁY LỬA", Color.rgb(230, 81, 0), Color.rgb(255, 145, 0))
+                .setDragAimable(true);
 
-        // Chiêu 3 Ultimate (Góc 86 độ - Phía trên nút Đánh thường): ☄️ Thiên Phạt
+        // Chiêu 3 Ultimate (Góc 86 độ - Phía trên nút Đánh thường): ☄️ Thiên Phạt (Kéo thả thiên thạch tầm xa)
         double rad3 = Math.toRadians(86.0);
         float s3X = atkX + (float) (Math.cos(rad3) * arcRadius);
         float s3Y = atkY - (float) (Math.sin(rad3) * arcRadius);
-        this.skill3Btn = new TouchButton(s3X, s3Y, ultR, "☄️", "ULTIMATE", Color.rgb(142, 36, 170), Color.rgb(224, 64, 251));
+        this.skill3Btn = new TouchButton(s3X, s3Y, ultR, "☄️", "ULTIMATE", Color.rgb(142, 36, 170), Color.rgb(224, 64, 251))
+                .setDragAimable(true);
+
+        // Nút Hủy Chiêu (❌ HỦY CHIÊU) xuất hiện phía trên góc phải khi đang giữ kéo kỹ năng chuẩn Liên Quân
+        float cancelR = atkR * 0.56f;
+        float cancelX = width - cancelR * 1.6f;
+        float cancelY = Math.max(185f, s3Y - ultR * 2.15f);
+        this.cancelSkillBtn = new TouchButton(cancelX, cancelY, cancelR, "✖", "HỦY CHIÊU", Color.rgb(198, 40, 40), Color.rgb(255, 23, 68));
 
         // 4. Nút Đổi Vũ Khí nhỏ gọn phía ngoài cùng bên trái cụm kỹ năng
         float wpnR = atkR * 0.50f;
@@ -257,10 +273,12 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
 
             boolean isAtk = attackRequested;
             int skill = skillRequested;
+            double aimX = skillAimRequestedX;
+            double aimY = skillAimRequestedY;
             attackRequested = false;
             skillRequested = 0;
 
-            networkClient.sendInput(jx * speed, jy * speed, isAtk, skill);
+            networkClient.sendInput(jx * speed, jy * speed, isAtk, skill, aimX, aimY);
             world.getCombatEngine().updateEffects(dt);
         } else {
             // Chế độ Chơi Đơn Offline
@@ -300,12 +318,35 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                     renderer.render(canvas, world, camera, width, height);
                 }
 
+                // Vẽ Vùng Chọn Kéo Thả / Mũi Tên Định Hướng 360° dưới mặt đất nếu đang giữ nút kỹ năng
+                int aimingSkill = activeAimingSkill;
+                if (aimingSkill >= 1 && aimingSkill <= 3 && renderer != null && camera != null && world != null) {
+                    TouchButton activeBtn = (aimingSkill == 1) ? skill1Btn : ((aimingSkill == 2) ? skill2Btn : skill3Btn);
+                    if (activeBtn != null && activeBtn.isPressed()) {
+                        double heroX = (networkClient != null && networkClient.isConnected())
+                                ? camera.getX()
+                                : world.getPlayer().getPosition().getX();
+                        double heroY = (networkClient != null && networkClient.isConnected())
+                                ? camera.getY()
+                                : world.getPlayer().getPosition().getY();
+                        renderer.renderSkillTargetIndicator(
+                                canvas, camera, heroX, heroY,
+                                world.getPlayer().getFacingDirection(),
+                                aimingSkill, activeBtn.getAimX(), activeBtn.getAimY(),
+                                isCancelHovered
+                        );
+                    }
+                }
+
                 // Vẽ cụm điều khiển cảm ứng chuẩn AOV
                 if (joystick != null) joystick.draw(canvas, paint);
                 if (attackBtn != null) attackBtn.draw(canvas, paint);
                 if (skill1Btn != null) skill1Btn.draw(canvas, paint);
                 if (skill2Btn != null) skill2Btn.draw(canvas, paint);
                 if (skill3Btn != null) skill3Btn.draw(canvas, paint);
+                if (aimingSkill >= 1 && aimingSkill <= 3 && cancelSkillBtn != null) {
+                    cancelSkillBtn.draw(canvas, paint);
+                }
                 if (weaponBtn != null) weaponBtn.draw(canvas, paint);
                 if (exitBtn != null) exitBtn.draw(canvas, paint);
                 if (copyCodeBtn != null) copyCodeBtn.draw(canvas, paint);
@@ -332,6 +373,7 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                boolean cancelHover = false;
                 for (int i = 0; i < event.getPointerCount(); i++) {
                     int pId = event.getPointerId(i);
                     float px = event.getX(i);
@@ -339,7 +381,16 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                     if (joystick != null) {
                         joystick.onTouchMove(pId, px, py);
                     }
+                    boolean movedSkill = false;
+                    if (skill1Btn != null && skill1Btn.onTouchMove(pId, px, py)) movedSkill = true;
+                    if (skill2Btn != null && skill2Btn.onTouchMove(pId, px, py)) movedSkill = true;
+                    if (skill3Btn != null && skill3Btn.onTouchMove(pId, px, py)) movedSkill = true;
+
+                    if (movedSkill && cancelSkillBtn != null && cancelSkillBtn.containsPoint(px, py)) {
+                        cancelHover = true;
+                    }
                 }
+                isCancelHovered = cancelHover;
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
@@ -370,13 +421,16 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
             return;
         }
 
-        // Nửa phải màn hình: Cụm phím Đánh Thường + 3 Chiêu AOV + Đổi Vũ Khí
+        // Nửa phải màn hình: Cụm phím Đánh Thường + 3 Chiêu AOV (Giữ để kéo vùng chọn, thả tay để tung chiêu)
         if (skill1Btn != null && skill1Btn.onTouchDown(pointerId, touchX, touchY)) {
-            triggerSkill(1);
+            activeAimingSkill = 1;
+            isCancelHovered = false;
         } else if (skill2Btn != null && skill2Btn.onTouchDown(pointerId, touchX, touchY)) {
-            triggerSkill(2);
+            activeAimingSkill = 2;
+            isCancelHovered = false;
         } else if (skill3Btn != null && skill3Btn.onTouchDown(pointerId, touchX, touchY)) {
-            triggerSkill(3);
+            activeAimingSkill = 3;
+            isCancelHovered = false;
         } else if (attackBtn != null && attackBtn.onTouchDown(pointerId, touchX, touchY)) {
             attackRequested = true;
             if (networkClient == null || !networkClient.isConnected()) {
@@ -398,30 +452,85 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
         }
     }
 
-    private void triggerSkill(int skillId) {
+    private void triggerSkill(int skillId, double aimX, double aimY) {
         Player player = world.getPlayer();
         if (!player.canCastSkill(skillId)) return;
 
         if (networkClient == null || !networkClient.isConnected()) {
-            world.handlePlayerSkill(skillId);
+            world.handlePlayerSkill(skillId, aimX, aimY);
         } else {
-            // Chế độ Đấu Mạng: Kích hoạt hồi chiêu & gửi lệnh chiêu thức lên Server
+            // Chế độ Đấu Mạng: Kích hoạt hồi chiêu & gửi lệnh chiêu thức kèm tọa độ vùng chọn lên Server
             player.triggerSkillCooldown(skillId);
             skillRequested = skillId;
-            Direction dir = player.getFacingDirection();
-            world.getCombatEngine().spawnSkillVisualOnly(camera.getX(), camera.getY(), dir, skillId);
+            skillAimRequestedX = aimX;
+            skillAimRequestedY = aimY;
+            if (Math.hypot(aimX, aimY) < 0.08) {
+                Direction dir = player.getFacingDirection();
+                aimX = dir.getDirX() * (skillId == 1 ? 1.0 : 0.55);
+                aimY = dir.getDirY() * (skillId == 1 ? 1.0 : 0.55);
+            }
+            world.getCombatEngine().spawnSkillVisualOnly(camera.getX(), camera.getY(), aimX, aimY, skillId);
         }
     }
 
     private void handleTouchUp(int pointerId) {
         if (joystick != null) joystick.onTouchUp(pointerId);
         if (attackBtn != null) attackBtn.onTouchUp(pointerId);
-        if (skill1Btn != null) skill1Btn.onTouchUp(pointerId);
-        if (skill2Btn != null) skill2Btn.onTouchUp(pointerId);
-        if (skill3Btn != null) skill3Btn.onTouchUp(pointerId);
+
+        if (skill1Btn != null) {
+            double ax = skill1Btn.getAimX();
+            double ay = skill1Btn.getAimY();
+            if (skill1Btn.onTouchUp(pointerId)) {
+                if (!isCancelHovered) {
+                    triggerSkill(1, ax, ay);
+                } else {
+                    showCancelToast();
+                }
+                activeAimingSkill = 0;
+                isCancelHovered = false;
+            }
+        }
+        if (skill2Btn != null) {
+            double ax = skill2Btn.getAimX();
+            double ay = skill2Btn.getAimY();
+            if (skill2Btn.onTouchUp(pointerId)) {
+                if (!isCancelHovered) {
+                    triggerSkill(2, ax, ay);
+                } else {
+                    showCancelToast();
+                }
+                activeAimingSkill = 0;
+                isCancelHovered = false;
+            }
+        }
+        if (skill3Btn != null) {
+            double ax = skill3Btn.getAimX();
+            double ay = skill3Btn.getAimY();
+            if (skill3Btn.onTouchUp(pointerId)) {
+                if (!isCancelHovered) {
+                    triggerSkill(3, ax, ay);
+                } else {
+                    showCancelToast();
+                }
+                activeAimingSkill = 0;
+                isCancelHovered = false;
+            }
+        }
+
         if (weaponBtn != null) weaponBtn.onTouchUp(pointerId);
         if (exitBtn != null) exitBtn.onTouchUp(pointerId);
         if (copyCodeBtn != null) copyCodeBtn.onTouchUp(pointerId);
+    }
+
+    private void showCancelToast() {
+        if (world != null && camera != null) {
+            world.getCombatEngine().spawnDamageNumber(
+                    camera.getX(),
+                    camera.getY() - 35,
+                    "✖ ĐÃ HỦY CHIÊU",
+                    CombatEngine.COLOR_RED
+            );
+        }
     }
 
     private void exitToLobby() {

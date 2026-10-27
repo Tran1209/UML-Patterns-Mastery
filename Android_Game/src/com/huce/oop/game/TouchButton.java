@@ -9,7 +9,9 @@ import java.util.Locale;
 
 /**
  * Nút bấm cảm ứng ảo (Virtual Touch Button) chuẩn phong cách Liên Quân Mobile (AOV).
- * Tích hợp hiệu ứng quạt đếm ngược hồi chiêu (Radial Cooldown Sweep) và đồng hồ giây thực tế.
+ * Tích hợp:
+ * 1. Hiệu ứng quạt đếm ngược hồi chiêu (Radial Cooldown Sweep) và đồng hồ giây thực tế.
+ * 2. Cơ chế Kéo Thả Chọn Vùng / Định Hướng 360° (Skill Drag Joystick) ngay trên nút kỹ năng.
  */
 public class TouchButton {
     private float centerX;
@@ -25,6 +27,13 @@ public class TouchButton {
     private float cooldownRemaining = 0f;
     private float maxCooldown = 1f;
 
+    // Trạng thái kéo thả chọn vùng kỹ năng (AOV Skill Drag-Aiming)
+    private boolean dragAimable = false;
+    private float knobX;
+    private float knobY;
+    private double aimX = 0.0;
+    private double aimY = 0.0;
+
     private final Rect textBounds = new Rect();
     private final RectF arcBounds = new RectF();
 
@@ -36,11 +45,52 @@ public class TouchButton {
         this.subLabel = subLabel;
         this.baseColor = baseColor;
         this.pressedColor = pressedColor;
+        this.knobX = centerX;
+        this.knobY = centerY;
+    }
+
+    public TouchButton setDragAimable(boolean dragAimable) {
+        this.dragAimable = dragAimable;
+        return this;
+    }
+
+    public boolean isDragAimable() {
+        return dragAimable;
     }
 
     public void setCenter(float cx, float cy) {
         this.centerX = cx;
         this.centerY = cy;
+        if (!isPressed) {
+            this.knobX = cx;
+            this.knobY = cy;
+        }
+    }
+
+    public float getCenterX() {
+        return centerX;
+    }
+
+    public float getCenterY() {
+        return centerY;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public double getAimX() {
+        return aimX;
+    }
+
+    public double getAimY() {
+        return aimY;
+    }
+
+    public boolean containsPoint(float x, float y) {
+        float dx = x - centerX;
+        float dy = y - centerY;
+        return (dx * dx + dy * dy) <= (radius * 1.25f) * (radius * 1.25f);
     }
 
     public void setCooldown(double remaining, double max) {
@@ -61,9 +111,43 @@ public class TouchButton {
             }
             activePointerId = pointerId;
             isPressed = true;
+            knobX = centerX;
+            knobY = centerY;
+            aimX = 0.0;
+            aimY = 0.0;
+            if (dragAimable) {
+                updateDragKnob(touchX, touchY);
+            }
             return true;
         }
         return false;
+    }
+
+    public boolean onTouchMove(int pointerId, float touchX, float touchY) {
+        if (pointerId == activePointerId && isPressed && dragAimable) {
+            updateDragKnob(touchX, touchY);
+            return true;
+        }
+        return false;
+    }
+
+    private void updateDragKnob(float touchX, float touchY) {
+        float dx = touchX - centerX;
+        float dy = touchY - centerY;
+        float dist = (float) Math.hypot(dx, dy);
+        float maxDrag = radius * 1.75f;
+
+        if (dist > maxDrag && dist > 0.001f) {
+            knobX = centerX + (dx / dist) * maxDrag;
+            knobY = centerY + (dy / dist) * maxDrag;
+            aimX = dx / dist;
+            aimY = dy / dist;
+        } else {
+            knobX = touchX;
+            knobY = touchY;
+            aimX = dx / maxDrag;
+            aimY = dy / maxDrag;
+        }
     }
 
     public boolean onTouchUp(int pointerId) {
@@ -71,6 +155,8 @@ public class TouchButton {
             activePointerId = -1;
             boolean wasPressed = isPressed;
             isPressed = false;
+            knobX = centerX;
+            knobY = centerY;
             return wasPressed;
         }
         return false;
@@ -79,6 +165,10 @@ public class TouchButton {
     public void reset() {
         activePointerId = -1;
         isPressed = false;
+        knobX = centerX;
+        knobY = centerY;
+        aimX = 0.0;
+        aimY = 0.0;
     }
 
     public boolean isPressed() {
@@ -86,6 +176,24 @@ public class TouchButton {
     }
 
     public void draw(Canvas canvas, Paint paint) {
+        // 0. Nếu đang giữ kéo thả chọn vùng (AOV Skill Drag Ring): Vẽ vòng giới hạn kéo + núm điều hướng
+        if (dragAimable && isPressed) {
+            float maxDrag = radius * 1.75f;
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(55, 0, 229, 255));
+            canvas.drawCircle(centerX, centerY, maxDrag, paint);
+
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(2.8f);
+            paint.setColor(Color.argb(190, 0, 229, 255));
+            canvas.drawCircle(centerX, centerY, maxDrag, paint);
+
+            // Đường nối từ tâm nút tới núm kéo
+            paint.setStrokeWidth(4f);
+            paint.setColor(Color.argb(200, 255, 255, 255));
+            canvas.drawLine(centerX, centerY, knobX, knobY, paint);
+        }
+
         // 1. Vòng hào quang nền ngoài chuẩn AOV
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.argb(60, 0, 0, 0));
@@ -136,5 +244,17 @@ public class TouchButton {
         paint.setStrokeWidth(isPressed ? 5f : 3.2f);
         paint.setColor(isOnCooldown() ? Color.argb(130, 150, 160, 180) : Color.rgb(255, 235, 160));
         canvas.drawCircle(centerX, centerY, radius, paint);
+
+        // 7. Vẽ núm tròn điều hướng (Thumb Knob) khi người chơi đang kéo chọn vùng chiêu thức
+        if (dragAimable && isPressed) {
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(235, 255, 255, 255));
+            canvas.drawCircle(knobX, knobY, radius * 0.42f, paint);
+
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(3f);
+            paint.setColor(pressedColor);
+            canvas.drawCircle(knobX, knobY, radius * 0.42f, paint);
+        }
     }
 }
