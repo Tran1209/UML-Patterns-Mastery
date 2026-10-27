@@ -164,7 +164,8 @@ public class LobbyPanel extends JPanel {
 
     private void handleCreateRoom() {
         String pName = getPlayerName();
-        String roomCode = "ARENA-" + (1000 + new Random().nextInt(9000));
+        String roomCode = LanDiscovery.generateSmartRoomCode();
+        String localIp = LanDiscovery.getLocalLanIp();
         int port = 7777;
 
         // Khởi động Dedicated Server ngầm ngay bên trong máy Host (không cần mở terminal ngoài)
@@ -173,17 +174,17 @@ public class LobbyPanel extends JPanel {
             server.start();
         }, "Host-InternalServer").start();
 
-        // Phát sóng phòng ra toàn mạng LAN
+        // Phát sóng phòng ra toàn mạng LAN (vẫn tiếp tục phát ngay cả khi đã vào trận)
         lanDiscovery.startBroadcasting(roomCode, pName, port);
 
         // Hiển thị hộp thoại mã mời với nút Copy
         String inviteMessage = String.format(
                 "🎉 BẠN ĐÃ TẠO PHÒNG THÀNH CÔNG!\n\n" +
                 "🔑 MÃ PHÒNG CỦA BẠN:  %s\n" +
-                "📡 CỔNG KẾT NỐI:  %d\n\n" +
-                "👉 Bạn bè cùng mạng WiFi sẽ tự thấy phòng của bạn trên danh sách!\n" +
-                "👉 Bạn bè dùng 4G ở xa chỉ cần nhập địa chỉ IP/Tunnel của bạn để vào.",
-                roomCode, port
+                "🌐 ĐỊA CHỈ IP MÁY CHỦ:  %s:%d\n\n" +
+                "👉 Máy khác cùng WiFi sẽ tự thấy phòng ở cột bên phải, hoặc chỉ cần nhập mã [%s] là vào ngay!\n" +
+                "👉 Bạn bè dùng 4G ở xa nhập địa chỉ Tunnel để vào.",
+                roomCode, localIp, port, roomCode
         );
 
         int choice = JOptionPane.showOptionDialog(
@@ -199,7 +200,7 @@ public class LobbyPanel extends JPanel {
 
         if (choice == 0) {
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
-                    new StringSelection("Vào chơi game cùng mình nhé! Mã phòng: " + roomCode), null
+                    new StringSelection(roomCode), null
             );
         }
 
@@ -211,25 +212,26 @@ public class LobbyPanel extends JPanel {
         String pName = getPlayerName();
         String input = JOptionPane.showInputDialog(
                 parentFrame,
-                "Nhập Mã Phòng (ví dụ: ARENA-1234) hoặc Địa chỉ IP Server:",
-                "127.0.0.1"
+                "Nhập Mã Phòng (ví dụ: ARENA-1-17) hoặc Địa chỉ IP Server:",
+                ""
         );
 
         if (input != null && !input.trim().isEmpty()) {
             input = input.trim();
-            String host = input;
             int port = 7777;
 
             // Nếu người dùng nhập dạng host:port
             if (input.contains(":")) {
                 String[] parts = input.split(":");
-                host = parts[0];
                 try {
-                    port = Integer.parseInt(parts[1]);
+                    port = Integer.parseInt(parts[1].trim());
                 } catch (NumberFormatException ignored) {}
             }
 
-            launchGameWindow(pName, host, port);
+            // Giải mã Mã Phòng (ví dụ ARENA-1-17 -> 192.168.1.17) hoặc tra cứu phòng LAN
+            String resolvedHost = lanDiscovery.resolveRoomCodeToIp(input);
+
+            launchGameWindow(pName, resolvedHost, port);
         }
     }
 
@@ -253,7 +255,8 @@ public class LobbyPanel extends JPanel {
     }
 
     private void launchGameWindow(String playerName, String host, int port) {
-        lanDiscovery.stop();
+        // Chỉ tắt lắng nghe danh sách phòng, giữ nguyên luồng phát sóng nếu máy này là Host!
+        lanDiscovery.stopListening();
         parentFrame.dispose();
 
         SwingUtilities.invokeLater(() -> {

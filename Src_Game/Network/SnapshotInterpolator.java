@@ -7,6 +7,7 @@ import java.util.*;
  * Bộ đệm và giải thuật nội suy tuyến tính (Snapshot Interpolation - LERP).
  * Tham chiếu: Joshua Glazer & Sanjay Madhav, Multiplayer Game Programming, Ch. 7.
  * Giải quyết triệt để lỗi giật hình (Micro-stutter / Jitter) khi Server gửi 20Hz nhưng Client vẽ 60 FPS.
+ * Đảm bảo Thread-Safe tuyệt đối giữa luồng nhận mạng (Network Thread) và luồng dựng hình (Render Thread).
  */
 public class SnapshotInterpolator {
     public static class EntityTransform {
@@ -26,11 +27,11 @@ public class SnapshotInterpolator {
         this.interpolationDelayMs = interpolationDelayMs;
     }
 
-    public void pushTransform(String entityId, Vector2D position, long serverTimestamp) {
+    public synchronized void pushTransform(String entityId, Vector2D position, long timestamp) {
         Deque<EntityTransform> buffer = historyBuffers.computeIfAbsent(entityId, k -> new ArrayDeque<>());
-        buffer.addLast(new EntityTransform(position, serverTimestamp));
+        buffer.addLast(new EntityTransform(position, timestamp));
 
-        // Dọn dẹp các mẫu cũ quá 1000ms để tránh rò rỉ bộ nhớ
+        // Dọn dẹp các mẫu cũ để tránh rò rỉ bộ nhớ
         while (buffer.size() > 20) {
             buffer.removeFirst();
         }
@@ -40,7 +41,7 @@ public class SnapshotInterpolator {
      * Nội suy vị trí thực thể tại thời điểm render hiện tại.
      * Sử dụng công thức: P_render = P_old + (P_new - P_old) * alpha
      */
-    public Vector2D interpolate(String entityId, long currentClientTime) {
+    public synchronized Vector2D interpolate(String entityId, long currentClientTime) {
         Deque<EntityTransform> buffer = historyBuffers.get(entityId);
         if (buffer == null || buffer.isEmpty()) {
             return null;
@@ -77,6 +78,9 @@ public class SnapshotInterpolator {
 
         // Tính toán hệ số alpha trong đoạn [0.0, 1.0]
         double duration = pNew.timestamp - pOld.timestamp;
+        if (duration <= 0) {
+            return pNew.position;
+        }
         double progress = renderTimestamp - pOld.timestamp;
         float alpha = (float) Math.max(0.0, Math.min(1.0, progress / duration));
 

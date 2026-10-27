@@ -163,7 +163,18 @@ public class AndroidLobbyView extends RelativeLayout {
 
         listRooms = new ListView(context);
         listRooms.setBackgroundColor(Color.rgb(20, 22, 28));
-        roomAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_single_choice, roomDisplayList);
+        roomAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_single_choice, roomDisplayList) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView tv = view.findViewById(android.R.id.text1);
+                if (tv != null) {
+                    tv.setTextColor(Color.WHITE);
+                    tv.setTextSize(13f);
+                }
+                return view;
+            }
+        };
         listRooms.setAdapter(roomAdapter);
         listRooms.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         LinearLayout.LayoutParams listParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
@@ -200,7 +211,8 @@ public class AndroidLobbyView extends RelativeLayout {
 
     private void handleCreateRoom(Context context) {
         String pName = getPlayerName();
-        String roomCode = "ARENA-" + (1000 + new Random().nextInt(9000));
+        String roomCode = LanDiscovery.generateSmartRoomCode();
+        String localIp = LanDiscovery.getLocalLanIp();
         int port = 7777;
 
         // Khởi động Dedicated Server ngầm ngay trên điện thoại (đóng vai trò Host)
@@ -209,25 +221,24 @@ public class AndroidLobbyView extends RelativeLayout {
             server.start();
         }, "Host-InternalServer-Android").start();
 
-        // Phát sóng phòng ra toàn mạng WiFi
+        // Phát sóng phòng ra toàn mạng WiFi (tiếp tục phát sóng ngay cả khi đã vào trận)
         lanDiscovery.startBroadcasting(roomCode, pName, port);
 
         String inviteMessage = String.format(
                 "🎉 BẠN ĐÃ TẠO PHÒNG THÀNH CÔNG!\n\n" +
                 "🔑 MÃ PHÒNG CỦA BẠN:  %s\n" +
-                "📡 CỔNG KẾT NỐI:  %d\n\n" +
-                "👉 Bạn bè dùng máy tính PC hoặc điện thoại cùng mạng WiFi sẽ tự thấy phòng của bạn trên danh sách!\n" +
-                "👉 Bạn bè dùng 4G ở xa chỉ cần nhập địa chỉ IP của bạn để vào.",
-                roomCode, port
+                "🌐 IP MÁY CHỦ:  %s:%d\n\n" +
+                "👉 Máy tính PC hoặc điện thoại khác cùng WiFi sẽ tự thấy phòng ở cột bên phải, hoặc chỉ cần nhập mã [%s] là vào ngay!",
+                roomCode, localIp, port, roomCode
         );
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Phòng Đấu Đã Tạo - " + roomCode);
         builder.setMessage(inviteMessage);
 
-        builder.setPositiveButton("📋 SAO CHÉP MÃ MỜI & VÀO PHÒNG", (dialog, which) -> {
-            copyToClipboard(context, "Vào chơi game cùng mình nhé! Mã phòng: " + roomCode);
-            Toast.makeText(context, "Đã sao chép mã mời vào bộ nhớ tạm!", Toast.LENGTH_SHORT).show();
+        builder.setPositiveButton("📋 SAO CHÉP MÃ & VÀO PHÒNG", (dialog, which) -> {
+            copyToClipboard(context, roomCode);
+            Toast.makeText(context, "Đã sao chép mã phòng: " + roomCode, Toast.LENGTH_SHORT).show();
             launchGame(pName, "127.0.0.1", port, roomCode);
         });
 
@@ -243,10 +254,10 @@ public class AndroidLobbyView extends RelativeLayout {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Tham Gia Phòng Đấu");
-        builder.setMessage("Nhập Mã Phòng (ví dụ: ARENA-1234) hoặc Địa chỉ IP Server:");
+        builder.setMessage("Nhập Mã Phòng (ví dụ: ARENA-1-17) hoặc Địa chỉ IP Server:");
 
         final EditText input = new EditText(context);
-        input.setHint("192.168.1.15 hoặc ARENA-1234");
+        input.setHint("Ví dụ: ARENA-1-17 hoặc 192.168.1.17");
         input.setTextColor(Color.BLACK);
         input.setPadding(30, 20, 30, 20);
         builder.setView(input);
@@ -255,29 +266,21 @@ public class AndroidLobbyView extends RelativeLayout {
             String str = input.getText().toString().trim();
             if (str.isEmpty()) return;
 
-            String host = str;
             int port = 7777;
-            String roomCode = "ARENA-ROOM";
-
-            // Kiểm tra xem có khớp với phòng nào đang dò tìm qua WiFi không
-            for (LanDiscovery.DiscoveredRoom r : activeRoomsCache) {
-                if (r.roomCode.equalsIgnoreCase(str)) {
-                    host = r.hostIp;
-                    port = r.serverPort;
-                    roomCode = r.roomCode;
-                    break;
-                }
-            }
+            String roomCode = str.toUpperCase();
 
             if (str.contains(":")) {
                 String[] parts = str.split(":");
-                host = parts[0];
                 try {
-                    port = Integer.parseInt(parts[1]);
+                    port = Integer.parseInt(parts[1].trim());
                 } catch (NumberFormatException ignored) {}
             }
 
-            launchGame(pName, host, port, roomCode);
+            // Giải mã Mã Phòng Thông Minh (ARENA-1-17 -> 192.168.1.17) hoặc tra cứu phòng LAN
+            String resolvedHost = lanDiscovery.resolveRoomCodeToIp(str);
+            Toast.makeText(context, "Đang kết nối tới phòng: " + resolvedHost + ":" + port, Toast.LENGTH_SHORT).show();
+
+            launchGame(pName, resolvedHost, port, roomCode);
         });
 
         builder.setNegativeButton("HỦY", null);
@@ -288,6 +291,10 @@ public class AndroidLobbyView extends RelativeLayout {
         int pos = listRooms.getCheckedItemPosition();
         if (pos >= 0 && pos < activeRoomsCache.size()) {
             LanDiscovery.DiscoveredRoom r = activeRoomsCache.get(pos);
+            launchGame(getPlayerName(), r.hostIp, r.serverPort, r.roomCode);
+        } else if (activeRoomsCache.size() == 1) {
+            // Nếu trên mạng chỉ có đúng 1 phòng đang mở -> Tự chọn luôn cho tiện!
+            LanDiscovery.DiscoveredRoom r = activeRoomsCache.get(0);
             launchGame(getPlayerName(), r.hostIp, r.serverPort, r.roomCode);
         } else {
             Toast.makeText(context, "Vui lòng chạm chọn một phòng trong danh sách dò tìm!", Toast.LENGTH_SHORT).show();
@@ -300,7 +307,8 @@ public class AndroidLobbyView extends RelativeLayout {
 
     private void launchGame(String playerName, String host, int port, String roomCode) {
         handler.removeCallbacks(refreshRoomsRunnable);
-        lanDiscovery.stop();
+        // Chỉ dừng lắng nghe danh sách phòng, giữ nguyên phát sóng nếu máy này là Chủ phòng!
+        lanDiscovery.stopListening();
         if (listener != null) {
             listener.onStartGame(playerName, host, port, roomCode);
         }
@@ -313,7 +321,7 @@ public class AndroidLobbyView extends RelativeLayout {
 
     public void stopDiscovery() {
         handler.removeCallbacks(refreshRoomsRunnable);
-        lanDiscovery.stop();
+        lanDiscovery.stopListening();
     }
 
     private String getPlayerName() {

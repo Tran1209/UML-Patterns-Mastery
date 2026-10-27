@@ -2,6 +2,7 @@ package network;
 
 import core.Vector2D;
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,20 +36,27 @@ public class NetworkGameClient {
 
     public boolean connect() {
         try {
-            this.socket = new Socket(host, port);
+            this.socket = new Socket();
+            this.socket.setTcpNoDelay(true);
+            this.socket.connect(new InetSocketAddress(host, port), 4000);
+
             this.out = new ObjectOutputStream(socket.getOutputStream());
+            this.out.flush();
             this.in = new ObjectInputStream(socket.getInputStream());
             this.isConnected = true;
 
             // Gửi yêu cầu gia nhập (JOIN_REQUEST)
-            out.writeObject(new GamePacket(PacketType.JOIN_REQUEST, "CLIENT", playerName));
-            out.flush();
+            synchronized (out) {
+                out.writeObject(new GamePacket(PacketType.JOIN_REQUEST, "CLIENT", playerName));
+                out.flush();
+            }
 
             // Nhận phản hồi xác thực danh tính
             GamePacket response = (GamePacket) in.readObject();
             if (response.getType() == PacketType.JOIN_RESPONSE) {
                 this.assignedPlayerId = (String) response.getPayload();
-                System.out.printf("🎉 Kết nối thành công tới Server! [Cấp ID: %s | Tên: %s]%n", assignedPlayerId, playerName);
+                System.out.printf("🎉 Kết nối thành công tới Server (%s:%d)! [Cấp ID: %s | Tên: %s]%n",
+                        host, port, assignedPlayerId, playerName);
             }
 
             // Bắt đầu luồng lắng nghe World Snapshot từ Server (20Hz)
@@ -56,7 +64,7 @@ public class NetworkGameClient {
             return true;
 
         } catch (Exception e) {
-            System.err.println("❌ Không thể kết nối tới Server: " + e.getMessage());
+            System.err.println("❌ Không thể kết nối tới Server (" + host + ":" + port + "): " + e.getMessage());
             disconnect();
             return false;
         }
@@ -72,12 +80,15 @@ public class NetworkGameClient {
                     WorldSnapshotPayload snapshot = (WorldSnapshotPayload) packet.getPayload();
                     this.currentWave = snapshot.wave;
 
+                    // Dùng đồng hồ cục bộ của Client khi gói tin tới để tránh lệch múi giờ/đồng hồ giữa PC và Điện thoại
+                    long receiveTime = System.currentTimeMillis();
+
                     // Đưa dữ liệu tọa độ từng thực thể vào bộ đệm nội suy LERP
                     for (WorldSnapshotPayload.EntityState entity : snapshot.entities) {
                         interpolator.pushTransform(
                                 entity.id,
                                 new Vector2D(entity.posX, entity.posY),
-                                snapshot.serverTimestamp
+                                receiveTime
                         );
                         latestStates.put(entity.id, entity);
                     }
@@ -97,11 +108,14 @@ public class NetworkGameClient {
     }
 
     public void sendInput(double vx, double vy, boolean isAttacking) {
-        if (!isConnected || out == null) return;
+        if (!isConnected || out == null || assignedPlayerId == null) return;
         try {
-            PlayerInputPayload payload = new PlayerInputPayload(vx, vy, isAttacking);
-            out.writeObject(new GamePacket(PacketType.PLAYER_INPUT, assignedPlayerId, payload));
-            out.reset();
+            synchronized (out) {
+                PlayerInputPayload payload = new PlayerInputPayload(vx, vy, isAttacking);
+                out.writeObject(new GamePacket(PacketType.PLAYER_INPUT, assignedPlayerId, payload));
+                out.reset();
+                out.flush();
+            }
         } catch (IOException e) {
             disconnect();
         }
@@ -128,6 +142,14 @@ public class NetworkGameClient {
 
     public int getCurrentWave() {
         return currentWave;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     public void disconnect() {
