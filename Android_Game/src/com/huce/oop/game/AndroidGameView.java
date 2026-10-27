@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
+import combat.CombatEffects;
 import combat.CombatEngine;
 import core.GameWorld;
 import core.Player;
@@ -295,7 +296,7 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                 } else if (isAtk && player.canAttack()) {
                     player.triggerAttackCooldown(0.35);
                     Direction dir = player.getFacingDirection();
-                    world.getCombatEngine().getSlashEffects().add(new CombatEngine.SlashEffect(
+                    world.getCombatEngine().getSlashEffects().add(new CombatEffects.SlashEffect(
                             myPos.getX() + dir.getDirX() * 32,
                             myPos.getY() + dir.getDirY() * 32,
                             dir, 0.20

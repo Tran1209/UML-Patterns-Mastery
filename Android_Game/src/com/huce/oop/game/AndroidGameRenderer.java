@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import combat.CombatEffects;
 import combat.CombatEngine;
 import core.GameWorld;
 import core.Monster;
@@ -640,7 +641,7 @@ public class AndroidGameRenderer {
         strokePaint.setStyle(Paint.Style.STROKE);
 
         // 1. Vẽ hiệu ứng Vòng Xoáy / Sóng Xung Kích của 3 Kỹ Năng AOV (Skill Rings)
-        for (CombatEngine.SkillRingEffect ring : ce.getSkillRings()) {
+        for (CombatEffects.SkillRingEffect ring : ce.getSkillRings()) {
             float sx = (float) camera.worldToScreenX(ring.x);
             float sy = (float) camera.worldToScreenY(ring.y);
             float progress = (float) Math.max(0.0, Math.min(1.0, 1.0 - (ring.lifeTime / ring.maxLifeTime)));
@@ -665,7 +666,7 @@ public class AndroidGameRenderer {
 
         // 2. Vẽ vệt chém thường (Slash Arcs)
         strokePaint.setStrokeWidth(6f);
-        for (CombatEngine.SlashEffect slash : ce.getSlashEffects()) {
+        for (CombatEffects.SlashEffect slash : ce.getSlashEffects()) {
             float sx = (float) camera.worldToScreenX(slash.x);
             float sy = (float) camera.worldToScreenY(slash.y);
             float alpha = (float) Math.max(0f, slash.lifeTime / slash.maxLifeTime);
@@ -681,7 +682,7 @@ public class AndroidGameRenderer {
         if (ce == null) return;
         paint.setStyle(Paint.Style.FILL);
 
-        for (CombatEngine.HitParticle p : ce.getParticles()) {
+        for (CombatEffects.HitParticle p : ce.getParticles()) {
             float sx = (float) camera.worldToScreenX(p.x);
             float sy = (float) camera.worldToScreenY(p.y);
             float alpha = (float) Math.max(0f, p.lifeTime / p.maxLifeTime);
@@ -700,7 +701,7 @@ public class AndroidGameRenderer {
         paint.setTextSize(26f);
         paint.setTextAlign(Paint.Align.CENTER);
 
-        for (CombatEngine.FloatingText ft : ce.getFloatingTexts()) {
+        for (CombatEffects.FloatingText ft : ce.getFloatingTexts()) {
             float sx = (float) camera.worldToScreenX(ft.x);
             float sy = (float) camera.worldToScreenY(ft.y);
             float alpha = (float) Math.max(0f, ft.lifeTime / ft.maxLifeTime);
