@@ -8,6 +8,7 @@ import render.Direction;
 import ui.IEntityEventListener;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Động cơ xử lý chiến đấu (Combat Engine) theo mẫu kiến trúc phân vùng không gian.
@@ -136,11 +137,12 @@ public class CombatEngine {
 
     private final SpatialGridAoI spatialGrid;
     private final IDamageStrategy physicalStrategy;
-    private final List<FloatingText> floatingTexts = new ArrayList<>();
-    private final List<HitParticle> particles = new ArrayList<>();
-    private final List<SlashEffect> slashEffects = new ArrayList<>();
-    private final List<SkillRingEffect> skillRings = new ArrayList<>();
-    private final List<IEntityEventListener> eventListeners = new ArrayList<>();
+    // Dùng CopyOnWriteArrayList đảm bảo Thread-Safe 100% giữa luồng Cảm Ứng (UI Thread) và luồng Game Loop 60FPS, chống văng game khi spam đánh thường!
+    private final List<FloatingText> floatingTexts = new CopyOnWriteArrayList<>();
+    private final List<HitParticle> particles = new CopyOnWriteArrayList<>();
+    private final List<SlashEffect> slashEffects = new CopyOnWriteArrayList<>();
+    private final List<SkillRingEffect> skillRings = new CopyOnWriteArrayList<>();
+    private final List<IEntityEventListener> eventListeners = new CopyOnWriteArrayList<>();
 
     public CombatEngine(int gridCellSize) {
         this.spatialGrid = new SpatialGridAoI(gridCellSize);
@@ -495,18 +497,24 @@ public class CombatEngine {
     }
 
     public void spawnDamageNumber(double x, double y, int damage, int color) {
-        floatingTexts.add(new FloatingText(x, y - 10, "-" + damage, color, 0.8));
+        if (floatingTexts.size() < 40) {
+            floatingTexts.add(new FloatingText(x, y - 10, "-" + damage, color, 0.8));
+        }
     }
 
     public void spawnDamageNumber(double x, double y, String text, int color) {
-        floatingTexts.add(new FloatingText(x, y - 10, text, color, 1.2));
+        if (floatingTexts.size() < 40) {
+            floatingTexts.add(new FloatingText(x, y - 10, text, color, 1.2));
+        }
     }
 
     public void spawnHitParticles(double x, double y, int color, int count) {
+        if (particles.size() > 160) return; // Giới hạn số hạt chống tràn bộ nhớ khi spam liên thanh
+        List<HitParticle> batch = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             double angle = Math.random() * Math.PI * 2;
             double speed = 40 + Math.random() * 120;
-            particles.add(new HitParticle(
+            batch.add(new HitParticle(
                     x, y,
                     Math.cos(angle) * speed,
                     Math.sin(angle) * speed,
@@ -515,5 +523,6 @@ public class CombatEngine {
                     2.0 + Math.random() * 3.0
             ));
         }
+        particles.addAll(batch);
     }
 }

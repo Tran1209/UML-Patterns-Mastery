@@ -7,6 +7,7 @@ import render.CharacterRenderer;
 import ui.HudObserver;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Thế giới trò chơi (Game World) quản lý toàn bộ thực thể, quy tắc chiến đấu và vòng lặp đấu trường.
@@ -18,8 +19,8 @@ public class GameWorld {
 
     private final Player player;
     private final CharacterRenderer playerRenderer;
-    private final List<Monster> monsters = new ArrayList<>();
-    private final List<Player> remotePlayers = new ArrayList<>();
+    private final List<Monster> monsters = new CopyOnWriteArrayList<>();
+    private final List<Player> remotePlayers = new CopyOnWriteArrayList<>();
     private final CombatEngine combatEngine;
     private final HudObserver hudObserver;
 
@@ -146,15 +147,14 @@ public class GameWorld {
         // 5. Cập nhật các hiệu ứng hạt, số sát thương
         combatEngine.updateEffects(dt);
 
-        // 6. Dọn dẹp quái vật đã tử vong và cộng điểm
-        Iterator<Monster> it = monsters.iterator();
-        while (it.hasNext()) {
-            Monster m = it.next();
+        // 6. Dọn dẹp quái vật đã tử vong và cộng điểm (Thread-Safe với CopyOnWriteArrayList)
+        monsters.removeIf(m -> {
             if (!m.isAlive()) {
                 score += m.getType().hp * 2;
-                it.remove();
+                return true;
             }
-        }
+            return false;
+        });
 
         // 7. Kiểm tra hoàn thành đợt quái (Wave Clear)
         if (monsters.isEmpty() && waveInProgress) {

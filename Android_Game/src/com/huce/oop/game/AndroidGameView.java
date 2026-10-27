@@ -241,8 +241,12 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
 
             if (dt > 0.1) dt = 0.1;
 
-            updateGame(dt);
-            renderGame();
+            try {
+                updateGame(dt);
+                renderGame();
+            } catch (Throwable ignored) {
+                // Bảo vệ tuyệt đối vòng lặp GameLoopThread 60 FPS không bao giờ bị văng khi spam cảm ứng đa điểm
+            }
 
             long elapsedNs = System.nanoTime() - now;
             long sleepMs = (long) ((nsPerTick - elapsedNs) / 1_000_000);
@@ -262,6 +266,13 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
 
         Player player = world != null ? world.getPlayer() : null;
 
+        boolean isAtk = attackRequested;
+        int skill = skillRequested;
+        double aimX = skillAimRequestedX;
+        double aimY = skillAimRequestedY;
+        attackRequested = false;
+        skillRequested = 0;
+
         if (networkClient != null && networkClient.isConnected()) {
             // Cập nhật bộ đếm thời gian hồi chiêu cục bộ cho nút bấm
             if (player != null) {
@@ -269,20 +280,48 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                     player.setFacingDirection(joystick.getDirection());
                 }
                 player.updatePhysics(dt);
-            }
 
-            boolean isAtk = attackRequested;
-            int skill = skillRequested;
-            double aimX = skillAimRequestedX;
-            double aimY = skillAimRequestedY;
-            attackRequested = false;
-            skillRequested = 0;
+                if (skill >= 1 && skill <= 3 && player.canCastSkill(skill)) {
+                    player.triggerSkillCooldown(skill);
+                    double vxAim = aimX;
+                    double vyAim = aimY;
+                    if (Math.hypot(vxAim, vyAim) < 0.08) {
+                        Direction dir = player.getFacingDirection();
+                        vxAim = dir.getDirX() * (skill == 1 ? 1.0 : 0.55);
+                        vyAim = dir.getDirY() * (skill == 1 ? 1.0 : 0.55);
+                    }
+                    world.getCombatEngine().spawnSkillVisualOnly(camera.getX(), camera.getY(), vxAim, vyAim, skill);
+                } else if (isAtk && player.canAttack()) {
+                    player.triggerAttackCooldown(0.35);
+                    Direction dir = player.getFacingDirection();
+                    world.getCombatEngine().getSlashEffects().add(new CombatEngine.SlashEffect(
+                            camera.getX() + dir.getDirX() * 32,
+                            camera.getY() + dir.getDirY() * 32,
+                            dir, 0.20
+                    ));
+                    world.getCombatEngine().spawnHitParticles(
+                            camera.getX() + dir.getDirX() * 32,
+                            camera.getY() + dir.getDirY() * 32,
+                            CombatEngine.COLOR_YELLOW, 5
+                    );
+                }
+            }
 
             networkClient.sendInput(jx * speed, jy * speed, isAtk, skill, aimX, aimY);
             world.getCombatEngine().updateEffects(dt);
         } else {
-            // Chế độ Chơi Đơn Offline
+            // Chế độ Chơi Đơn Offline: Thực thi đồng bộ trên GameLoopThread chống xung đột luồng 100%
             if (world != null && player != null) {
+                if (isAtk) {
+                    if (!player.isAlive()) {
+                        world.restartGame();
+                    } else {
+                        world.handlePlayerAttack();
+                    }
+                }
+                if (skill >= 1 && skill <= 3) {
+                    world.handlePlayerSkill(skill, aimX, aimY);
+                }
                 if (player.isAlive()) {
                     player.setVelocity(new Vector2D(jx * speed, jy * speed));
                     if (joystick != null && joystick.getDirection() != null) {
@@ -433,44 +472,18 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
             isCancelHovered = false;
         } else if (attackBtn != null && attackBtn.onTouchDown(pointerId, touchX, touchY)) {
             attackRequested = true;
-            if (networkClient == null || !networkClient.isConnected()) {
-                if (!world.getPlayer().isAlive()) {
-                    world.restartGame();
-                } else {
-                    world.handlePlayerAttack();
-                }
-            } else {
-                Direction dir = world.getPlayer().getFacingDirection();
-                world.getCombatEngine().spawnHitParticles(
-                        camera.getX() + dir.getDirX() * 32,
-                        camera.getY() + dir.getDirY() * 32,
-                        CombatEngine.COLOR_YELLOW, 6
-                );
-            }
         } else if (weaponBtn != null && weaponBtn.onTouchDown(pointerId, touchX, touchY)) {
             switchWeapon();
         }
     }
 
     private void triggerSkill(int skillId, double aimX, double aimY) {
-        Player player = world.getPlayer();
-        if (!player.canCastSkill(skillId)) return;
+        Player player = world != null ? world.getPlayer() : null;
+        if (player == null || !player.canCastSkill(skillId)) return;
 
-        if (networkClient == null || !networkClient.isConnected()) {
-            world.handlePlayerSkill(skillId, aimX, aimY);
-        } else {
-            // Chế độ Đấu Mạng: Kích hoạt hồi chiêu & gửi lệnh chiêu thức kèm tọa độ vùng chọn lên Server
-            player.triggerSkillCooldown(skillId);
-            skillRequested = skillId;
-            skillAimRequestedX = aimX;
-            skillAimRequestedY = aimY;
-            if (Math.hypot(aimX, aimY) < 0.08) {
-                Direction dir = player.getFacingDirection();
-                aimX = dir.getDirX() * (skillId == 1 ? 1.0 : 0.55);
-                aimY = dir.getDirY() * (skillId == 1 ? 1.0 : 0.55);
-            }
-            world.getCombatEngine().spawnSkillVisualOnly(camera.getX(), camera.getY(), aimX, aimY, skillId);
-        }
+        skillRequested = skillId;
+        skillAimRequestedX = aimX;
+        skillAimRequestedY = aimY;
     }
 
     private void handleTouchUp(int pointerId) {

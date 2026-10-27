@@ -21,11 +21,12 @@ public class SpatialGridAoI {
         return (((long) cellX) << 32) | (cellY & 0xFFFFFFFFL);
     }
 
-    public void clear() {
+    public synchronized void clear() {
         gridBuckets.clear();
     }
 
-    public void insert(LivingEntity entity) {
+    public synchronized void insert(LivingEntity entity) {
+        if (entity == null) return;
         Vector2D pos = entity.getPosition();
         int cellX = (int) Math.floor(pos.getX() / cellSize);
         int cellY = (int) Math.floor(pos.getY() / cellSize);
@@ -37,8 +38,9 @@ public class SpatialGridAoI {
     /**
      * Truy vấn các thực thể nằm trong ô hiện tại và 8 ô lân cận xung quanh.
      */
-    public List<LivingEntity> queryNearby(Vector2D centerPosition) {
+    public synchronized List<LivingEntity> queryNearby(Vector2D centerPosition) {
         List<LivingEntity> nearby = new ArrayList<>();
+        if (centerPosition == null) return nearby;
         int centerCellX = (int) Math.floor(centerPosition.getX() / cellSize);
         int centerCellY = (int) Math.floor(centerPosition.getY() / cellSize);
 
