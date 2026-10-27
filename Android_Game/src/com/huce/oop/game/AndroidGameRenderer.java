@@ -62,6 +62,269 @@ public class AndroidGameRenderer {
         renderHUD(canvas, world, screenWidth, screenHeight);
     }
 
+    /**
+     * Dựng hình thế giới Đấu Mạng Thời Gian Thực (Authoritative Server + Snapshot Interpolation LERP).
+     * Đồng bộ mượt mà giữa máy tính PC và điện thoại Android trên cùng một sàn đấu!
+     */
+    public void renderMultiplayer(Canvas canvas, network.NetworkGameClient networkClient, Camera2D camera, int screenW, int screenH, String roomCode, CombatEngine ce) {
+        if (canvas == null || networkClient == null || camera == null) return;
+
+        long clientTime = System.currentTimeMillis();
+        String myId = networkClient.getAssignedPlayerId();
+        java.util.Map<String, network.WorldSnapshotPayload.EntityState> states = networkClient.getLatestStates();
+
+        // 1. Tìm vị trí nhân vật cục bộ để điều khiển Camera
+        Vector2D myInterpolatedPos = null;
+        network.WorldSnapshotPayload.EntityState myState = null;
+
+        if (myId != null && states.containsKey(myId)) {
+            myState = states.get(myId);
+            myInterpolatedPos = networkClient.getInterpolatedPosition(myId, clientTime);
+        }
+
+        if (myInterpolatedPos != null) {
+            camera.update(myInterpolatedPos, 0.15);
+        }
+
+        // 2. Vẽ mặt đất đấu trường
+        renderArenaFloor(canvas, camera, screenW, screenH);
+
+        // 3. Vẽ hiệu ứng chém kiếm và tia lửa
+        if (ce != null) {
+            renderSlashes(canvas, ce, camera);
+            renderParticles(canvas, ce, camera);
+            renderFloatingTexts(canvas, ce, camera);
+        }
+
+        // 4. Vẽ tất cả thực thể nhận từ Snapshot thông qua SnapshotInterpolator LERP
+        int monsterCount = 0;
+        int playerCount = 0;
+
+        for (network.WorldSnapshotPayload.EntityState state : states.values()) {
+            Vector2D pos = networkClient.getInterpolatedPosition(state.id, clientTime);
+            if (pos == null) {
+                pos = new Vector2D(state.posX, state.posY);
+            }
+
+            if (state.isMonster) {
+                monsterCount++;
+                renderSnapshotMonster(canvas, state, pos, camera);
+            } else {
+                playerCount++;
+                boolean isLocal = (myId != null && state.id.equals(myId));
+                renderSnapshotPlayer(canvas, state, pos, camera, isLocal);
+            }
+        }
+
+        // 5. Vẽ giao diện HUD Multiplayer
+        renderMultiplayerHUD(canvas, myState, networkClient.getCurrentWave(), roomCode, playerCount, monsterCount, screenW, screenH, states, clientTime, networkClient);
+    }
+
+    private void renderSnapshotMonster(Canvas canvas, network.WorldSnapshotPayload.EntityState state, Vector2D pos, Camera2D camera) {
+        float sx = (float) camera.worldToScreenX(pos.getX());
+        float sy = (float) camera.worldToScreenY(pos.getY());
+
+        // Bóng đổ
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(70, 0, 0, 0));
+        rectF.set(sx - 18, sy + 16, sx + 18, sy + 24);
+        canvas.drawOval(rectF, paint);
+
+        String name = state.name.toLowerCase();
+        if (name.contains("goblin")) {
+            paint.setColor(Color.rgb(46, 139, 87));
+            canvas.drawCircle(sx, sy, 16, paint);
+            paint.setColor(Color.RED);
+            canvas.drawCircle(sx - 5, sy - 4, 3, paint);
+            canvas.drawCircle(sx + 5, sy - 4, 3, paint);
+        } else if (name.contains("orc")) {
+            paint.setColor(Color.rgb(105, 105, 105));
+            rectF.set(sx - 22, sy - 20, sx + 22, sy + 20);
+            canvas.drawRoundRect(rectF, 8, 8, paint);
+            strokePaint.setColor(Color.rgb(230, 230, 200));
+            strokePaint.setStrokeWidth(4f);
+            canvas.drawLine(sx - 12, sy - 20, sx - 22, sy - 34, strokePaint);
+            canvas.drawLine(sx + 12, sy - 20, sx + 22, sy - 34, strokePaint);
+        } else {
+            // Slime
+            paint.setColor(Color.rgb(0, 230, 118));
+            rectF.set(sx - 18, sy - 12, sx + 18, sy + 18);
+            canvas.drawOval(rectF, paint);
+            paint.setColor(Color.BLACK);
+            canvas.drawCircle(sx - 6, sy - 2, 2.5f, paint);
+            canvas.drawCircle(sx + 6, sy - 2, 2.5f, paint);
+        }
+
+        // Tên quái & Thanh máu
+        paint.setTextSize(18f);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setColor(Color.rgb(255, 160, 160));
+        canvas.drawText(state.name, sx, sy - 32, paint);
+
+        float hpW = 44f;
+        float hpH = 5f;
+        float hpRatio = state.maxHp > 0 ? Math.max(0f, (float) state.hp / state.maxHp) : 0f;
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(180, 50, 0, 0));
+        canvas.drawRect(sx - hpW / 2, sy - 28, sx + hpW / 2, sy - 28 + hpH, paint);
+        paint.setColor(Color.rgb(255, 50, 50));
+        canvas.drawRect(sx - hpW / 2, sy - 28, sx - hpW / 2 + hpW * hpRatio, sy - 28 + hpH, paint);
+    }
+
+    private void renderSnapshotPlayer(Canvas canvas, network.WorldSnapshotPayload.EntityState state, Vector2D pos, Camera2D camera, boolean isLocal) {
+        float sx = (float) camera.worldToScreenX(pos.getX());
+        float sy = (float) camera.worldToScreenY(pos.getY());
+
+        // Bóng đổ
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(80, 0, 0, 0));
+        rectF.set(sx - 20, sy + 18, sx + 20, sy + 28);
+        canvas.drawOval(rectF, paint);
+
+        // Thân áo
+        paint.setColor(isLocal ? Color.rgb(20, 120, 220) : Color.rgb(220, 120, 30));
+        rectF.set(sx - 14, sy - 8, sx + 14, sy + 14);
+        canvas.drawRoundRect(rectF, 4, 4, paint);
+
+        // Đầu & Tóc
+        paint.setColor(Color.rgb(255, 219, 172));
+        canvas.drawCircle(sx, sy - 18, 12, paint);
+        paint.setColor(Color.rgb(50, 30, 15));
+        rectF.set(sx - 13, sy - 31, sx + 13, sy - 15);
+        canvas.drawArc(rectF, 180, 180, true, paint);
+
+        // Hướng nhìn & Mắt
+        Direction dir = Direction.DOWN;
+        try {
+            if (state.dirName != null) dir = Direction.valueOf(state.dirName);
+        } catch (Exception ignored) {}
+
+        float eyeOffX = (float) dir.getDirX() * 4;
+        float eyeOffY = (float) dir.getDirY() * 3;
+        paint.setColor(Color.BLACK);
+        canvas.drawCircle(sx - 4 + eyeOffX, sy - 19 + eyeOffY, 2f, paint);
+        canvas.drawCircle(sx + 4 + eyeOffX, sy - 19 + eyeOffY, 2f, paint);
+
+        // Vũ khí
+        float wpx = sx + (float) dir.getDirX() * 22;
+        float wpy = sy + (float) dir.getDirY() * 18;
+        strokePaint.setColor(isLocal ? Color.rgb(0, 230, 255) : Color.rgb(255, 215, 0));
+        strokePaint.setStrokeWidth(4f);
+        canvas.drawLine(sx, sy, wpx, wpy, strokePaint);
+
+        // Tên nhân vật
+        paint.setTextSize(20f);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setColor(isLocal ? Color.CYAN : Color.YELLOW);
+        String label = isLocal ? ("★ [BẠN] " + state.name + " ★") : ("⚔ " + state.name);
+        canvas.drawText(label, sx, sy - 40, paint);
+
+        // Thanh máu
+        float hpW = 50f;
+        float hpH = 6f;
+        float hpRatio = state.maxHp > 0 ? Math.max(0f, (float) state.hp / state.maxHp) : 0f;
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(180, 40, 0, 0));
+        canvas.drawRect(sx - hpW / 2, sy - 36, sx + hpW / 2, sy - 36 + hpH, paint);
+        paint.setColor(isLocal ? Color.rgb(0, 230, 118) : Color.rgb(255, 180, 0));
+        canvas.drawRect(sx - hpW / 2, sy - 36, sx - hpW / 2 + hpW * hpRatio, sy - 36 + hpH, paint);
+    }
+
+    private void renderMultiplayerHUD(Canvas canvas, network.WorldSnapshotPayload.EntityState myState, int wave, String roomCode, int playerCount, int monsterCount, int screenW, int screenH, java.util.Map<String, network.WorldSnapshotPayload.EntityState> states, long clientTime, network.NetworkGameClient networkClient) {
+        // 1. Thẻ trạng thái người chơi (Top-Left)
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(190, 15, 20, 30));
+        rectF.set(24, 24, 380, 130);
+        canvas.drawRoundRect(rectF, 12, 12, paint);
+
+        strokePaint.setColor(Color.argb(140, 0, 200, 255));
+        strokePaint.setStrokeWidth(2f);
+        canvas.drawRoundRect(rectF, 12, 12, strokePaint);
+
+        String pName = myState != null ? myState.name : "Đang đồng bộ...";
+        int curHp = myState != null ? myState.hp : 100;
+        int maxHp = myState != null ? myState.maxHp : 100;
+
+        paint.setTextAlign(Paint.Align.LEFT);
+        paint.setTextSize(24f);
+        paint.setColor(Color.WHITE);
+        canvas.drawText("👤 " + pName, 40, 58, paint);
+
+        paint.setTextSize(18f);
+        paint.setColor(Color.rgb(255, 215, 0));
+        canvas.drawText("🌐 MULTIPLAYER  |  ĐỢT QUÁI: " + wave, 40, 84, paint);
+
+        // Thanh máu
+        float barX = 40;
+        float barY = 96;
+        float barW = 320;
+        float barH = 16;
+        float hpRatio = maxHp > 0 ? Math.max(0f, (float) curHp / maxHp) : 0f;
+
+        paint.setColor(Color.argb(200, 60, 10, 10));
+        canvas.drawRect(barX, barY, barX + barW, barY + barH, paint);
+        paint.setColor(Color.rgb(0, 230, 118));
+        canvas.drawRect(barX, barY, barX + barW * hpRatio, barY + barH, paint);
+
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(14f);
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(curHp + " / " + maxHp + " HP", barX + barW / 2, barY + 13, paint);
+
+        // 2. Huy hiệu Mã Phòng (Top-Center)
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(200, 24, 32, 48));
+        rectF.set(screenW / 2f - 220, 20, screenW / 2f + 220, 78);
+        canvas.drawRoundRect(rectF, 10, 10, paint);
+
+        strokePaint.setColor(Color.rgb(255, 215, 0));
+        strokePaint.setStrokeWidth(2f);
+        canvas.drawRoundRect(rectF, 10, 10, strokePaint);
+
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(22f);
+        paint.setColor(Color.rgb(255, 215, 0));
+        canvas.drawText("🔑 PHÒNG: " + roomCode + "  (" + playerCount + " Người chơi)", screenW / 2f, 48, paint);
+
+        paint.setTextSize(14f);
+        paint.setColor(Color.rgb(180, 220, 255));
+        canvas.drawText("Chơi chung thời gian thực giữa PC & Android", screenW / 2f, 68, paint);
+
+        // 3. Mini-map Radar (Top-Right)
+        float mapW = 160f;
+        float mapH = 120f;
+        float mapX = screenW - mapW - 24;
+        float mapY = 24;
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(190, 10, 15, 25));
+        rectF.set(mapX, mapY, mapX + mapW, mapY + mapH);
+        canvas.drawRoundRect(rectF, 8, 8, paint);
+
+        strokePaint.setColor(Color.argb(160, 0, 220, 255));
+        strokePaint.setStrokeWidth(2f);
+        canvas.drawRoundRect(rectF, 8, 8, strokePaint);
+
+        float scaleX = mapW / (float) GameWorld.WORLD_WIDTH;
+        float scaleY = mapH / (float) GameWorld.WORLD_HEIGHT;
+
+        for (network.WorldSnapshotPayload.EntityState st : states.values()) {
+            Vector2D pos = networkClient.getInterpolatedPosition(st.id, clientTime);
+            if (pos == null) pos = new Vector2D(st.posX, st.posY);
+
+            float mx = mapX + (float) pos.getX() * scaleX;
+            float my = mapY + (float) pos.getY() * scaleY;
+
+            if (st.isMonster) {
+                paint.setColor(Color.RED);
+                canvas.drawCircle(mx, my, 3f, paint);
+            } else {
+                paint.setColor(myState != null && st.id.equals(myState.id) ? Color.CYAN : Color.YELLOW);
+                canvas.drawCircle(mx, my, 4.5f, paint);
+            }
+        }
+    }
+
     private void renderArenaFloor(Canvas canvas, Camera2D camera, int screenW, int screenH) {
         // Nền đen sẫm tổng thể
         canvas.drawColor(Color.rgb(18, 22, 28));

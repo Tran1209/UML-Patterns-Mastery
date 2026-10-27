@@ -49,8 +49,8 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b %ERRORLEVEL%
 )
 
-echo [3/5] Bien dich ma nguon Java (Domain Core + Android UI)...
-powershell -Command "javac --release 17 -cp '%ANDROID_JAR%;Android_Game/build/classes' -d Android_Game/build/classes (Get-ChildItem -Path Src_Game/Core/*.java, Src_Game/Combat/*.java, Src_Game/Network/*.java, Src_Game/Render/Direction.java, Src_Game/Render/LpcAnimationType.java, Src_Game/Render/LayerType.java, Src_Game/Render/FrameBounds.java, Src_Game/Render/Camera2D.java, Src_Game/Render/CharacterRenderer.java, Src_Game/Render/CompositeCharacterVisual.java, Src_Game/Render/SpriteLayer.java, Src_Game/Render/LpcSpriteSheet.java, Src_Game/Render/LpcCharacterBuilder.java, Src_Game/UI/IEntityEventListener.java, Src_Game/UI/HudObserver.java, Android_Game/gen/com/huce/oop/game/R.java, Android_Game/src/com/huce/oop/game/*.java | ForEach-Object { $_.FullName })"
+echo [3/5] Bien dich ma nguon Java (Domain Core + Server + Android UI)...
+powershell -Command "javac --release 17 -cp '%ANDROID_JAR%;Android_Game/build/classes' -d Android_Game/build/classes (Get-ChildItem -Path Src_Game/Core/*.java, Src_Game/Combat/*.java, Src_Game/Network/*.java, Src_Game/Server/*.java, Src_Game/Render/Direction.java, Src_Game/Render/LpcAnimationType.java, Src_Game/Render/LayerType.java, Src_Game/Render/FrameBounds.java, Src_Game/Render/Camera2D.java, Src_Game/Render/CharacterRenderer.java, Src_Game/Render/CompositeCharacterVisual.java, Src_Game/Render/SpriteLayer.java, Src_Game/Render/LpcSpriteSheet.java, Src_Game/Render/LpcCharacterBuilder.java, Src_Game/UI/IEntityEventListener.java, Src_Game/UI/HudObserver.java, Android_Game/gen/com/huce/oop/game/R.java, Android_Game/src/com/huce/oop/game/*.java | ForEach-Object { $_.FullName })"
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] javac that bai!
     pause
