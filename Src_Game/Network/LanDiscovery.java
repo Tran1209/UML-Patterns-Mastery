@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LanDiscovery {
     public static final int BROADCAST_PORT = 8888;
     public static final String BROADCAST_HEADER = "UML_ARENA_ROOM:";
+    public static final String CLOUD_LOBBY_TOPIC = "huce_oop_2026/lobby/rooms";
 
     public static class DiscoveredRoom {
         public final String roomCode;
@@ -37,6 +38,9 @@ public class LanDiscovery {
     }
 
     private DatagramSocket listenSocket;
+    private MiniMqttClient cloudListenClient;
+    private MiniMqttClient cloudBroadcastClient;
+    private CloudServerBridge cloudServerBridge;
     private volatile boolean isListening = false;
     private volatile boolean isBroadcasting = false;
     private final Map<String, DiscoveredRoom> activeRooms = new ConcurrentHashMap<>();
@@ -174,15 +178,54 @@ public class LanDiscovery {
     }
 
     /**
-     * Bắt đầu phát sóng thông tin phòng ra toàn mạng nội bộ (Dành cho máy Host).
+     * Chuyển đổi địa chỉ IP hoặc mã nhập bất kỳ (ví dụ: 192.168.1.17, 1-17, ARENA-1-17)
+     * về chuẩn Mã Phòng Đám Mây (ví dụ: ARENA-1-17) để kết nối xuyên WiFi / 4G.
+     */
+    public static String ipOrInputToRoomCode(String rawHostOrCode) {
+        if (rawHostOrCode == null || rawHostOrCode.trim().isEmpty()) {
+            return "ARENA-DEFAULT";
+        }
+        String clean = rawHostOrCode.trim().toUpperCase();
+        if (clean.contains(":")) {
+            clean = clean.split(":")[0].trim();
+        }
+        if (clean.startsWith("192.168.")) {
+            String[] parts = clean.split("\\.");
+            if (parts.length == 4) {
+                return "ARENA-" + parts[2] + "-" + parts[3];
+            }
+        }
+        if (clean.matches("\\d+\\.\\d+\\.\\d+\\.\\d+")) {
+            return "ARENA-" + clean.replace('.', '-');
+        }
+        if (clean.startsWith("ARENA-")) {
+            return clean;
+        }
+        return "ARENA-" + clean;
+    }
+
+    /**
+     * Bắt đầu phát sóng thông tin phòng ra toàn mạng nội bộ (LAN UDP) VÀ Đám mây Internet (4G/Khác WiFi).
      * Tiếp tục phát sóng ngay cả khi Host đã vào trong trận đấu!
      */
     public void startBroadcasting(String roomCode, String hostName, int serverPort) {
         isBroadcasting = true;
+
+        // 1. Khởi chạy Cầu Nối Đám Mây (CloudServerBridge) cho phép bạn bè khác WiFi / 4G vào thẳng phòng này!
+        if (cloudServerBridge != null) {
+            cloudServerBridge.stop();
+        }
+        cloudServerBridge = new CloudServerBridge(roomCode, serverPort);
+        cloudServerBridge.start();
+
         new Thread(() -> {
             try (DatagramSocket broadcastSocket = new DatagramSocket()) {
                 broadcastSocket.setBroadcast(true);
                 String localIp = getLocalLanIp();
+
+                // Kết nối Cloud Relay để phát danh sách phòng lên Sảnh Chờ Toàn Cầu
+                cloudBroadcastClient = new MiniMqttClient(null);
+                cloudBroadcastClient.connect();
 
                 while (isBroadcasting) {
                     // Đính kèm cả localIp vào gói tin để chuẩn xác 100%
@@ -190,7 +233,7 @@ public class LanDiscovery {
                             BROADCAST_HEADER, roomCode, hostName, serverPort, localIp);
                     byte[] data = message.getBytes(StandardCharsets.UTF_8);
 
-                    // 1. Gửi tới địa chỉ Broadcast toàn cục 255.255.255.255
+                    // 1. Gửi tới địa chỉ Broadcast toàn cục 255.255.255.255 (Cùng WiFi)
                     try {
                         DatagramPacket packet1 = new DatagramPacket(
                                 data, data.length,
@@ -214,7 +257,12 @@ public class LanDiscovery {
                         }
                     }
 
-                    Thread.sleep(1200);
+                    // 3. Phát sóng lên Cloud Internet Lobby (Cho phép máy khác WiFi / 4G thấy phòng tự động!)
+                    if (cloudBroadcastClient != null && cloudBroadcastClient.isConnected()) {
+                        cloudBroadcastClient.publish(CLOUD_LOBBY_TOPIC, data);
+                    }
+
+                    Thread.sleep(1500);
                 }
             } catch (Exception ignored) {
             }
@@ -222,11 +270,25 @@ public class LanDiscovery {
     }
 
     /**
-     * Bắt đầu lắng nghe các phòng đang mở trong mạng (Dành cho màn hình Sảnh Chờ).
+     * Bắt đầu lắng nghe các phòng đang mở trong cả mạng LAN (UDP) lẫn Internet Cloud (MQTT).
      */
     public void startListening() {
         if (isListening) return;
         isListening = true;
+
+        // 1. Luồng lắng nghe từ Cloud Internet Lobby (Khác WiFi / 4G vẫn thấy phòng!)
+        new Thread(() -> {
+            cloudListenClient = new MiniMqttClient((topic, payload) -> {
+                if (!isListening) return;
+                String text = new String(payload, StandardCharsets.UTF_8);
+                parseRoomAnnouncement(text, null);
+            });
+            if (cloudListenClient.connect()) {
+                cloudListenClient.subscribe(CLOUD_LOBBY_TOPIC);
+            }
+        }, "CloudDiscovery-Listener").start();
+
+        // 2. Luồng lắng nghe UDP Broadcast nội bộ (Cùng WiFi)
         new Thread(() -> {
             try {
                 listenSocket = new DatagramSocket(null);
@@ -240,24 +302,10 @@ public class LanDiscovery {
                     listenSocket.receive(packet);
 
                     String text = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
-                    if (text.startsWith(BROADCAST_HEADER)) {
-                        String body = text.substring(BROADCAST_HEADER.length());
-                        String[] parts = body.split(";");
-                        if (parts.length >= 4) {
-                            String code = parts[0];
-                            String hostName = parts[1];
-                            int port = Integer.parseInt(parts[2]);
-                            int players = Integer.parseInt(parts[3]);
-                            String hostIp = (parts.length >= 5 && !parts[4].equals("127.0.0.1"))
-                                    ? parts[4]
-                                    : packet.getAddress().getHostAddress();
-
-                            activeRooms.put(code, new DiscoveredRoom(code, hostName, hostIp, port, players));
-                        }
-                    }
+                    parseRoomAnnouncement(text, packet.getAddress().getHostAddress());
 
                     long now = System.currentTimeMillis();
-                    activeRooms.values().removeIf(r -> now - r.lastSeenTime > 5000);
+                    activeRooms.values().removeIf(r -> now - r.lastSeenTime > 6000);
                 }
             } catch (Exception ignored) {
             } finally {
@@ -266,17 +314,43 @@ public class LanDiscovery {
         }, "LanDiscovery-Listener").start();
     }
 
+    private void parseRoomAnnouncement(String text, String fallbackSenderIp) {
+        if (text != null && text.startsWith(BROADCAST_HEADER)) {
+            String body = text.substring(BROADCAST_HEADER.length());
+            String[] parts = body.split(";");
+            if (parts.length >= 4) {
+                try {
+                    String code = parts[0];
+                    String hostName = parts[1];
+                    int port = Integer.parseInt(parts[2]);
+                    int players = Integer.parseInt(parts[3]);
+                    String hostIp = (parts.length >= 5 && !parts[4].equals("127.0.0.1"))
+                            ? parts[4]
+                            : (fallbackSenderIp != null ? fallbackSenderIp : code);
+
+                    activeRooms.put(code, new DiscoveredRoom(code, hostName, hostIp, port, players));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
     public Map<String, DiscoveredRoom> getActiveRooms() {
+        long now = System.currentTimeMillis();
+        activeRooms.values().removeIf(r -> now - r.lastSeenTime > 6500);
         return activeRooms;
     }
 
     /**
-     * Chỉ dừng lắng nghe khi rời Sảnh Chờ vào trận (KHÔNG tắt sóng phát phòng của Host!).
+     * Chỉ dừng lắng nghe khi rời Sảnh Chờ vào trận (KHÔNG tắt sóng phát phòng & Cloud Bridge của Host!).
      */
     public void stopListening() {
         isListening = false;
         if (listenSocket != null && !listenSocket.isClosed()) {
             listenSocket.close();
+        }
+        if (cloudListenClient != null) {
+            cloudListenClient.close();
         }
     }
 
@@ -285,6 +359,12 @@ public class LanDiscovery {
      */
     public void stop() {
         isBroadcasting = false;
+        if (cloudBroadcastClient != null) {
+            cloudBroadcastClient.close();
+        }
+        if (cloudServerBridge != null) {
+            cloudServerBridge.stop();
+        }
         stopListening();
     }
 }
