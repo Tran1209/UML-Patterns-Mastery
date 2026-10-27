@@ -17,6 +17,9 @@ public class CombatEngine {
     public static final int COLOR_YELLOW = 0xFFFFD700;
     public static final int COLOR_RED = 0xFFFF2222;
     public static final int COLOR_ORANGE = 0xFFFF8C00;
+    public static final int COLOR_CYAN = 0xFF00E5FF;
+    public static final int COLOR_GREEN = 0xFF00E676;
+    public static final int COLOR_PURPLE = 0xFFE040FB;
 
     public static class FloatingText {
         public double x, y;
@@ -96,11 +99,39 @@ public class CombatEngine {
         }
     }
 
+    public static class SkillRingEffect {
+        public final double x, y;
+        public final double maxRadius;
+        public final int color;
+        public double lifeTime;
+        public final double maxLifeTime;
+        public final int skillType; // 1: Xung Kích, 2: Vòng Xoáy Lửa, 3: Thiên Phạt Ultimate
+
+        public SkillRingEffect(double x, double y, double maxRadius, int color, double maxLifeTime, int skillType) {
+            this.x = x;
+            this.y = y;
+            this.maxRadius = maxRadius;
+            this.color = color;
+            this.lifeTime = maxLifeTime;
+            this.maxLifeTime = maxLifeTime;
+            this.skillType = skillType;
+        }
+
+        public void update(double dt) {
+            lifeTime -= dt;
+        }
+
+        public boolean isExpired() {
+            return lifeTime <= 0;
+        }
+    }
+
     private final SpatialGridAoI spatialGrid;
     private final IDamageStrategy physicalStrategy;
     private final List<FloatingText> floatingTexts = new ArrayList<>();
     private final List<HitParticle> particles = new ArrayList<>();
     private final List<SlashEffect> slashEffects = new ArrayList<>();
+    private final List<SkillRingEffect> skillRings = new ArrayList<>();
     private final List<IEntityEventListener> eventListeners = new ArrayList<>();
 
     public CombatEngine(int gridCellSize) {
@@ -128,6 +159,10 @@ public class CombatEngine {
 
     public List<SlashEffect> getSlashEffects() {
         return slashEffects;
+    }
+
+    public List<SkillRingEffect> getSkillRings() {
+        return skillRings;
     }
 
     /**
@@ -159,6 +194,11 @@ public class CombatEngine {
         slashEffects.removeIf(s -> {
             s.update(dt);
             return s.isExpired();
+        });
+
+        skillRings.removeIf(sr -> {
+            sr.update(dt);
+            return sr.isExpired();
         });
     }
 
@@ -209,6 +249,143 @@ public class CombatEngine {
             }
         }
         return hitCount;
+    }
+
+    /**
+     * Thực thi 3 Kỹ năng (Skills) chuẩn phong cách Liên Quân Mobile (AOV):
+     * - Skill 1 (⚡ XUNG KÍCH - Lướt chém xuyên phá): Lướt 155px về phía trước, gây sát thương dọc đường lướt.
+     * - Skill 2 (🔥 VÒNG XOÁY LỬA - Kiếm Khí AoE + Hồi phục): Xoáy lửa bán kính 135px quanh thân + Hồi 18 HP.
+     * - Skill 3 (☄️ THIÊN PHẠT - Ultimate Đại Địa Chấn): Nổ thiên thạch bán kính 210px, sát thương chí mạng x3.5 + Đẩy lùi!
+     */
+    public int executePlayerSkill(Player caster, int skillId, List<Monster> monsters) {
+        if (caster == null || !caster.canCastSkill(skillId)) return 0;
+
+        caster.triggerSkillCooldown(skillId);
+        caster.changeState(new Player.AttackingState());
+        Direction dir = caster.getFacingDirection();
+        double startX = caster.getPosition().getX();
+        double startY = caster.getPosition().getY();
+        int hitCount = 0;
+
+        if (skillId == 1) {
+            // CHIÊU 1: ⚡ XUNG KÍCH (Lướt nhanh 155px + Chém xuyên thấu)
+            double dashDist = 155.0;
+            double endX = Math.max(40, Math.min(1560, startX + dir.getDirX() * dashDist));
+            double endY = Math.max(40, Math.min(1160, startY + dir.getDirY() * dashDist));
+            double midX = (startX + endX) * 0.5;
+            double midY = (startY + endY) * 0.5;
+
+            caster.setPosition(new Vector2D(endX, endY));
+            spawnSkillVisualOnly(startX, startY, dir, 1);
+
+            for (Monster m : monsters) {
+                if (!m.isAlive()) continue;
+                double dStart = m.getPosition().distanceTo(new Vector2D(startX, startY));
+                double dMid = m.getPosition().distanceTo(new Vector2D(midX, midY));
+                double dEnd = m.getPosition().distanceTo(new Vector2D(endX, endY));
+                if (dStart <= 85 || dMid <= 85 || dEnd <= 95) {
+                    int dmg = (int) (physicalStrategy.calculateDamage(15, caster, m) * 1.5);
+                    int actual = m.takeDamage(dmg);
+                    hitCount++;
+                    spawnDamageNumber(m.getPosition().getX(), m.getPosition().getY(), actual, COLOR_CYAN);
+                    spawnHitParticles(m.getPosition().getX(), m.getPosition().getY(), COLOR_CYAN, 10);
+                    checkMonsterDeath(caster, m);
+                }
+            }
+        } else if (skillId == 2) {
+            // CHIÊU 2: 🔥 VÒNG XOÁY LỬA (Xoáy AoE bán kính 135px + Hút máu chiến trường +18 HP)
+            caster.heal(18);
+            for (IEntityEventListener listener : eventListeners) {
+                listener.onHealthChanged(caster.getId(), caster.getCurrentHp(), caster.getMaxHp());
+            }
+            spawnSkillVisualOnly(startX, startY, dir, 2);
+
+            for (Monster m : monsters) {
+                if (!m.isAlive()) continue;
+                if (m.getPosition().distanceTo(caster.getPosition()) <= 140.0) {
+                    int dmg = (int) (physicalStrategy.calculateDamage(20, caster, m) * 1.8);
+                    int actual = m.takeDamage(dmg);
+                    hitCount++;
+                    spawnDamageNumber(m.getPosition().getX(), m.getPosition().getY(), actual, COLOR_ORANGE);
+                    spawnHitParticles(m.getPosition().getX(), m.getPosition().getY(), COLOR_ORANGE, 12);
+                    checkMonsterDeath(caster, m);
+                }
+            }
+        } else if (skillId == 3) {
+            // CHIÊU 3 (ULTIMATE): ☄️ THIÊN PHẠT (Đại Địa Chấn Hoàng Kim bán kính 215px + Chí mạng x3.2 + Đẩy lùi)
+            double impactX = startX + dir.getDirX() * 55;
+            double impactY = startY + dir.getDirY() * 55;
+            Vector2D impactPos = new Vector2D(impactX, impactY);
+            spawnSkillVisualOnly(startX, startY, dir, 3);
+
+            for (Monster m : monsters) {
+                if (!m.isAlive()) continue;
+                double dist = m.getPosition().distanceTo(impactPos);
+                if (dist <= 215.0) {
+                    int dmg = (int) (physicalStrategy.calculateDamage(32, caster, m) * 2.8);
+                    int actual = m.takeDamage(dmg);
+                    hitCount++;
+                    spawnDamageNumber(m.getPosition().getX(), m.getPosition().getY(), "💥 CRIT -" + actual, COLOR_PURPLE);
+                    spawnHitParticles(m.getPosition().getX(), m.getPosition().getY(), COLOR_YELLOW, 16);
+
+                    // Hiệu ứng Đẩy lùi (Knockback) chuẩn Ultimate AOV
+                    if (m.isAlive() && dist > 1.0) {
+                        double kx = m.getPosition().getX() + ((m.getPosition().getX() - impactX) / dist) * 65.0;
+                        double ky = m.getPosition().getY() + ((m.getPosition().getY() - impactY) / dist) * 65.0;
+                        m.setPosition(new Vector2D(
+                                Math.max(40, Math.min(1560, kx)),
+                                Math.max(40, Math.min(1160, ky))
+                        ));
+                    }
+                    checkMonsterDeath(caster, m);
+                }
+            }
+        }
+        return hitCount;
+    }
+
+    /**
+     * Khởi tạo hiệu ứng thị giác của 3 chiêu thức (dùng chung cho cả Offline lẫn Multiplayer).
+     */
+    public void spawnSkillVisualOnly(double startX, double startY, Direction dir, int skillId) {
+        if (dir == null) dir = Direction.DOWN;
+        if (skillId == 1) {
+            double endX = Math.max(40, Math.min(1560, startX + dir.getDirX() * 155.0));
+            double endY = Math.max(40, Math.min(1160, startY + dir.getDirY() * 155.0));
+            double midX = (startX + endX) * 0.5;
+            double midY = (startY + endY) * 0.5;
+
+            skillRings.add(new SkillRingEffect(startX, startY, 55, COLOR_CYAN, 0.30, 1));
+            skillRings.add(new SkillRingEffect(midX, midY, 65, COLOR_CYAN, 0.35, 1));
+            skillRings.add(new SkillRingEffect(endX, endY, 85, COLOR_CYAN, 0.40, 1));
+            slashEffects.add(new SlashEffect(endX + dir.getDirX() * 28, endY + dir.getDirY() * 28, dir, 0.28));
+            spawnHitParticles(endX, endY, COLOR_CYAN, 14);
+            spawnDamageNumber(endX, endY - 25, "⚡ XUNG KÍCH!", COLOR_CYAN);
+        } else if (skillId == 2) {
+            skillRings.add(new SkillRingEffect(startX, startY, 140, COLOR_ORANGE, 0.45, 2));
+            skillRings.add(new SkillRingEffect(startX, startY, 95, COLOR_YELLOW, 0.38, 2));
+            spawnHitParticles(startX, startY, COLOR_ORANGE, 20);
+            spawnDamageNumber(startX, startY - 30, "🔥 VÒNG XOÁY LỬA (+18 HP)", COLOR_GREEN);
+        } else if (skillId == 3) {
+            double impactX = startX + dir.getDirX() * 55;
+            double impactY = startY + dir.getDirY() * 55;
+            skillRings.add(new SkillRingEffect(impactX, impactY, 215, COLOR_YELLOW, 0.60, 3));
+            skillRings.add(new SkillRingEffect(impactX, impactY, 155, COLOR_PURPLE, 0.50, 3));
+            skillRings.add(new SkillRingEffect(impactX, impactY, 90, COLOR_RED, 0.40, 3));
+            spawnHitParticles(impactX, impactY, COLOR_YELLOW, 25);
+            spawnHitParticles(impactX, impactY, COLOR_PURPLE, 18);
+            spawnDamageNumber(impactX, impactY - 35, "☄️ THIÊN PHẠT (ULTIMATE)!", COLOR_YELLOW);
+        }
+    }
+
+    private void checkMonsterDeath(Player attacker, Monster monster) {
+        if (!monster.isAlive()) {
+            attacker.addKill();
+            spawnDamageNumber(monster.getPosition().getX(), monster.getPosition().getY() - 20, "DIỆT!", COLOR_RED);
+            for (IEntityEventListener listener : eventListeners) {
+                listener.onEntityDied(monster.getType().displayName, attacker.getPlayerName());
+            }
+        }
     }
 
     /**

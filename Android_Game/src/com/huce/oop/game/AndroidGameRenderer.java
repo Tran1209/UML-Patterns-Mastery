@@ -514,8 +514,33 @@ public class AndroidGameRenderer {
     private void renderSlashes(Canvas canvas, CombatEngine ce, Camera2D camera) {
         if (ce == null) return;
         strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(6f);
 
+        // 1. Vẽ hiệu ứng Vòng Xoáy / Sóng Xung Kích của 3 Kỹ Năng AOV (Skill Rings)
+        for (CombatEngine.SkillRingEffect ring : ce.getSkillRings()) {
+            float sx = (float) camera.worldToScreenX(ring.x);
+            float sy = (float) camera.worldToScreenY(ring.y);
+            float progress = (float) Math.max(0.0, Math.min(1.0, 1.0 - (ring.lifeTime / ring.maxLifeTime)));
+            float currentRadius = (float) (ring.maxRadius * (0.25f + 0.75f * progress));
+            float alpha = (float) Math.max(0f, ring.lifeTime / ring.maxLifeTime);
+
+            int c = ring.color;
+            int r = (c >> 16) & 0xFF;
+            int g = (c >> 8) & 0xFF;
+            int b = c & 0xFF;
+
+            // Vùng sáng nền bán trong suốt
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb((int) (alpha * 65), r, g, b));
+            canvas.drawCircle(sx, sy, currentRadius, paint);
+
+            // Viền sóng xung kích phát sáng
+            strokePaint.setStrokeWidth(ring.skillType == 3 ? 8f : 5f);
+            strokePaint.setColor(Color.argb((int) (alpha * 240), r, g, b));
+            canvas.drawCircle(sx, sy, currentRadius, strokePaint);
+        }
+
+        // 2. Vẽ vệt chém thường (Slash Arcs)
+        strokePaint.setStrokeWidth(6f);
         for (CombatEngine.SlashEffect slash : ce.getSlashEffects()) {
             float sx = (float) camera.worldToScreenX(slash.x);
             float sy = (float) camera.worldToScreenY(slash.y);

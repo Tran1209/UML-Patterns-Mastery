@@ -36,6 +36,7 @@ public class GameCanvas extends JPanel {
     private int frameCounter = 0;
     private long lastFpsUpdateTime = System.currentTimeMillis();
     private boolean attackRequested = false;
+    private int skillRequested = 0;
 
     public GameCanvas(GameWorld world, NetworkGameClient networkClient, int width, int height) {
         this.world = world;
@@ -60,17 +61,24 @@ public class GameCanvas extends JPanel {
             public void keyPressed(KeyEvent e) {
                 pressedKeys.add(e.getKeyCode());
 
-                if (e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_J) {
-                    if (networkClient != null) {
+                int code = e.getKeyCode();
+                if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_J) {
+                    if (networkClient != null && networkClient.isConnected()) {
                         attackRequested = true;
                     } else {
                         world.handlePlayerAttack();
                     }
-                } else if (e.getKeyCode() == KeyEvent.VK_R) {
+                } else if (code == KeyEvent.VK_1 || code == KeyEvent.VK_U) {
+                    triggerDesktopSkill(1);
+                } else if (code == KeyEvent.VK_2 || code == KeyEvent.VK_I) {
+                    triggerDesktopSkill(2);
+                } else if (code == KeyEvent.VK_3 || code == KeyEvent.VK_O) {
+                    triggerDesktopSkill(3);
+                } else if (code == KeyEvent.VK_R) {
                     if (networkClient == null && !world.getPlayer().isAlive()) {
                         world.restartGame();
                     }
-                } else if (e.getKeyCode() == KeyEvent.VK_F1) {
+                } else if (code == KeyEvent.VK_F1) {
                     showDebugOverlay = !showDebugOverlay;
                 }
             }
@@ -80,6 +88,21 @@ public class GameCanvas extends JPanel {
                 pressedKeys.remove(e.getKeyCode());
             }
         });
+    }
+
+    private void triggerDesktopSkill(int skillId) {
+        Player player = world.getPlayer();
+        if (!player.canCastSkill(skillId)) return;
+
+        if (networkClient != null && networkClient.isConnected()) {
+            player.triggerSkillCooldown(skillId);
+            skillRequested = skillId;
+            world.getCombatEngine().spawnSkillVisualOnly(
+                    camera.getX(), camera.getY(), player.getFacingDirection(), skillId
+            );
+        } else {
+            world.handlePlayerSkill(skillId);
+        }
     }
 
     /**
@@ -103,10 +126,19 @@ public class GameCanvas extends JPanel {
         double speed = 220.0;
 
         if (networkClient != null && networkClient.isConnected()) {
-            // Chế độ Đấu Mạng: Gửi vector vận tốc và cờ tấn công lên Authoritative Server
+            // Cập nhật hồi chiêu cục bộ & hướng nhìn
+            Player player = world.getPlayer();
+            if (vx != 0 || vy != 0) {
+                player.setFacingDirection(Direction.fromVelocity(vx, vy, player.getFacingDirection()));
+            }
+            player.updatePhysics(1.0 / 60.0);
+            world.getCombatEngine().updateEffects(1.0 / 60.0);
+
             boolean isAttacking = attackRequested;
+            int skill = skillRequested;
             attackRequested = false;
-            networkClient.sendInput(vx * speed, vy * speed, isAttacking);
+            skillRequested = 0;
+            networkClient.sendInput(vx * speed, vy * speed, isAttacking, skill);
         } else {
             // Chế độ Chơi Đơn Offline
             Player player = world.getPlayer();
@@ -236,6 +268,9 @@ public class GameCanvas extends JPanel {
             }
         }
 
+        // 3.5. Vẽ hiệu ứng kỹ năng & chiến đấu
+        renderCombatEffects(g2d);
+
         // 4. Vẽ HUD chế độ Đấu Mạng
         int myHp = myState != null ? myState.hp : 100;
         int myMaxHp = myState != null ? myState.maxHp : 100;
@@ -314,6 +349,25 @@ public class GameCanvas extends JPanel {
 
     private void renderCombatEffects(Graphics2D g2d) {
         CombatEngine ce = world.getCombatEngine();
+
+        for (CombatEngine.SkillRingEffect ring : ce.getSkillRings()) {
+            double sx = camera.worldToScreenX(ring.x);
+            double sy = camera.worldToScreenY(ring.y);
+            float alpha = (float) Math.max(0f, ring.lifeTime / ring.maxLifeTime);
+            int c = ring.color;
+            int r = (c >> 16) & 0xFF;
+            int g = (c >> 8) & 0xFF;
+            int b = c & 0xFF;
+            int rad = (int) (ring.maxRadius * (0.25 + 0.75 * (1.0 - alpha)));
+
+            g2d.setColor(new Color(r / 255f, g / 255f, b / 255f, alpha * 0.22f));
+            g2d.fillOval((int) sx - rad, (int) sy - rad, rad * 2, rad * 2);
+
+            g2d.setColor(new Color(r / 255f, g / 255f, b / 255f, alpha * 0.9f));
+            g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2d.drawOval((int) sx - rad, (int) sy - rad, rad * 2, rad * 2);
+            g2d.setStroke(new BasicStroke(1));
+        }
 
         for (CombatEngine.SlashEffect slash : ce.getSlashEffects()) {
             double sx = camera.worldToScreenX(slash.x);
@@ -442,8 +496,56 @@ public class GameCanvas extends JPanel {
     }
 
     private void renderBottomControlGuide(Graphics2D g2d, int width, int height, boolean isOnline) {
-        String guide = isOnline ? "🌐 ĐẤU MẠNG: [W/A/S/D]: Di chuyển  |  [SPACE / J]: Chém kiếm  |  Authoritative Netcode 20Hz"
-                : "⌨️ CHƠI ĐƠN: [W/A/S/D]: Di chuyển  |  [SPACE / J]: Chém kiếm  |  [R]: Tái sinh  |  [F1]: Hitbox";
+        // Vẽ thanh 3 kỹ năng chuẩn AOV (Liên Quân) kèm đếm ngược Cooldown
+        Player p = world.getPlayer();
+        String[] skillTitles = {"[1/U] ⚡ XUNG KÍCH", "[2/I] 🔥 XOÁY LỬA", "[3/O] ☄️ THIÊN PHẠT"};
+        String[] skillDescs = {"Lướt + Sát thương", "AoE + Hồi 18 HP", "ULTIMATE + Đẩy lùi"};
+        Color[] skillColors = {new Color(0, 188, 212), new Color(255, 111, 0), new Color(170, 0, 255)};
+
+        int boxW = 148;
+        int boxH = 44;
+        int gap = 14;
+        int totalW = boxW * 3 + gap * 2;
+        int startX = width / 2 - totalW / 2;
+        int boxY = height - 88;
+
+        for (int i = 0; i < 3; i++) {
+            int skillId = i + 1;
+            int bx = startX + i * (boxW + gap);
+            double cd = p.getSkillCooldown(skillId);
+            double maxCd = p.getSkillMaxCooldown(skillId);
+
+            g2d.setColor(new Color(18, 22, 32, 230));
+            g2d.fillRoundRect(bx, boxY, boxW, boxH, 10, 10);
+
+            if (cd > 0.02) {
+                float ratio = (float) Math.min(1.0, cd / maxCd);
+                g2d.setColor(new Color(0, 0, 0, 170));
+                g2d.fillRoundRect(bx, boxY, (int) (boxW * ratio), boxH, 10, 10);
+                g2d.setColor(new Color(90, 95, 110));
+            } else {
+                g2d.setColor(skillColors[i]);
+            }
+            g2d.setStroke(new BasicStroke(2));
+            g2d.drawRoundRect(bx, boxY, boxW, boxH, 10, 10);
+            g2d.setStroke(new BasicStroke(1));
+
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            g2d.setColor(cd > 0.02 ? new Color(160, 165, 180) : Color.WHITE);
+            g2d.drawString(skillTitles[i], bx + 10, boxY + 18);
+
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            if (cd > 0.02) {
+                g2d.setColor(new Color(255, 215, 64));
+                g2d.drawString(String.format("⏳ Hồi chiêu: %.1fs", cd), bx + 10, boxY + 35);
+            } else {
+                g2d.setColor(skillColors[i].brighter());
+                g2d.drawString(skillDescs[i], bx + 10, boxY + 35);
+            }
+        }
+
+        String guide = isOnline ? "🌐 ĐẤU MẠNG: [WASD]: Di chuyển | [SPACE/J]: Đánh thường | [1/2/3] hoặc [U/I/O]: Tung 3 Chiêu AOV"
+                : "⌨️ CHƠI ĐƠN: [WASD]: Di chuyển | [SPACE/J]: Đánh thường | [1/2/3] hoặc [U/I/O]: 3 Chiêu AOV | [R]: Tái sinh";
         g2d.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         FontMetrics fm = g2d.getFontMetrics();
         int gW = fm.stringWidth(guide);

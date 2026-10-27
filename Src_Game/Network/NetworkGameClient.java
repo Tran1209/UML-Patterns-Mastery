@@ -34,6 +34,7 @@ public class NetworkGameClient {
     private volatile double pendingVx = 0.0;
     private volatile double pendingVy = 0.0;
     private volatile boolean pendingAttack = false;
+    private volatile int pendingSkillId = 0;
     private volatile boolean hasNewInput = false;
 
     public NetworkGameClient(String host, int port, String playerName) {
@@ -135,19 +136,21 @@ public class NetworkGameClient {
                     double vx = this.pendingVx;
                     double vy = this.pendingVy;
                     boolean atk = this.pendingAttack;
+                    int skill = this.pendingSkillId;
                     this.pendingAttack = false;
+                    this.pendingSkillId = 0;
 
-                    // Chỉ gửi khi vận tốc thay đổi, đang di chuyển, hoặc có lệnh tấn công
+                    // Chỉ gửi khi vận tốc thay đổi, đang di chuyển, hoặc có lệnh tấn công / kỹ năng
                     boolean moving = Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01;
                     boolean velocityChanged = Math.abs(vx - lastSentVx) > 0.01 || Math.abs(vy - lastSentVy) > 0.01;
 
-                    if (atk || moving || velocityChanged || hasNewInput) {
+                    if (atk || skill > 0 || moving || velocityChanged || hasNewInput) {
                         hasNewInput = false;
                         lastSentVx = vx;
                         lastSentVy = vy;
 
                         synchronized (out) {
-                            PlayerInputPayload payload = new PlayerInputPayload(vx, vy, atk);
+                            PlayerInputPayload payload = new PlayerInputPayload(vx, vy, atk, skill);
                             out.writeObject(new GamePacket(PacketType.PLAYER_INPUT, assignedPlayerId, payload));
                             out.reset();
                             out.flush();
@@ -164,10 +167,17 @@ public class NetworkGameClient {
      * Ghi nhận Input tức thời (0ms Non-blocking) từ luồng Game Loop / Cảm ứng.
      */
     public void sendInput(double vx, double vy, boolean isAttacking) {
+        sendInput(vx, vy, isAttacking, 0);
+    }
+
+    public void sendInput(double vx, double vy, boolean isAttacking, int skillId) {
         this.pendingVx = vx;
         this.pendingVy = vy;
         if (isAttacking) {
             this.pendingAttack = true;
+        }
+        if (skillId > 0) {
+            this.pendingSkillId = skillId;
         }
         this.hasNewInput = true;
 

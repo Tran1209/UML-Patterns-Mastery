@@ -25,8 +25,10 @@ import render.SpriteLayer;
 
 /**
  * SurfaceView trò chơi trên nền tảng Android.
- * Vận hành vòng lặp Game Loop 60 FPS trên luồng phụ độc lập (Worker Thread),
- * hỗ trợ cả Chơi Đơn (Offline Solo) lẫn Đấu Mạng Thời Gian Thực (Multiplayer Server).
+ * Tích hợp cụm phím kỹ năng hình cánh quạt chuẩn Liên Quân Mobile (AOV):
+ * - Nút Đánh Thường lớn ở góc dưới phải
+ * - 3 Kỹ năng (Chiêu 1: ⚡ Xung Kích, Chiêu 2: 🔥 Xoáy Lửa, Chiêu 3: ☄️ Thiên Phạt Ultimate)
+ *   xếp vòng cung kèm hiệu ứng quạt đếm ngược hồi chiêu (Radial Cooldown Sweep).
  */
 public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
     private Thread gameThread;
@@ -46,11 +48,15 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
 
     private VirtualJoystick joystick;
     private TouchButton attackBtn;
+    private TouchButton skill1Btn;
+    private TouchButton skill2Btn;
+    private TouchButton skill3Btn;
     private TouchButton weaponBtn;
     private TouchButton exitBtn;
     private TouchButton copyCodeBtn;
 
     private volatile boolean attackRequested = false;
+    private volatile int skillRequested = 0;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int currentWeaponIndex = 0;
     private final String[] weaponNames = {"Kiếm Sắt", "Thương Dài", "Chùy Gai"};
@@ -91,7 +97,6 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
         this.camera = new Camera2D(width, height, GameWorld.WORLD_WIDTH, GameWorld.WORLD_HEIGHT);
         this.renderer = new AndroidGameRenderer();
 
-        // Nếu là chế độ Multiplayer -> Khởi tạo Network Client kết nối tới Dedicated Server
         if (host != null && port > 0) {
             this.networkClient = new NetworkGameClient(host, port, playerName);
             new Thread(() -> {
@@ -106,29 +111,67 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
             this.networkClient = null;
         }
 
+        setupControlLayout(width, height);
+    }
+
+    /**
+     * Bố trí cụm phím điều khiển chuẩn Liên Quân Mobile (AOV):
+     * - Bên trái: Cần Joystick 360 độ
+     * - Bên phải: Nút Đánh Thường ở tâm góc phải + 3 Kỹ năng xếp hình vòng cung quạt (172°, 128°, 84°)
+     */
+    private void setupControlLayout(int width, int height) {
+        float minDim = Math.min(width, height);
+
         // 1. Joystick góc dưới bên trái
-        float joyX = Math.max(160f, width * 0.16f);
-        float joyY = height - Math.max(160f, height * 0.28f);
-        float joyBaseR = Math.min(width, height) * 0.14f;
+        float joyX = Math.max(165f, width * 0.16f);
+        float joyY = height - Math.max(155f, height * 0.27f);
+        float joyBaseR = minDim * 0.135f;
         float joyKnobR = joyBaseR * 0.45f;
-        this.joystick = new VirtualJoystick(joyX, joyY, joyBaseR, joyKnobR);
+        if (this.joystick == null) {
+            this.joystick = new VirtualJoystick(joyX, joyY, joyBaseR, joyKnobR);
+        } else {
+            this.joystick.setCenter(joyX, joyY);
+        }
 
-        // 2. Nút Tấn công to góc dưới bên phải
-        float atkW = Math.min(width, height) * 0.12f;
-        float atkX = width - atkW * 1.6f;
-        float atkY = height - atkW * 1.5f;
-        this.attackBtn = new TouchButton(atkX, atkY, atkW, "⚔", "TẤN CÔNG", Color.rgb(215, 38, 56), Color.rgb(255, 90, 95));
+        // 2. Tâm nút Đánh Thường (Normal Attack) góc dưới bên phải
+        float atkR = minDim * 0.115f;
+        float atkX = width - atkR * 1.38f;
+        float atkY = height - atkR * 1.32f;
+        this.attackBtn = new TouchButton(atkX, atkY, atkR, "⚔", "ĐÁNH", Color.rgb(215, 38, 56), Color.rgb(255, 90, 95));
 
-        // 3. Nút Đổi vũ khí phía trên nút Tấn công
-        float wpnW = atkW * 0.72f;
-        float wpnX = atkX - atkW * 1.25f;
-        float wpnY = atkY + atkW * 0.1f;
-        this.weaponBtn = new TouchButton(wpnX, wpnY, wpnW, "🗡", "ĐỔI VK", Color.rgb(33, 118, 174), Color.rgb(65, 173, 237));
+        // 3. Ba nút Kỹ Năng (Skill 1, Skill 2, Skill 3 Ultimate) xếp hình cánh quạt quanh nút Đánh Thường
+        float arcRadius = atkR * 2.15f;
+        float skillR = atkR * 0.68f;
+        float ultR = atkR * 0.76f;
 
-        // 4. Nút Sảnh (Rời phòng về sảnh chờ) góc dưới bên trái
-        this.exitBtn = new TouchButton(60f, height - 60f, 32f, "🏠", "SẢNH", Color.rgb(180, 40, 40), Color.rgb(220, 60, 60));
+        // Chiêu 1 (Góc 174 độ - Bên trái nút Đánh thường): ⚡ Xung Kích
+        double rad1 = Math.toRadians(174.0);
+        float s1X = atkX + (float) (Math.cos(rad1) * arcRadius);
+        float s1Y = atkY - (float) (Math.sin(rad1) * arcRadius);
+        this.skill1Btn = new TouchButton(s1X, s1Y, skillR, "⚡", "XUNG KÍCH", Color.rgb(0, 145, 234), Color.rgb(64, 196, 255));
 
-        // 5. Nút Copy mã mời (nếu ở chế độ Multiplayer)
+        // Chiêu 2 (Góc 130 độ - Chéo trên trái nút Đánh thường): 🔥 Xoáy Lửa
+        double rad2 = Math.toRadians(130.0);
+        float s2X = atkX + (float) (Math.cos(rad2) * arcRadius);
+        float s2Y = atkY - (float) (Math.sin(rad2) * arcRadius);
+        this.skill2Btn = new TouchButton(s2X, s2Y, skillR, "🔥", "XOÁY LỬA", Color.rgb(230, 81, 0), Color.rgb(255, 145, 0));
+
+        // Chiêu 3 Ultimate (Góc 86 độ - Phía trên nút Đánh thường): ☄️ Thiên Phạt
+        double rad3 = Math.toRadians(86.0);
+        float s3X = atkX + (float) (Math.cos(rad3) * arcRadius);
+        float s3Y = atkY - (float) (Math.sin(rad3) * arcRadius);
+        this.skill3Btn = new TouchButton(s3X, s3Y, ultR, "☄️", "ULTIMATE", Color.rgb(142, 36, 170), Color.rgb(224, 64, 251));
+
+        // 4. Nút Đổi Vũ Khí nhỏ gọn phía ngoài cùng bên trái cụm kỹ năng
+        float wpnR = atkR * 0.50f;
+        float wpnX = s1X - skillR * 1.65f;
+        float wpnY = s1Y + skillR * 0.15f;
+        this.weaponBtn = new TouchButton(wpnX, wpnY, wpnR, "🗡", "ĐỔI VK", Color.rgb(45, 90, 130), Color.rgb(70, 130, 180));
+
+        // 5. Nút Sảnh (Rời phòng về sảnh chờ) góc dưới cùng bên trái
+        this.exitBtn = new TouchButton(55f, height - 55f, 30f, "🏠", "SẢNH", Color.rgb(180, 40, 40), Color.rgb(220, 60, 60));
+
+        // 6. Nút Copy mã mời (nếu ở chế độ Multiplayer)
         if (host != null && port > 0) {
             this.copyCodeBtn = new TouchButton(width / 2f, 102f, 24f, "📋", "COPY", Color.rgb(40, 120, 200), Color.rgb(60, 150, 240));
         }
@@ -139,28 +182,7 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
         if (camera != null) {
             this.camera = new Camera2D(width, height, GameWorld.WORLD_WIDTH, GameWorld.WORLD_HEIGHT);
         }
-        if (joystick != null) {
-            float joyX = Math.max(160f, width * 0.16f);
-            float joyY = height - Math.max(160f, height * 0.28f);
-            joystick.setCenter(joyX, joyY);
-        }
-        if (attackBtn != null) {
-            float atkW = Math.min(width, height) * 0.12f;
-            float atkX = width - atkW * 1.6f;
-            float atkY = height - atkW * 1.5f;
-            attackBtn.setCenter(atkX, atkY);
-            if (weaponBtn != null) {
-                float wpnX = atkX - atkW * 1.25f;
-                float wpnY = atkY + atkW * 0.1f;
-                weaponBtn.setCenter(wpnX, wpnY);
-            }
-        }
-        if (exitBtn != null) {
-            exitBtn.setCenter(60f, height - 60f);
-        }
-        if (copyCodeBtn != null) {
-            copyCodeBtn.setCenter(width / 2f, 102f);
-        }
+        setupControlLayout(width, height);
     }
 
     @Override
@@ -222,18 +244,27 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
         double jy = (joystick != null && joystick.isPressed()) ? joystick.getNormalizedY() : 0.0;
         double speed = 220.0;
 
-        if (networkClient != null && networkClient.isConnected()) {
-            // Chế độ Đấu Mạng: Gửi vận tốc & cờ tấn công lên Dedicated Server
-            boolean isAtk = attackRequested;
-            attackRequested = false;
-            networkClient.sendInput(jx * speed, jy * speed, isAtk);
+        Player player = world != null ? world.getPlayer() : null;
 
-            // Cập nhật hiệu ứng thị giác cục bộ
+        if (networkClient != null && networkClient.isConnected()) {
+            // Cập nhật bộ đếm thời gian hồi chiêu cục bộ cho nút bấm
+            if (player != null) {
+                if (joystick != null && joystick.getDirection() != null) {
+                    player.setFacingDirection(joystick.getDirection());
+                }
+                player.updatePhysics(dt);
+            }
+
+            boolean isAtk = attackRequested;
+            int skill = skillRequested;
+            attackRequested = false;
+            skillRequested = 0;
+
+            networkClient.sendInput(jx * speed, jy * speed, isAtk, skill);
             world.getCombatEngine().updateEffects(dt);
         } else {
             // Chế độ Chơi Đơn Offline
-            if (world != null) {
-                Player player = world.getPlayer();
+            if (world != null && player != null) {
                 if (player.isAlive()) {
                     player.setVelocity(new Vector2D(jx * speed, jy * speed));
                     if (joystick != null && joystick.getDirection() != null) {
@@ -246,6 +277,13 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                 }
             }
         }
+
+        // Đồng bộ đồng hồ đếm ngược hồi chiêu lên 3 nút Kỹ năng AOV
+        if (player != null) {
+            if (skill1Btn != null) skill1Btn.setCooldown(player.getSkillCooldown(1), Player.SKILL1_CD);
+            if (skill2Btn != null) skill2Btn.setCooldown(player.getSkillCooldown(2), Player.SKILL2_CD);
+            if (skill3Btn != null) skill3Btn.setCooldown(player.getSkillCooldown(3), Player.SKILL3_CD);
+        }
     }
 
     private void renderGame() {
@@ -257,16 +295,17 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                 int height = getHeight();
 
                 if (networkClient != null && networkClient.isConnected()) {
-                    // Dựng hình chế độ Đấu Mạng Multiplayer với Snapshot Interpolator LERP
                     renderer.renderMultiplayer(canvas, networkClient, camera, width, height, roomCode, world.getCombatEngine());
                 } else if (renderer != null && world != null && camera != null) {
-                    // Dựng hình chế độ Chơi Đơn Offline
                     renderer.render(canvas, world, camera, width, height);
                 }
 
-                // Vẽ các nút điều khiển cảm ứng
+                // Vẽ cụm điều khiển cảm ứng chuẩn AOV
                 if (joystick != null) joystick.draw(canvas, paint);
                 if (attackBtn != null) attackBtn.draw(canvas, paint);
+                if (skill1Btn != null) skill1Btn.draw(canvas, paint);
+                if (skill2Btn != null) skill2Btn.draw(canvas, paint);
+                if (skill3Btn != null) skill3Btn.draw(canvas, paint);
                 if (weaponBtn != null) weaponBtn.draw(canvas, paint);
                 if (exitBtn != null) exitBtn.draw(canvas, paint);
                 if (copyCodeBtn != null) copyCodeBtn.draw(canvas, paint);
@@ -313,51 +352,73 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     private void handleTouchDown(int pointerId, float touchX, float touchY) {
-        // 1. Kiểm tra nút Thoát về Sảnh
         if (exitBtn != null && exitBtn.onTouchDown(pointerId, touchX, touchY)) {
             exitToLobby();
             return;
         }
 
-        // 2. Kiểm tra nút Copy mã mời
         if (copyCodeBtn != null && copyCodeBtn.onTouchDown(pointerId, touchX, touchY)) {
             copyInviteCode();
             return;
         }
 
-        // 3. Nửa trái màn hình: Joystick
-        if (touchX < getWidth() * 0.5f) {
+        // Nửa trái màn hình: Joystick
+        if (touchX < getWidth() * 0.45f) {
             if (joystick != null) {
                 joystick.onTouchDown(pointerId, touchX, touchY);
             }
-        } else {
-            // Nửa phải màn hình: Các nút bấm hành động
-            if (attackBtn != null && attackBtn.onTouchDown(pointerId, touchX, touchY)) {
-                attackRequested = true;
-                if (networkClient == null || !networkClient.isConnected()) {
-                    if (!world.getPlayer().isAlive()) {
-                        world.restartGame();
-                    } else {
-                        world.handlePlayerAttack();
-                    }
+            return;
+        }
+
+        // Nửa phải màn hình: Cụm phím Đánh Thường + 3 Chiêu AOV + Đổi Vũ Khí
+        if (skill1Btn != null && skill1Btn.onTouchDown(pointerId, touchX, touchY)) {
+            triggerSkill(1);
+        } else if (skill2Btn != null && skill2Btn.onTouchDown(pointerId, touchX, touchY)) {
+            triggerSkill(2);
+        } else if (skill3Btn != null && skill3Btn.onTouchDown(pointerId, touchX, touchY)) {
+            triggerSkill(3);
+        } else if (attackBtn != null && attackBtn.onTouchDown(pointerId, touchX, touchY)) {
+            attackRequested = true;
+            if (networkClient == null || !networkClient.isConnected()) {
+                if (!world.getPlayer().isAlive()) {
+                    world.restartGame();
                 } else {
-                    // Xuất chiêu hiệu ứng chém kiếm ngay lập tức cho mượt
-                    Direction dir = joystick != null && joystick.getDirection() != null ? joystick.getDirection() : Direction.DOWN;
-                    world.getCombatEngine().spawnHitParticles(
-                            camera.getX() + dir.getDirX() * 32,
-                            camera.getY() + dir.getDirY() * 32,
-                            CombatEngine.COLOR_YELLOW, 6
-                    );
+                    world.handlePlayerAttack();
                 }
-            } else if (weaponBtn != null && weaponBtn.onTouchDown(pointerId, touchX, touchY)) {
-                switchWeapon();
+            } else {
+                Direction dir = world.getPlayer().getFacingDirection();
+                world.getCombatEngine().spawnHitParticles(
+                        camera.getX() + dir.getDirX() * 32,
+                        camera.getY() + dir.getDirY() * 32,
+                        CombatEngine.COLOR_YELLOW, 6
+                );
             }
+        } else if (weaponBtn != null && weaponBtn.onTouchDown(pointerId, touchX, touchY)) {
+            switchWeapon();
+        }
+    }
+
+    private void triggerSkill(int skillId) {
+        Player player = world.getPlayer();
+        if (!player.canCastSkill(skillId)) return;
+
+        if (networkClient == null || !networkClient.isConnected()) {
+            world.handlePlayerSkill(skillId);
+        } else {
+            // Chế độ Đấu Mạng: Kích hoạt hồi chiêu & gửi lệnh chiêu thức lên Server
+            player.triggerSkillCooldown(skillId);
+            skillRequested = skillId;
+            Direction dir = player.getFacingDirection();
+            world.getCombatEngine().spawnSkillVisualOnly(camera.getX(), camera.getY(), dir, skillId);
         }
     }
 
     private void handleTouchUp(int pointerId) {
         if (joystick != null) joystick.onTouchUp(pointerId);
         if (attackBtn != null) attackBtn.onTouchUp(pointerId);
+        if (skill1Btn != null) skill1Btn.onTouchUp(pointerId);
+        if (skill2Btn != null) skill2Btn.onTouchUp(pointerId);
+        if (skill3Btn != null) skill3Btn.onTouchUp(pointerId);
         if (weaponBtn != null) weaponBtn.onTouchUp(pointerId);
         if (exitBtn != null) exitBtn.onTouchUp(pointerId);
         if (copyCodeBtn != null) copyCodeBtn.onTouchUp(pointerId);
@@ -375,7 +436,7 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
 
     private void copyInviteCode() {
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("GameRoomCode", "Vào chơi cùng mình nhé! Mã phòng: " + roomCode);
+        ClipData clip = ClipData.newPlainText("GameRoomCode", roomCode);
         if (clipboard != null) {
             clipboard.setPrimaryClip(clip);
             Toast.makeText(getContext(), "📋 Đã sao chép mã phòng: " + roomCode, Toast.LENGTH_SHORT).show();

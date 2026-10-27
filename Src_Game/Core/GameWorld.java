@@ -176,6 +176,14 @@ public class GameWorld {
         }
     }
 
+    public boolean handlePlayerSkill(int skillId) {
+        if (player.isAlive() && player.canCastSkill(skillId)) {
+            combatEngine.executePlayerSkill(player, skillId, monsters);
+            return true;
+        }
+        return false;
+    }
+
     public void restartGame() {
         player.respawn(new Vector2D(WORLD_WIDTH / 2.0, WORLD_HEIGHT / 2.0));
         score = 0;
