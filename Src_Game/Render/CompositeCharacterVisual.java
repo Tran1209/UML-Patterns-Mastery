@@ -1,6 +1,5 @@
 package render;
 
-import java.awt.Rectangle;
 import java.util.*;
 
 /**
@@ -54,10 +53,10 @@ public class CompositeCharacterVisual {
      * Tính toán tập hợp các vùng cắt hình ảnh (Sub-image Rectangles) cho toàn bộ các lớp đang kích hoạt.
      * Phục vụ quá trình render đồng bộ đa lớp (Multi-layer Blitting).
      */
-    public Map<LayerType, Rectangle> resolveRenderFrames(LpcAnimationType animType, Direction direction, int frameIndex) {
-        Map<LayerType, Rectangle> frameMap = new LinkedHashMap<>();
+    public Map<LayerType, FrameBounds> resolveRenderFrames(LpcAnimationType animType, Direction direction, int frameIndex) {
+        Map<LayerType, FrameBounds> frameMap = new LinkedHashMap<>();
         for (SpriteLayer layer : getVisibleLayersSorted()) {
-            Rectangle rect = layer.calculateSubRect(animType, direction, frameIndex);
+            FrameBounds rect = layer.calculateSubRect(animType, direction, frameIndex);
             frameMap.put(layer.getLayerType(), rect);
         }
         return frameMap;

@@ -7,26 +7,25 @@ import core.Vector2D;
 import render.Direction;
 import ui.IEntityEventListener;
 
-import java.awt.Color;
 import java.util.*;
 
 /**
  * Động cơ xử lý chiến đấu (Combat Engine) theo mẫu kiến trúc phân vùng không gian.
- * Chịu trách nhiệm:
- * 1. Phân vùng không gian (SpatialGridAoI) để tối ưu phát hiện va chạm O(N).
- * 2. Tính toán giao cắt Hitbox AABB khi xuất chiêu.
- * 3. Áp dụng Strategy Pattern (IDamageStrategy) tính sát thương theo chỉ số.
- * 4. Quản lý hiệu ứng thị giác (Floating Combat Text & Hit Particles).
+ * Độc lập nền tảng 100%, không phụ thuộc java.awt.Color, tương thích cả Desktop lẫn Android.
  */
 public class CombatEngine {
+    public static final int COLOR_YELLOW = 0xFFFFD700;
+    public static final int COLOR_RED = 0xFFFF2222;
+    public static final int COLOR_ORANGE = 0xFFFF8C00;
+
     public static class FloatingText {
         public double x, y;
         public final String text;
-        public final Color color;
+        public final int color;
         public double lifeTime;
         public final double maxLifeTime;
 
-        public FloatingText(double x, double y, String text, Color color, double maxLifeTime) {
+        public FloatingText(double x, double y, String text, int color, double maxLifeTime) {
             this.x = x;
             this.y = y;
             this.text = text;
@@ -36,7 +35,7 @@ public class CombatEngine {
         }
 
         public void update(double dt) {
-            y -= 45.0 * dt; // Bay từ từ lên trên
+            y -= 45.0 * dt;
             lifeTime -= dt;
         }
 
@@ -47,12 +46,12 @@ public class CombatEngine {
 
     public static class HitParticle {
         public double x, y, vx, vy;
-        public final Color color;
+        public final int color;
         public double lifeTime;
         public final double maxLifeTime;
         public final double size;
 
-        public HitParticle(double x, double y, double vx, double vy, Color color, double maxLifeTime, double size) {
+        public HitParticle(double x, double y, double vx, double vy, int color, double maxLifeTime, double size) {
             this.x = x;
             this.y = y;
             this.vx = vx;
@@ -195,13 +194,13 @@ public class CombatEngine {
                     int actualDamage = monster.takeDamage(damage);
 
                     hitCount++;
-                    spawnDamageNumber(monster.getPosition().getX(), monster.getPosition().getY(), actualDamage, Color.YELLOW);
-                    spawnHitParticles(monster.getPosition().getX(), monster.getPosition().getY(), Color.ORANGE, 8);
+                    spawnDamageNumber(monster.getPosition().getX(), monster.getPosition().getY(), actualDamage, COLOR_YELLOW);
+                    spawnHitParticles(monster.getPosition().getX(), monster.getPosition().getY(), COLOR_ORANGE, 8);
 
                     // Kiểm tra tử vong
                     if (!monster.isAlive()) {
                         attacker.addKill();
-                        spawnDamageNumber(monster.getPosition().getX(), monster.getPosition().getY() - 20, "DIỆT!", Color.RED);
+                        spawnDamageNumber(monster.getPosition().getX(), monster.getPosition().getY() - 20, "DIỆT!", COLOR_RED);
                         for (IEntityEventListener listener : eventListeners) {
                             listener.onEntityDied(monster.getType().displayName, attacker.getPlayerName());
                         }
@@ -226,8 +225,8 @@ public class CombatEngine {
                 int damage = physicalStrategy.calculateDamage(0, monster, player);
                 int actualDealt = player.takeDamage(damage);
 
-                spawnDamageNumber(player.getPosition().getX(), player.getPosition().getY(), actualDealt, Color.RED);
-                spawnHitParticles(player.getPosition().getX(), player.getPosition().getY(), Color.RED, 6);
+                spawnDamageNumber(player.getPosition().getX(), player.getPosition().getY(), actualDealt, COLOR_RED);
+                spawnHitParticles(player.getPosition().getX(), player.getPosition().getY(), COLOR_RED, 6);
 
                 for (IEntityEventListener listener : eventListeners) {
                     listener.onHealthChanged(player.getId(), player.getCurrentHp(), player.getMaxHp());
@@ -239,15 +238,15 @@ public class CombatEngine {
         }
     }
 
-    public void spawnDamageNumber(double x, double y, int damage, Color color) {
+    public void spawnDamageNumber(double x, double y, int damage, int color) {
         floatingTexts.add(new FloatingText(x, y - 10, "-" + damage, color, 0.8));
     }
 
-    public void spawnDamageNumber(double x, double y, String text, Color color) {
+    public void spawnDamageNumber(double x, double y, String text, int color) {
         floatingTexts.add(new FloatingText(x, y - 10, text, color, 1.2));
     }
 
-    public void spawnHitParticles(double x, double y, Color color, int count) {
+    public void spawnHitParticles(double x, double y, int color, int count) {
         for (int i = 0; i < count; i++) {
             double angle = Math.random() * Math.PI * 2;
             double speed = 40 + Math.random() * 120;

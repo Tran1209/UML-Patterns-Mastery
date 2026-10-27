@@ -7,6 +7,9 @@ import core.Player;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +21,29 @@ import java.util.Map;
  */
 public class LpcCanvasRenderer {
 
+    private static final Map<String, BufferedImage> TEXTURE_CACHE = new HashMap<>();
+
+    public static BufferedImage getTextureImage(LpcSpriteSheet sheet) {
+        if (sheet == null || sheet.getAssetPath() == null || sheet.getAssetPath().isEmpty()) return null;
+        String path = sheet.getAssetPath();
+        if (TEXTURE_CACHE.containsKey(path)) return TEXTURE_CACHE.get(path);
+        File file = new File(path);
+        if (file.exists() && file.isFile()) {
+            try {
+                BufferedImage img = ImageIO.read(file);
+                TEXTURE_CACHE.put(path, img);
+                return img;
+            } catch (Exception e) {
+                // Ignore fallback to procedural
+            }
+        }
+        return null;
+    }
+
+    public static boolean hasLoadedImage(LpcSpriteSheet sheet) {
+        return getTextureImage(sheet) != null;
+    }
+
     public static void renderCharacter(Graphics2D g2d, CharacterRenderer renderer, double screenX, double screenY, String nameTag, int currentHp, int maxHp, boolean isPlayer) {
         CompositeCharacterVisual visual = renderer.getVisual();
         Direction dir = renderer.getCurrentDirection();
@@ -28,7 +54,7 @@ public class LpcCanvasRenderer {
         boolean hasTexture = false;
         List<SpriteLayer> layers = visual.getVisibleLayersSorted();
         for (SpriteLayer layer : layers) {
-            if (layer.getSpriteSheet().hasLoadedImage()) {
+            if (hasLoadedImage(layer.getSpriteSheet())) {
                 hasTexture = true;
                 break;
             }
@@ -40,10 +66,10 @@ public class LpcCanvasRenderer {
 
         if (hasTexture) {
             // Vẽ bằng SpriteSheet thật (Painter's Algorithm: Lớp Z thấp vẽ trước, Z cao vẽ sau)
-            Map<LayerType, Rectangle> frameMap = visual.resolveRenderFrames(anim, dir, frameIdx);
+            Map<LayerType, FrameBounds> frameMap = visual.resolveRenderFrames(anim, dir, frameIdx);
             for (SpriteLayer layer : layers) {
-                BufferedImage img = layer.getSpriteSheet().getTextureImage();
-                Rectangle clip = frameMap.get(layer.getLayerType());
+                BufferedImage img = getTextureImage(layer.getSpriteSheet());
+                FrameBounds clip = frameMap.get(layer.getLayerType());
                 if (img != null && clip != null) {
                     int dx1 = (int) screenX - 32;
                     int dy1 = (int) screenY - 32;

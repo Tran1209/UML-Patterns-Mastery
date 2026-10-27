@@ -142,12 +142,12 @@ public class GameUnitTestSuite {
         LpcSpriteSheet sheet = new LpcSpriteSheet("male_body", "assets/sprites/body.png");
         // Kiểm tra tính toán toạ độ: WALK, hướng DOWN (hàng 8 + 2 = hàng 10). Frame 3.
         // X = 3 * 64 = 192, Y = 10 * 64 = 640
-        Rectangle walkBounds = sheet.getFrameBounds(LpcAnimationType.WALK, Direction.DOWN, 3);
+        FrameBounds walkBounds = sheet.getFrameBounds(LpcAnimationType.WALK, Direction.DOWN, 3);
         boolean walkOk = walkBounds.x == 192 && walkBounds.y == 640 && walkBounds.width == 64 && walkBounds.height == 64;
 
         // SLASH, hướng UP (hàng 12 + 0 = hàng 12). Frame 0.
         // X = 0, Y = 12 * 64 = 768
-        Rectangle slashBounds = sheet.getFrameBounds(LpcAnimationType.SLASH, Direction.UP, 0);
+        FrameBounds slashBounds = sheet.getFrameBounds(LpcAnimationType.SLASH, Direction.UP, 0);
         boolean slashOk = slashBounds.x == 0 && slashBounds.y == 768;
 
         assertTrue("LpcSpriteSheet Flyweight tính đúng ma trận cắt frame 64x64", walkOk && slashOk);

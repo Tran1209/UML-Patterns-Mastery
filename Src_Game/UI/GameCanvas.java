@@ -331,8 +331,11 @@ public class GameCanvas extends JPanel {
             double sx = camera.worldToScreenX(p.x);
             double sy = camera.worldToScreenY(p.y);
             float alpha = (float) Math.max(0f, p.lifeTime / p.maxLifeTime);
-            Color c = p.color;
-            g2d.setColor(new Color(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, alpha));
+            int c = p.color;
+            int r = (c >> 16) & 0xFF;
+            int g = (c >> 8) & 0xFF;
+            int b = c & 0xFF;
+            g2d.setColor(new Color(r / 255f, g / 255f, b / 255f, alpha));
             g2d.fillOval((int) sx, (int) sy, (int) p.size, (int) p.size);
         }
 
@@ -341,8 +344,11 @@ public class GameCanvas extends JPanel {
             double sx = camera.worldToScreenX(ft.x);
             double sy = camera.worldToScreenY(ft.y);
             float alpha = (float) Math.max(0f, ft.lifeTime / ft.maxLifeTime);
-            Color c = ft.color;
-            g2d.setColor(new Color(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, alpha));
+            int c = ft.color;
+            int r = (c >> 16) & 0xFF;
+            int g = (c >> 8) & 0xFF;
+            int b = c & 0xFF;
+            g2d.setColor(new Color(r / 255f, g / 255f, b / 255f, alpha));
             g2d.drawString(ft.text, (int) sx, (int) sy);
         }
     }

@@ -1,7 +1,5 @@
 package render;
 
-import java.awt.Rectangle;
-
 /**
  * Một thành phần hiển thị (Component) trong mẫu thiết kế Composite Pattern.
  * Đóng gói một lớp trang phục/vũ khí/cơ thể cụ thể và liên kết tới đối tượng Flyweight LpcSpriteSheet.
@@ -43,7 +41,7 @@ public class SpriteLayer implements Comparable<SpriteLayer> {
         this.isVisible = visible;
     }
 
-    public Rectangle calculateSubRect(LpcAnimationType animType, Direction direction, int frameIndex) {
+    public FrameBounds calculateSubRect(LpcAnimationType animType, Direction direction, int frameIndex) {
         return spriteSheet.getFrameBounds(animType, direction, frameIndex);
     }
 
