@@ -281,6 +281,7 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                 }
                 player.updatePhysics(dt);
 
+                Vector2D myPos = getLocalPlayerWorldPos();
                 if (skill >= 1 && skill <= 3 && player.canCastSkill(skill)) {
                     player.triggerSkillCooldown(skill);
                     double vxAim = aimX;
@@ -290,18 +291,18 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                         vxAim = dir.getDirX() * (skill == 1 ? 1.0 : 0.55);
                         vyAim = dir.getDirY() * (skill == 1 ? 1.0 : 0.55);
                     }
-                    world.getCombatEngine().spawnSkillVisualOnly(camera.getX(), camera.getY(), vxAim, vyAim, skill);
+                    world.getCombatEngine().spawnSkillVisualOnly(myPos.getX(), myPos.getY(), vxAim, vyAim, skill);
                 } else if (isAtk && player.canAttack()) {
                     player.triggerAttackCooldown(0.35);
                     Direction dir = player.getFacingDirection();
                     world.getCombatEngine().getSlashEffects().add(new CombatEngine.SlashEffect(
-                            camera.getX() + dir.getDirX() * 32,
-                            camera.getY() + dir.getDirY() * 32,
+                            myPos.getX() + dir.getDirX() * 32,
+                            myPos.getY() + dir.getDirY() * 32,
                             dir, 0.20
                     ));
                     world.getCombatEngine().spawnHitParticles(
-                            camera.getX() + dir.getDirX() * 32,
-                            camera.getY() + dir.getDirY() * 32,
+                            myPos.getX() + dir.getDirX() * 32,
+                            myPos.getY() + dir.getDirY() * 32,
                             CombatEngine.COLOR_YELLOW, 5
                     );
                 }
@@ -357,19 +358,14 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
                     renderer.render(canvas, world, camera, width, height);
                 }
 
-                // Vẽ Vùng Chọn Kéo Thả / Mũi Tên Định Hướng 360° dưới mặt đất nếu đang giữ nút kỹ năng
+                // Vẽ Vùng Chọn Kéo Thả / Mũi Tên Định Hướng 360° bám sát 100% dưới chân nhân vật của bạn
                 int aimingSkill = activeAimingSkill;
                 if (aimingSkill >= 1 && aimingSkill <= 3 && renderer != null && camera != null && world != null) {
                     TouchButton activeBtn = (aimingSkill == 1) ? skill1Btn : ((aimingSkill == 2) ? skill2Btn : skill3Btn);
                     if (activeBtn != null && activeBtn.isPressed()) {
-                        double heroX = (networkClient != null && networkClient.isConnected())
-                                ? camera.getX()
-                                : world.getPlayer().getPosition().getX();
-                        double heroY = (networkClient != null && networkClient.isConnected())
-                                ? camera.getY()
-                                : world.getPlayer().getPosition().getY();
+                        Vector2D heroPos = getLocalPlayerWorldPos();
                         renderer.renderSkillTargetIndicator(
-                                canvas, camera, heroX, heroY,
+                                canvas, camera, heroPos.getX(), heroPos.getY(),
                                 world.getPlayer().getFacingDirection(),
                                 aimingSkill, activeBtn.getAimX(), activeBtn.getAimY(),
                                 isCancelHovered
@@ -434,11 +430,40 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
 
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
                 handleTouchUp(pointerId);
+                break;
+
+            case MotionEvent.ACTION_CANCEL:
+                if (joystick != null) joystick.reset();
+                if (attackBtn != null) attackBtn.reset();
+                if (skill1Btn != null) skill1Btn.reset();
+                if (skill2Btn != null) skill2Btn.reset();
+                if (skill3Btn != null) skill3Btn.reset();
+                activeAimingSkill = 0;
+                isCancelHovered = false;
                 break;
         }
         return true;
+    }
+
+    /**
+     * Lấy chính xác tọa độ thế giới (World Position) của nhân vật người chơi cục bộ
+     * ở cả chế độ Chơi Đơn lẫn Đấu Mạng (Multiplayer), đảm bảo vòng ngắm kỹ năng luôn bám dính dưới chân tướng!
+     */
+    private Vector2D getLocalPlayerWorldPos() {
+        if (networkClient != null && networkClient.isConnected()) {
+            String myId = networkClient.getAssignedPlayerId();
+            if (myId != null) {
+                Vector2D pos = networkClient.getInterpolatedPosition(myId, System.currentTimeMillis());
+                if (pos != null) return pos;
+                network.WorldSnapshotPayload.EntityState st = networkClient.getLatestStates().get(myId);
+                if (st != null) return new Vector2D(st.posX, st.posY);
+            }
+        }
+        if (world != null && world.getPlayer() != null) {
+            return world.getPlayer().getPosition();
+        }
+        return new Vector2D(GameWorld.WORLD_WIDTH / 2.0, GameWorld.WORLD_HEIGHT / 2.0);
     }
 
     private void handleTouchDown(int pointerId, float touchX, float touchY) {
@@ -536,10 +561,11 @@ public class AndroidGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     private void showCancelToast() {
-        if (world != null && camera != null) {
+        if (world != null) {
+            Vector2D heroPos = getLocalPlayerWorldPos();
             world.getCombatEngine().spawnDamageNumber(
-                    camera.getX(),
-                    camera.getY() - 35,
+                    heroPos.getX(),
+                    heroPos.getY() - 35,
                     "✖ ĐÃ HỦY CHIÊU",
                     CombatEngine.COLOR_RED
             );

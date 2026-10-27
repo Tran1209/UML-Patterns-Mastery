@@ -26,15 +26,13 @@ public class Camera2D {
     public void update(Vector2D targetPos, double smoothFactor) {
         if (targetPos == null) return;
 
-        // Smooth follow LERP
+        // Smooth follow LERP giữ nhân vật luôn ở trung tâm màn hình chuẩn MOBA / Liên Quân
+        // Giúp ngón tay trái (Joystick) và ngón tay phải (3 nút Kỹ năng) không bao giờ che khuất nhân vật!
         this.x += (targetPos.getX() - this.x) * smoothFactor;
         this.y += (targetPos.getY() - this.y) * smoothFactor;
 
-        // Kẹp giới hạn camera không bị tràn khỏi biên bản đồ
-        double halfW = viewWidth / 2.0;
-        double halfH = viewHeight / 2.0;
-        this.x = Math.max(halfW, Math.min(worldWidth - halfW, this.x));
-        this.y = Math.max(halfH, Math.min(worldHeight - halfH, this.y));
+        this.x = Math.max(0.0, Math.min(worldWidth, this.x));
+        this.y = Math.max(0.0, Math.min(worldHeight, this.y));
     }
 
     public double getX() {

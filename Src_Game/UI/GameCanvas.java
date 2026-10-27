@@ -230,15 +230,23 @@ public class GameCanvas extends JPanel {
         }
     }
 
+    private Vector2D getLocalPlayerWorldPos() {
+        if (networkClient != null && networkClient.isConnected()) {
+            String myId = networkClient.getAssignedPlayerId();
+            if (myId != null) {
+                Vector2D pos = networkClient.getInterpolatedPosition(myId, System.currentTimeMillis());
+                if (pos != null) return pos;
+                WorldSnapshotPayload.EntityState st = networkClient.getLatestStates().get(myId);
+                if (st != null) return new Vector2D(st.posX, st.posY);
+            }
+        }
+        return world.getPlayer().getPosition();
+    }
+
     private void updateAimFromMouse(int mx, int my) {
-        double heroWorldX = (networkClient != null && networkClient.isConnected())
-                ? camera.getX()
-                : world.getPlayer().getPosition().getX();
-        double heroWorldY = (networkClient != null && networkClient.isConnected())
-                ? camera.getY()
-                : world.getPlayer().getPosition().getY();
-        double heroSx = camera.worldToScreenX(heroWorldX);
-        double heroSy = camera.worldToScreenY(heroWorldY);
+        Vector2D heroPos = getLocalPlayerWorldPos();
+        double heroSx = camera.worldToScreenX(heroPos.getX());
+        double heroSy = camera.worldToScreenY(heroPos.getY());
 
         double dx = mx - heroSx;
         double dy = my - heroSy;
@@ -268,8 +276,9 @@ public class GameCanvas extends JPanel {
                 aimX = dir.getDirX() * (skillId == 1 ? 1.0 : 0.55);
                 aimY = dir.getDirY() * (skillId == 1 ? 1.0 : 0.55);
             }
+            Vector2D heroPos = getLocalPlayerWorldPos();
             world.getCombatEngine().spawnSkillVisualOnly(
-                    camera.getX(), camera.getY(), aimX, aimY, skillId
+                    heroPos.getX(), heroPos.getY(), aimX, aimY, skillId
             );
         } else {
             world.handlePlayerSkill(skillId, aimX, aimY);
@@ -737,14 +746,9 @@ public class GameCanvas extends JPanel {
      * Vẽ Vùng Chọn Kéo Thả / Mũi Tên Định Hướng 360° chuẩn Liên Quân Mobile (AOV) trên PC.
      */
     private void renderDesktopSkillIndicator(Graphics2D g2d) {
-        double heroWorldX = (networkClient != null && networkClient.isConnected())
-                ? camera.getX()
-                : world.getPlayer().getPosition().getX();
-        double heroWorldY = (networkClient != null && networkClient.isConnected())
-                ? camera.getY()
-                : world.getPlayer().getPosition().getY();
-        double sx = camera.worldToScreenX(heroWorldX);
-        double sy = camera.worldToScreenY(heroWorldY);
+        Vector2D heroPos = getLocalPlayerWorldPos();
+        double sx = camera.worldToScreenX(heroPos.getX());
+        double sy = camera.worldToScreenY(heroPos.getY());
 
         double aimX = currentAimX;
         double aimY = currentAimY;
