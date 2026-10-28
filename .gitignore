@@ -1,10 +1,11 @@
-# Sách gốc & chương đã tách (file nặng / bản quyền) — không đẩy lên GitHub đồ án
-_Knowledge_Base_Larman/
+# Tai lieu ca nhan & sach tham khao (khong day len GitHub nhom)
+_Archive_CaNhan/
 00_Raw_PDF/
 *.pdf
 
-# Công cụ xử lý sách nội bộ
-scripts/
+# Cong cu xu ly sach noi bo
+scripts/*.py
+scripts/requirements.txt
 
 # Obsidian local settings
 .obsidian/
@@ -27,11 +28,13 @@ venv/
 *.sln.docstates
 .vs/
 
-# Build artifacts (C# / C++ / Unity / Game)
+# Build artifacts (Chi giu ma nguon tren Git, file build nam cuc bo)
 [Bb]in/
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
+Android_Game/build/
+Android_Game/gen/
 *.exe
 *.dll
 *.pdb
@@ -40,6 +43,3 @@ venv/
 Thumbs.db
 Desktop.ini
 .DS_Store
-
-Android_Game/build/
-Android_Game/gen/

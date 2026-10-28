@@ -1,6 +1,6 @@
 @echo off
 title "Build Android APK - UML Patterns Mastery"
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo ===============================================================================
 echo   DANG BIEN DICH VA DONG GOI ANDROID APK (HUCE OOP ARENA)...
@@ -50,41 +50,40 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo [3/5] Bien dich ma nguon Java (Domain Core + Server + Android UI)...
-powershell -Command "javac --release 17 -cp '%ANDROID_JAR%;Android_Game/build/classes' -d Android_Game/build/classes (Get-ChildItem -Path Src_Game/Core/*.java, Src_Game/Combat/*.java, Src_Game/Network/*.java, Src_Game/Server/*.java, Src_Game/Render/Direction.java, Src_Game/Render/LpcAnimationType.java, Src_Game/Render/LayerType.java, Src_Game/Render/FrameBounds.java, Src_Game/Render/Camera2D.java, Src_Game/Render/CharacterRenderer.java, Src_Game/Render/CompositeCharacterVisual.java, Src_Game/Render/SpriteLayer.java, Src_Game/Render/LpcSpriteSheet.java, Src_Game/Render/LpcCharacterBuilder.java, Src_Game/UI/IEntityEventListener.java, Src_Game/UI/HudObserver.java, Android_Game/gen/com/huce/oop/game/R.java, Android_Game/src/com/huce/oop/game/*.java | ForEach-Object { $_.FullName })"
+powershell -Command "javac -encoding UTF-8 --release 17 -cp '%ANDROID_JAR%;Android_Game/build/classes' -d Android_Game/build/classes (Get-ChildItem -Path Src_Game/Core/*.java, Src_Game/Combat/*.java, Src_Game/Network/*.java, Src_Game/Server/*.java, Src_Game/Render/Direction.java, Src_Game/Render/LpcAnimationType.java, Src_Game/Render/LayerType.java, Src_Game/Render/FrameBounds.java, Src_Game/Render/Camera2D.java, Src_Game/Render/CharacterRenderer.java, Src_Game/Render/CompositeCharacterVisual.java, Src_Game/Render/SpriteLayer.java, Src_Game/Render/LpcSpriteSheet.java, Src_Game/Render/LpcCharacterBuilder.java, Src_Game/UI/IEntityEventListener.java, Src_Game/UI/HudObserver.java, Android_Game/gen/com/huce/oop/game/R.java, Android_Game/src/com/huce/oop/game/*.java | ForEach-Object { $_.FullName })"
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] javac that bai!
+    echo [ERROR] javac bien dich ma nguon Android that bai!
     pause
     exit /b %ERRORLEVEL%
 )
 
 echo [4/5] Chuyen doi Bytecode sang Dalvik Executable (classes.dex) voi D8...
-powershell -Command "$classes = (Get-ChildItem -Path Android_Game/build/classes -Recurse -Filter *.class | ForEach-Object { $_.FullName }); & '%D8%' --min-api 21 --lib '%ANDROID_JAR%' --output Android_Game/build $classes"
+powershell -Command "& '%D8%' --lib '%ANDROID_JAR%' --output Android_Game/build (Get-ChildItem -Path Android_Game/build/classes -Recurse -Filter *.class | ForEach-Object { $_.FullName })"
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] D8 dex conversion that bai!
+    echo [ERROR] D8 chuyen doi classes.dex that bai!
     pause
     exit /b %ERRORLEVEL%
 )
 
 echo [5/5] Dong goi APK, Zipalign 4-byte va Ky chung chi so (Apksigner)...
-jar -uf Android_Game\build\base.apk -C Android_Game\build classes.dex
-"%ZIPALIGN%" -f -p 4 Android_Game\build\base.apk Android_Game\build\aligned.apk
-"%APKSIGNER%" sign --ks Android_Game\debug.keystore --ks-pass pass:android --key-pass pass:android --out build\UmlPatternsMasteryGame.apk Android_Game\build\aligned.apk
+copy /Y Android_Game\build\base.apk Android_Game\build\unaligned.apk >nul
+powershell -Command "$zip = [System.IO.Compression.ZipFile]::Open('E:\UML-Patterns-Mastery\Android_Game\build\unaligned.apk', 'Update'); $existing = $zip.GetEntry('classes.dex'); if ($existing) { $existing.Delete() }; [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, 'E:\UML-Patterns-Mastery\Android_Game\build\classes.dex', 'classes.dex') | Out-Null; $zip.Dispose()"
+
+"%ZIPALIGN%" -f -p 4 Android_Game\build\unaligned.apk Android_Game\build\aligned.apk
+
+if not exist "Android_Game\build\debug.keystore" (
+    "%JAVA_HOME%\bin\keytool.exe" -genkeypair -v -keystore Android_Game\build\debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+)
+
+call "%APKSIGNER%" sign --ks Android_Game\build\debug.keystore --ks-pass pass:android --key-pass pass:android --out build\UmlPatternsMasteryGame.apk Android_Game\build\aligned.apk
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Ky APK that bai!
     pause
     exit /b %ERRORLEVEL%
 )
 
-echo.
 echo ===============================================================================
-echo   BIEN DICH VA DONG GOI APK THANH CONG 100%!
+echo   BIEN DICH VA DONG GOI APK THANH CONG 100%%!
 echo   File APK da san sang tai: build\UmlPatternsMasteryGame.apk
-echo ===============================================================================
-echo   HUONG DAN CAI DAT LEN DIEN THOAI ANDROID:
-echo   1. Cam cap USB hoac gui file 'build\UmlPatternsMasteryGame.apk' qua Zalo/Drive.
-echo   2. Tren dien thoai, an vao file APK va chon 'Cai dat' (Install).
-echo   3. Neu may hoi 'Cai dat tu nguon khong xac dinh', hay chon 'Cho phep' (Allow).
-echo   4. Neu cam dien thoai bat che do USB Debugging, co the chay lenh:
-echo      adb install -r build\UmlPatternsMasteryGame.apk
 echo ===============================================================================
 pause
