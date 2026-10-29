@@ -1,4 +1,4 @@
----
+﻿---
 aliases: [Trang Chủ, MOC, Second Brain, Dashboard, Command Center]
 tags: [moc, dashboard, ooad, craig-larman, game-architecture, capstone-report, obsidian-vault]
 created: 2026-10-19
@@ -13,7 +13,7 @@ status: active
 ---
 
 > [!IMPORTANT] ĐỌC FILE NÀY TRƯỚC NẾU BẠN ĐANG BỊ RỐI!
-> 📍 **[[MASTER_MAP|MASTER_MAP.md — Bản đồ tổng thể dự án (Tất cả trong 1 trang)]]**  
+> 📍 **[[Docs_BaoCao/MASTER_MAP|MASTER_MAP.md — Bản đồ tổng thể dự án (Tất cả trong 1 trang)]]**  
 > *Gom trọn: 5 thành viên · 5 cuốn sách · 7 chương báo cáo · 3 vấn đề kỹ thuật · Việc cần làm tiếp theo.*
 
 ---
@@ -38,11 +38,11 @@ status: active
 ```mermaid
 flowchart TD
     subgraph KB["📚 BỘ NGŨ TRỤ CỘT KỸ NGHỆ (THE 5 ARCHITECTURAL PILLARS)"]
-        K1["[[01_Report_Notes/01_Process_and_UML|1. Craig Larman: OOAD & 9 GRASP]]"]
-        K2["[[01_Report_Notes/07_Robert_Nystrom_Game_Programming_Patterns|2. Robert Nystrom: Game Patterns & ECS]]"]
-        K3["[[01_Report_Notes/08_Glazer_Madhav_Multiplayer_Netcode|3. Glazer & Madhav: Real-Time Netcode & LERP]]"]
-        K4["[[01_Report_Notes/05_Martin_Fowler_PoEAA|4. Martin Fowler: PoEAA Data Mapper]]"]
-        K5["[[01_Report_Notes/06_Domain_Driven_Design_Aggregates|5. Vaughn Vernon: IDDD Domain Aggregates]]"]
+        K1["[[Docs_BaoCao/GhiChu_LyThuyet/01_Process_and_UML|1. Craig Larman: OOAD & 9 GRASP]]"]
+        K2["[[Docs_BaoCao/GhiChu_LyThuyet/07_Robert_Nystrom_Game_Programming_Patterns|2. Robert Nystrom: Game Patterns & ECS]]"]
+        K3["[[Docs_BaoCao/GhiChu_LyThuyet/08_Glazer_Madhav_Multiplayer_Netcode|3. Glazer & Madhav: Real-Time Netcode & LERP]]"]
+        K4["[[Docs_BaoCao/GhiChu_LyThuyet/05_Martin_Fowler_PoEAA|4. Martin Fowler: PoEAA Data Mapper]]"]
+        K5["[[Docs_BaoCao/GhiChu_LyThuyet/06_Domain_Driven_Design_Aggregates|5. Vaughn Vernon: IDDD Domain Aggregates]]"]
     end
 
     subgraph REPORT["📑 HỒ SƠ BÁO CÁO ĐẠI HỌC (~100 TRANG)"]
@@ -86,14 +86,14 @@ flowchart TD
 
 | Mã số  | Tên Chuyên đề Ghi chú                                                                               | Tác giả & Trụ cột             | Nội dung Học thuật Trọng tâm                                                                                       | Thẻ Phân loại                      |
 | :----: | :-------------------------------------------------------------------------------------------------- | :---------------------------- | :----------------------------------------------------------------------------------------------------------------- | :--------------------------------- |
-| **01** | [[01_Report_Notes/01_Process_and_UML\|01. Quy trình UP & Mô hình hóa UML]]                          | Craig Larman *(Trụ cột 1)*    | Vòng đời UP qua 4 pha; phân biệt rạch ròi giữa Domain Model (OOA) và DCD (OOD).                                    | `#up` `#uml` `#domain-model`       |
-| **02** | [[01_Report_Notes/02_GRASP_9_Principles\|02. 9 Nguyên lý Thiết kế GRASP]]                           | Craig Larman *(Trụ cột 1)*    | Khắc sâu 9 nguyên lý phân bổ trách nhiệm: Information Expert, Creator, Controller, Low Coupling, High Cohesion,... | `#grasp` `#responsibility-driven`  |
-| **03** | [[01_Report_Notes/03_GoF_Patterns_Applied\|03. Mẫu Thiết kế GoF Thực chiến]]                        | Gang of Four                  | Ứng dụng Strategy (Sát thương), Observer (HUD UI), State (FSM), Composite (Buffs).                                 | `#gof` `#patterns` `#architecture` |
-| **04** | [[01_Report_Notes/04_NextGen_POS_Evolution\|04. Tiến hóa Ca học NextGen POS]]                       | Craig Larman *(Trụ cột 1)*    | Phân tích bài học kinh điển của Craig Larman qua 3 vòng lặp Iteration.                                             | `#larman` `#case-study`            |
-| **05** | [[01_Report_Notes/05_Martin_Fowler_PoEAA\|05. Martin Fowler - PoEAA]]                               | Martin Fowler *(Trụ cột 4)*   | Mẫu kiến trúc lưu trữ: Data Mapper, Identity Map tách rời Domain Model khỏi Database.                              | `#fowler` `#poeaa` `#data-mapper`  |
-| **06** | [[01_Report_Notes/06_Domain_Driven_Design_Aggregates\|06. Vaughn Vernon - DDD Aggregates]]          | Vaughn Vernon *(Trụ cột 5)*   | Thiết kế Aggregate Root, Entity, Value Object bảo toàn tính toàn vẹn nghiệp vụ Game.                               | `#ddd` `#aggregates` `#clean-code` |
-| **07** | [[01_Report_Notes/07_Robert_Nystrom_Game_Programming_Patterns\|07. Robert Nystrom - Game Patterns]] | Robert Nystrom *(Trụ cột 2)*  | Game Loop (Fixed Timestep), Component Pattern (thay thế kế thừa sâu), Spatial Partition.                           | `#nystrom` `#ecs` `#game-loop`     |
-| **08** | [[01_Report_Notes/08_Glazer_Madhav_Multiplayer_Netcode\|08. Glazer & Madhav - Real-time Netcode]]   | Glazer & Madhav *(Trụ cột 3)* | Dedicated Authoritative Server, Snapshot Interpolation (LERP 20Hz vs 60fps), Client Prediction.                    | `#netcode` `#lerp` `#jitter`       |
+| **01** | [[Docs_BaoCao/GhiChu_LyThuyet/01_Process_and_UML\|01. Quy trình UP & Mô hình hóa UML]]                          | Craig Larman *(Trụ cột 1)*    | Vòng đời UP qua 4 pha; phân biệt rạch ròi giữa Domain Model (OOA) và DCD (OOD).                                    | `#up` `#uml` `#domain-model`       |
+| **02** | [[Docs_BaoCao/GhiChu_LyThuyet/02_GRASP_9_Principles\|02. 9 Nguyên lý Thiết kế GRASP]]                           | Craig Larman *(Trụ cột 1)*    | Khắc sâu 9 nguyên lý phân bổ trách nhiệm: Information Expert, Creator, Controller, Low Coupling, High Cohesion,... | `#grasp` `#responsibility-driven`  |
+| **03** | [[Docs_BaoCao/GhiChu_LyThuyet/03_GoF_Patterns_Applied\|03. Mẫu Thiết kế GoF Thực chiến]]                        | Gang of Four                  | Ứng dụng Strategy (Sát thương), Observer (HUD UI), State (FSM), Composite (Buffs).                                 | `#gof` `#patterns` `#architecture` |
+| **04** | [[Docs_BaoCao/GhiChu_LyThuyet/04_NextGen_POS_Evolution\|04. Tiến hóa Ca học NextGen POS]]                       | Craig Larman *(Trụ cột 1)*    | Phân tích bài học kinh điển của Craig Larman qua 3 vòng lặp Iteration.                                             | `#larman` `#case-study`            |
+| **05** | [[Docs_BaoCao/GhiChu_LyThuyet/05_Martin_Fowler_PoEAA\|05. Martin Fowler - PoEAA]]                               | Martin Fowler *(Trụ cột 4)*   | Mẫu kiến trúc lưu trữ: Data Mapper, Identity Map tách rời Domain Model khỏi Database.                              | `#fowler` `#poeaa` `#data-mapper`  |
+| **06** | [[Docs_BaoCao/GhiChu_LyThuyet/06_Domain_Driven_Design_Aggregates\|06. Vaughn Vernon - DDD Aggregates]]          | Vaughn Vernon *(Trụ cột 5)*   | Thiết kế Aggregate Root, Entity, Value Object bảo toàn tính toàn vẹn nghiệp vụ Game.                               | `#ddd` `#aggregates` `#clean-code` |
+| **07** | [[Docs_BaoCao/GhiChu_LyThuyet/07_Robert_Nystrom_Game_Programming_Patterns\|07. Robert Nystrom - Game Patterns]] | Robert Nystrom *(Trụ cột 2)*  | Game Loop (Fixed Timestep), Component Pattern (thay thế kế thừa sâu), Spatial Partition.                           | `#nystrom` `#ecs` `#game-loop`     |
+| **08** | [[Docs_BaoCao/GhiChu_LyThuyet/08_Glazer_Madhav_Multiplayer_Netcode\|08. Glazer & Madhav - Real-time Netcode]]   | Glazer & Madhav *(Trụ cột 3)* | Dedicated Authoritative Server, Snapshot Interpolation (LERP 20Hz vs 60fps), Client Prediction.                    | `#netcode` `#lerp` `#jitter`       |
 
 ---
 
@@ -105,7 +105,7 @@ flowchart TD
 1. **Văn bản Quản trị Dự án & Bìa Chính Thức**:
    * [[Docs_BaoCao/00_Trang_Bia_BaoCao_HUCE|🏛️ Trang Bìa Chính Thức ĐH Xây Dựng Hà Nội (HUCE)]] *(HTML in ấn: `Docs_BaoCao/Trang_Bia_HUCE.html`)*
    * [[Docs_BaoCao/NhatKy_DuAn|📋 Nhật ký Tiến độ & Đánh giá Đóng góp Thành viên (Work Log & RACI Matrix)]]
-   * [[HUONG_DAN_GIT_CHO_NHOM|🚀 Cẩm nang Hướng dẫn Sử dụng Git/GitHub cho Nhóm 5 Người]]
+   * [[Docs_BaoCao/HUONG_DAN_GIT_CHO_NHOM|🚀 Cẩm nang Hướng dẫn Sử dụng Git/GitHub cho Nhóm 5 Người]]
 2. **Nội dung Báo cáo Học thuật**:
    * [[Docs_BaoCao/HocPhan_01_NenTang_OOAD_va_UP|📖 Học phần 1: Nền tảng OOAD và Bản chất Quy trình Unified Process]]
    * [[Docs_BaoCao/Phan_01_PhatBieu_BaiToan|📝 Phần I: Bối cảnh, Phát biểu Bài toán & Phân loại Yêu cầu FURPS+]]
