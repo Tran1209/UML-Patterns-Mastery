@@ -100,6 +100,8 @@ public class GameCanvas extends JPanel {
                     }
                 } else if (code == KeyEvent.VK_F1) {
                     showDebugOverlay = !showDebugOverlay;
+                } else if (code == KeyEvent.VK_V && isNewPress) {
+                    camera.cycleCameraMode();
                 }
             }
 
@@ -131,6 +133,12 @@ public class GameCanvas extends JPanel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     activeAimingSkill = 0;
                     draggingFromSkillBar = false;
+                    return;
+                }
+
+                // Kiểm tra nhấn vào nút chuyển đổi góc nhìn 3D ở góc trên bên phải
+                if (e.getX() >= getWidth() - 215 && e.getX() <= getWidth() - 20 && e.getY() >= 36 && e.getY() <= 64) {
+                    camera.cycleCameraMode();
                     return;
                 }
 
@@ -246,11 +254,11 @@ public class GameCanvas extends JPanel {
 
     private void updateAimFromMouse(int mx, int my) {
         Vector2D heroPos = getLocalPlayerWorldPos();
-        double heroSx = camera.worldToScreenX(heroPos.getX());
-        double heroSy = camera.worldToScreenY(heroPos.getY());
+        double heroSx = camera.worldToScreenX(heroPos.getX(), heroPos.getY());
+        double heroSy = camera.worldToScreenY(heroPos.getY(), 0.0);
 
         double dx = mx - heroSx;
-        double dy = my - heroSy;
+        double dy = (my - heroSy) / camera.getPitchTilt();
         double maxRange = (activeAimingSkill == 1) ? CombatEngine.SKILL1_MAX_RANGE
                 : ((activeAimingSkill == 2) ? CombatEngine.SKILL2_MAX_RANGE : CombatEngine.SKILL3_MAX_RANGE);
         double dist = Math.hypot(dx, dy);
@@ -362,16 +370,46 @@ public class GameCanvas extends JPanel {
         camera.update(world.getPlayer().getPosition(), 0.12);
         renderArenaBackground(g2d);
 
+        long nowMs = System.currentTimeMillis();
+        // Sắp xếp thứ tự vẽ theo chiều sâu trục Y (Painter's Algorithm / 3D Depth Buffer)
+        List<Runnable> depthQueue = new ArrayList<>();
+        List<Double> depthY = new ArrayList<>();
+
+        for (double[] ob : Arena3DSceneRenderer.OBELISK_POSITIONS) {
+            final double ox = ob[0], oy = ob[1];
+            depthY.add(oy);
+            depthQueue.add(() -> Arena3DSceneRenderer.render3DObeliskTower(g2d, camera, ox, oy, nowMs));
+        }
+
         for (Monster m : world.getMonsters()) {
-            double sx = camera.worldToScreenX(m.getPosition().getX());
-            double sy = camera.worldToScreenY(m.getPosition().getY());
-            LpcCanvasRenderer.renderMonster(g2d, m, sx, sy);
+            if (!m.isAlive()) continue;
+            final Monster monster = m;
+            double wy = monster.getPosition().getY();
+            depthY.add(wy);
+            depthQueue.add(() -> {
+                double sx = camera.worldToScreenX(monster.getPosition().getX(), wy);
+                double sy = camera.worldToScreenY(wy, 0);
+                double scale = camera.getPerspectiveScale(wy);
+                LpcCanvasRenderer.renderMonster(g2d, monster, sx, sy, scale);
+            });
         }
 
         Player p = world.getPlayer();
-        double px = camera.worldToScreenX(p.getPosition().getX());
-        double py = camera.worldToScreenY(p.getPosition().getY());
-        LpcCanvasRenderer.renderCharacter(g2d, world.getPlayerRenderer(), px, py, p.getPlayerName(), p.getCurrentHp(), p.getMaxHp(), true);
+        double pWy = p.getPosition().getY();
+        depthY.add(pWy);
+        depthQueue.add(() -> {
+            double px = camera.worldToScreenX(p.getPosition().getX(), pWy);
+            double py = camera.worldToScreenY(pWy, 0);
+            double scale = camera.getPerspectiveScale(pWy);
+            LpcCanvasRenderer.renderCharacter(g2d, world.getPlayerRenderer(), px, py, p.getPlayerName(), p.getCurrentHp(), p.getMaxHp(), true, scale);
+        });
+
+        Integer[] order = new Integer[depthQueue.size()];
+        for (int i = 0; i < order.length; i++) order[i] = i;
+        Arrays.sort(order, Comparator.comparingDouble(depthY::get));
+        for (int idx : order) {
+            depthQueue.get(idx).run();
+        }
 
         renderCombatEffects(g2d);
 
@@ -405,53 +443,74 @@ public class GameCanvas extends JPanel {
             camera.update(myInterpolatedPos, 0.15);
         }
 
-        // 2. Vẽ nền đấu trường
+        // 2. Vẽ nền đấu trường 3D
         renderArenaBackground(g2d);
 
-        // 3. Vẽ tất cả thực thể nhận từ Snapshot thông qua SnapshotInterpolator LERP
+        // 3. Sắp xếp chiều sâu Z-Buffer (Painter's Algorithm) cho 4 Trụ 3D + Quái + Người chơi
+        List<Runnable> depthQueue = new ArrayList<>();
+        List<Double> depthY = new ArrayList<>();
+
+        for (double[] ob : Arena3DSceneRenderer.OBELISK_POSITIONS) {
+            final double ox = ob[0], oy = ob[1];
+            depthY.add(oy);
+            depthQueue.add(() -> Arena3DSceneRenderer.render3DObeliskTower(g2d, camera, ox, oy, clientTime));
+        }
+
         for (WorldSnapshotPayload.EntityState state : states.values()) {
             Vector2D pos = networkClient.getInterpolatedPosition(state.id, clientTime);
             if (pos == null) {
                 pos = new Vector2D(state.posX, state.posY);
             }
+            final Vector2D finalPos = pos;
+            final WorldSnapshotPayload.EntityState finalState = state;
+            double wy = finalPos.getY();
+            depthY.add(wy);
 
-            double sx = camera.worldToScreenX(pos.getX());
-            double sy = camera.worldToScreenY(pos.getY());
+            depthQueue.add(() -> {
+                double sx = camera.worldToScreenX(finalPos.getX(), wy);
+                double sy = camera.worldToScreenY(wy, 0);
+                double scale = camera.getPerspectiveScale(wy);
 
-            if (state.isMonster) {
-                // Quái vật giả lập
-                renderInterpolatedMonster(g2d, state, sx, sy);
-            } else {
-                // Người chơi (Cục bộ hoặc Bạn cùng chơi trực tuyến)
-                boolean isMe = state.id.equals(myId);
-                CharacterRenderer renderer = remoteRenderers.computeIfAbsent(state.id, k -> {
-                    CompositeCharacterVisual visual = new LpcCharacterBuilder()
-                            .withBody("body.png")
-                            .withShirt("shirt.png")
-                            .withArmor("armor.png")
-                            .withWeapon("weapon.png")
-                            .build();
-                    return new CharacterRenderer(visual);
-                });
-
-                Direction dir = Direction.valueOf(state.dirName != null ? state.dirName : "DOWN");
-                renderer.setDirection(dir);
-                if ("ATTACKING".equals(state.stateName)) {
-                    renderer.playAnimation(LpcAnimationType.SLASH);
-                } else if ("MOVING".equals(state.stateName)) {
-                    renderer.playAnimation(LpcAnimationType.WALK);
-                } else if ("DEAD".equals(state.stateName)) {
-                    renderer.playAnimation(LpcAnimationType.HURT);
+                if (finalState.isMonster) {
+                    renderInterpolatedMonster(g2d, finalState, sx, sy, scale);
                 } else {
-                    renderer.playAnimation(LpcAnimationType.WALK);
-                }
+                    boolean isMe = finalState.id.equals(myId);
+                    CharacterRenderer renderer = remoteRenderers.computeIfAbsent(finalState.id, k -> {
+                        CompositeCharacterVisual visual = new LpcCharacterBuilder()
+                                .withBody("body.png")
+                                .withShirt("shirt.png")
+                                .withArmor("armor.png")
+                                .withWeapon("weapon.png")
+                                .build();
+                        return new CharacterRenderer(visual);
+                    });
 
-                String displayTag = isMe ? ("⭐ " + state.name + " (BẠN)") : ("🌐 " + state.name);
-                LpcCanvasRenderer.renderCharacter(g2d, renderer, sx, sy, displayTag, state.hp, state.maxHp, true);
-            }
+                    Direction dir = Direction.valueOf(finalState.dirName != null ? finalState.dirName : "DOWN");
+                    renderer.setDirection(dir);
+                    if ("ATTACKING".equals(finalState.stateName)) {
+                        renderer.playAnimation(LpcAnimationType.SLASH);
+                    } else if ("MOVING".equals(finalState.stateName)) {
+                        renderer.playAnimation(LpcAnimationType.WALK);
+                    } else if ("DEAD".equals(finalState.stateName)) {
+                        renderer.playAnimation(LpcAnimationType.HURT);
+                    } else {
+                        renderer.playAnimation(LpcAnimationType.WALK);
+                    }
+
+                    String displayTag = isMe ? ("⭐ " + finalState.name + " (BẠN)") : ("🌐 " + finalState.name);
+                    LpcCanvasRenderer.renderCharacter(g2d, renderer, sx, sy, displayTag, finalState.hp, finalState.maxHp, true, scale);
+                }
+            });
         }
 
-        // 3.5. Vẽ hiệu ứng kỹ năng & chiến đấu
+        Integer[] order = new Integer[depthQueue.size()];
+        for (int i = 0; i < order.length; i++) order[i] = i;
+        Arrays.sort(order, Comparator.comparingDouble(depthY::get));
+        for (int idx : order) {
+            depthQueue.get(idx).run();
+        }
+
+        // 3.5. Vẽ hiệu ứng kỹ năng & chiến đấu 3D
         renderCombatEffects(g2d);
 
         // 4. Vẽ HUD chế độ Đấu Mạng
@@ -464,8 +523,17 @@ public class GameCanvas extends JPanel {
                 0, networkClient.getCurrentWave(), 0, (int) states.values().stream().filter(e -> e.isMonster).count(), true);
     }
 
-    private void renderInterpolatedMonster(Graphics2D g2d, WorldSnapshotPayload.EntityState state, double sx, double sy) {
-        g2d.setColor(new Color(0, 0, 0, 60));
+    private void renderInterpolatedMonster(Graphics2D g2d, WorldSnapshotPayload.EntityState state, double sx, double sy, double scale) {
+        java.awt.geom.AffineTransform saved = g2d.getTransform();
+        if (Math.abs(scale - 1.0) > 0.01) {
+            g2d.translate(sx, sy);
+            g2d.scale(scale, scale);
+            g2d.translate(-sx, -sy);
+        }
+
+        g2d.setColor(new Color(231, 76, 60, 45));
+        g2d.fillOval((int) sx - 18, (int) sy + 11, 36, 13);
+        g2d.setColor(new Color(0, 0, 0, 80));
         g2d.fillOval((int) sx - 14, (int) sy + 14, 28, 8);
 
         int px = (int) sx;
@@ -496,38 +564,11 @@ public class GameCanvas extends JPanel {
         float pct = Math.max(0f, Math.min(1f, (float) state.hp / state.maxHp));
         g2d.setColor(pct > 0.5f ? new Color(50, 205, 50) : Color.RED);
         g2d.fillRect(barX, barY, (int) (barW * pct), barH);
+        g2d.setTransform(saved);
     }
 
     private void renderArenaBackground(Graphics2D g2d) {
-        int width = getWidth();
-        int height = getHeight();
-
-        int tileSize = 64;
-        double startX = camera.worldToScreenX(0);
-        double startY = camera.worldToScreenY(0);
-        double endX = camera.worldToScreenX(GameWorld.WORLD_WIDTH);
-        double endY = camera.worldToScreenY(GameWorld.WORLD_HEIGHT);
-
-        g2d.setColor(new Color(15, 16, 20));
-        g2d.fillRect(0, 0, width, height);
-
-        g2d.setColor(new Color(38, 42, 53));
-        g2d.fillRect((int) startX, (int) startY, (int) (endX - startX), (int) (endY - startY));
-
-        g2d.setColor(new Color(50, 56, 70));
-        for (double wx = 0; wx <= GameWorld.WORLD_WIDTH; wx += tileSize) {
-            int sx = (int) camera.worldToScreenX(wx);
-            g2d.drawLine(sx, (int) startY, sx, (int) endY);
-        }
-        for (double wy = 0; wy <= GameWorld.WORLD_HEIGHT; wy += tileSize) {
-            int sy = (int) camera.worldToScreenY(wy);
-            g2d.drawLine((int) startX, sy, (int) endX, sy);
-        }
-
-        g2d.setColor(new Color(255, 175, 40));
-        g2d.setStroke(new BasicStroke(4));
-        g2d.drawRect((int) startX, (int) startY, (int) (endX - startX), (int) (endY - startY));
-        g2d.setStroke(new BasicStroke(1));
+        Arena3DSceneRenderer.renderArena3DFloorAndSky(g2d, camera, getWidth(), getHeight());
     }
 
     private void renderCombatEffects(Graphics2D g2d) {
@@ -535,51 +576,37 @@ public class GameCanvas extends JPanel {
             Vector2D heroPos = getLocalPlayerWorldPos();
             DesktopHudRenderer.renderSkillTargetIndicator(
                     g2d,
-                    camera.worldToScreenX(heroPos.getX()),
-                    camera.worldToScreenY(heroPos.getY()),
+                    camera.worldToScreenX(heroPos.getX(), heroPos.getY()),
+                    camera.worldToScreenY(heroPos.getY(), 0.0),
                     world.getPlayer().getFacingDirection(),
                     activeAimingSkill,
                     currentAimX,
-                    currentAimY
+                    currentAimY,
+                    camera.getPitchTilt()
             );
         }
 
         CombatEngine ce = world.getCombatEngine();
 
         for (CombatEffects.SkillRingEffect ring : ce.getSkillRings()) {
-            double sx = camera.worldToScreenX(ring.x);
-            double sy = camera.worldToScreenY(ring.y);
-            float alpha = (float) Math.max(0f, ring.lifeTime / ring.maxLifeTime);
-            int c = ring.color;
-            int r = (c >> 16) & 0xFF;
-            int g = (c >> 8) & 0xFF;
-            int b = c & 0xFF;
-            int rad = (int) (ring.maxRadius * (0.25 + 0.75 * (1.0 - alpha)));
-
-            g2d.setColor(new Color(r / 255f, g / 255f, b / 255f, alpha * 0.22f));
-            g2d.fillOval((int) sx - rad, (int) sy - rad, rad * 2, rad * 2);
-
-            g2d.setColor(new Color(r / 255f, g / 255f, b / 255f, alpha * 0.9f));
-            g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2d.drawOval((int) sx - rad, (int) sy - rad, rad * 2, rad * 2);
-            g2d.setStroke(new BasicStroke(1));
+            Arena3DSceneRenderer.render3DSkillEffect(g2d, camera, ring);
         }
 
         for (CombatEffects.SlashEffect slash : ce.getSlashEffects()) {
-            double sx = camera.worldToScreenX(slash.x);
-            double sy = camera.worldToScreenY(slash.y);
+            double sx = camera.worldToScreenX(slash.x, slash.y);
+            double sy = camera.worldToScreenY(slash.y, 12.0);
             float alpha = (float) Math.max(0f, slash.lifeTime / slash.maxLifeTime);
 
             g2d.setColor(new Color(1f, 0.9f, 0.4f, alpha * 0.8f));
             g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             int arcAngle = slash.direction.getRowOffset() * 90;
-            g2d.drawArc((int) sx - 24, (int) sy - 24, 48, 48, -arcAngle - 45, 90);
+            g2d.drawArc((int) sx - 24, (int) sy - 18, 48, 36, -arcAngle - 45, 90);
             g2d.setStroke(new BasicStroke(1));
         }
 
         for (CombatEffects.HitParticle p : ce.getParticles()) {
-            double sx = camera.worldToScreenX(p.x);
-            double sy = camera.worldToScreenY(p.y);
+            double sx = camera.worldToScreenX(p.x, p.y);
+            double sy = camera.worldToScreenY(p.y, 14.0);
             float alpha = (float) Math.max(0f, p.lifeTime / p.maxLifeTime);
             int c = p.color;
             int r = (c >> 16) & 0xFF;
@@ -591,8 +618,8 @@ public class GameCanvas extends JPanel {
 
         g2d.setFont(new Font("Segoe UI", Font.BOLD, 14));
         for (CombatEffects.FloatingText ft : ce.getFloatingTexts()) {
-            double sx = camera.worldToScreenX(ft.x);
-            double sy = camera.worldToScreenY(ft.y);
+            double sx = camera.worldToScreenX(ft.x, ft.y);
+            double sy = camera.worldToScreenY(ft.y, 28.0);
             float alpha = (float) Math.max(0f, ft.lifeTime / ft.maxLifeTime);
             int c = ft.color;
             int r = (c >> 16) & 0xFF;
@@ -607,8 +634,8 @@ public class GameCanvas extends JPanel {
         g2d.setColor(new Color(0, 255, 255, 120));
         Hitbox pHitbox = world.getPlayer().getHitbox();
         g2d.drawRect(
-                (int) camera.worldToScreenX(pHitbox.getMinX()),
-                (int) camera.worldToScreenY(pHitbox.getMinY()),
+                (int) camera.worldToScreenX(pHitbox.getMinX(), pHitbox.getMinY()),
+                (int) camera.worldToScreenY(pHitbox.getMinY(), 0),
                 (int) (pHitbox.getMaxX() - pHitbox.getMinX()),
                 (int) (pHitbox.getMaxY() - pHitbox.getMinY())
         );
@@ -616,8 +643,8 @@ public class GameCanvas extends JPanel {
         Hitbox pAttack = world.getPlayer().getAttackArea();
         g2d.setColor(new Color(255, 50, 50, 140));
         g2d.drawRect(
-                (int) camera.worldToScreenX(pAttack.getMinX()),
-                (int) camera.worldToScreenY(pAttack.getMinY()),
+                (int) camera.worldToScreenX(pAttack.getMinX(), pAttack.getMinY()),
+                (int) camera.worldToScreenY(pAttack.getMinY(), 0),
                 (int) (pAttack.getMaxX() - pAttack.getMinX()),
                 (int) (pAttack.getMaxY() - pAttack.getMinY())
         );
@@ -629,7 +656,7 @@ public class GameCanvas extends JPanel {
         DesktopHudRenderer.renderHUD(
                 g2d, getWidth(), getHeight(), world.getPlayer(),
                 name, hp, maxHp, stateName, kills, wave, score, monsterCount,
-                playerCount, currentFps, isOnline
+                playerCount, currentFps, isOnline, camera
         );
     }
 

@@ -45,6 +45,25 @@ public class LpcCanvasRenderer {
     }
 
     public static void renderCharacter(Graphics2D g2d, CharacterRenderer renderer, double screenX, double screenY, String nameTag, int currentHp, int maxHp, boolean isPlayer) {
+        renderCharacter(g2d, renderer, screenX, screenY, nameTag, currentHp, maxHp, isPlayer, 1.0);
+    }
+
+    public static void renderCharacter(Graphics2D g2d, CharacterRenderer renderer, double screenX, double screenY, String nameTag, int currentHp, int maxHp, boolean isPlayer, double scale) {
+        AffineTransform saved = g2d.getTransform();
+        if (Math.abs(scale - 1.0) > 0.01) {
+            g2d.translate(screenX, screenY);
+            g2d.scale(scale, scale);
+            g2d.translate(-screenX, -screenY);
+        }
+
+        // Bệ hào quang 3D dưới chân nhân vật (3D MOBA Hero Pedestal Ring)
+        g2d.setColor(isPlayer ? new Color(0, 229, 255, 55) : new Color(255, 180, 0, 55));
+        g2d.fillOval((int) screenX - 24, (int) screenY + 12, 48, 18);
+        g2d.setColor(isPlayer ? new Color(0, 229, 255, 180) : new Color(255, 180, 0, 180));
+        g2d.setStroke(new BasicStroke(2f));
+        g2d.drawOval((int) screenX - 24, (int) screenY + 12, 48, 18);
+        g2d.setStroke(new BasicStroke(1f));
+
         CompositeCharacterVisual visual = renderer.getVisual();
         Direction dir = renderer.getCurrentDirection();
         LpcAnimationType anim = renderer.getCurrentAnimation();
@@ -61,8 +80,8 @@ public class LpcCanvasRenderer {
         }
 
         // Vẽ bóng đổ (Drop Shadow) dưới chân nhân vật
-        g2d.setColor(new Color(0, 0, 0, 70));
-        g2d.fillOval((int) screenX - 16, (int) screenY + 18, 32, 10);
+        g2d.setColor(new Color(0, 0, 0, 95));
+        g2d.fillOval((int) screenX - 16, (int) screenY + 16, 32, 11);
 
         if (hasTexture) {
             // Vẽ bằng SpriteSheet thật (Painter's Algorithm: Lớp Z thấp vẽ trước, Z cao vẽ sau)
@@ -89,6 +108,7 @@ public class LpcCanvasRenderer {
 
         // 2. Vẽ thanh máu nhỏ (Health Bar) và Tên nhân vật trên đầu
         renderOverheadStatus(g2d, screenX, screenY, nameTag, currentHp, maxHp, isPlayer);
+        g2d.setTransform(saved);
     }
 
     private static void renderProceduralLpcAvatar(Graphics2D g2d, CharacterRenderer renderer, double x, double y, boolean isPlayer) {
@@ -176,15 +196,28 @@ public class LpcCanvasRenderer {
     }
 
     public static void renderMonster(Graphics2D g2d, Monster monster, double screenX, double screenY) {
+        renderMonster(g2d, monster, screenX, screenY, 1.0);
+    }
+
+    public static void renderMonster(Graphics2D g2d, Monster monster, double screenX, double screenY, double scale) {
         if (!monster.isAlive()) return;
+
+        AffineTransform saved = g2d.getTransform();
+        if (Math.abs(scale - 1.0) > 0.01) {
+            g2d.translate(screenX, screenY);
+            g2d.scale(scale, scale);
+            g2d.translate(-screenX, -screenY);
+        }
 
         double x = screenX;
         double y = screenY;
         Direction dir = monster.getFacingDirection();
 
-        // Bóng đổ
-        g2d.setColor(new Color(0, 0, 0, 60));
-        g2d.fillOval((int) x - 14, (int) y + 14, 28, 8);
+        // Bệ đỏ 3D & Bóng đổ dưới chân quái vật
+        g2d.setColor(new Color(231, 76, 60, 45));
+        g2d.fillOval((int) x - 18, (int) y + 11, 36, 13);
+        g2d.setColor(new Color(0, 0, 0, 85));
+        g2d.fillOval((int) x - 14, (int) y + 14, 28, 9);
 
         Monster.MonsterType type = monster.getType();
         int px = (int) x;
@@ -243,6 +276,7 @@ public class LpcCanvasRenderer {
 
         // Trạng thái thanh máu quái vật
         renderOverheadStatus(g2d, screenX, screenY, type.displayName, monster.getCurrentHp(), monster.getMaxHp(), false);
+        g2d.setTransform(saved);
     }
 
     private static void renderOverheadStatus(Graphics2D g2d, double x, double y, String nameTag, int currentHp, int maxHp, boolean isPlayer) {

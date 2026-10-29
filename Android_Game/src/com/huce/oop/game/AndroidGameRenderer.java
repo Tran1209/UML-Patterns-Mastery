@@ -132,8 +132,9 @@ public class AndroidGameRenderer {
                                            Direction fallbackDir, int activeSkillId, double aimX, double aimY, boolean isCancelHovered) {
         if (canvas == null || camera == null || activeSkillId < 1 || activeSkillId > 3) return;
 
-        float sx = (float) camera.worldToScreenX(heroWorldX);
-        float sy = (float) camera.worldToScreenY(heroWorldY);
+        float sx = (float) camera.worldToScreenX(heroWorldX, heroWorldY);
+        float sy = (float) camera.worldToScreenY(heroWorldY, 0.0);
+        float pitch = (float) camera.getPitchTilt();
 
         double mag = Math.hypot(aimX, aimY);
         if (mag < 0.06 && fallbackDir != null) {
@@ -246,8 +247,8 @@ public class AndroidGameRenderer {
     }
 
     private void renderSnapshotMonster(Canvas canvas, network.WorldSnapshotPayload.EntityState state, Vector2D pos, Camera2D camera) {
-        float sx = (float) camera.worldToScreenX(pos.getX());
-        float sy = (float) camera.worldToScreenY(pos.getY());
+        float sx = (float) camera.worldToScreenX(pos.getX(), pos.getY());
+        float sy = (float) camera.worldToScreenY(pos.getY(), 0.0);
 
         // Bóng đổ
         paint.setStyle(Paint.Style.FILL);
@@ -297,8 +298,8 @@ public class AndroidGameRenderer {
     }
 
     private void renderSnapshotPlayer(Canvas canvas, network.WorldSnapshotPayload.EntityState state, Vector2D pos, Camera2D camera, boolean isLocal) {
-        float sx = (float) camera.worldToScreenX(pos.getX());
-        float sy = (float) camera.worldToScreenY(pos.getY());
+        float sx = (float) camera.worldToScreenX(pos.getX(), pos.getY());
+        float sy = (float) camera.worldToScreenY(pos.getY(), 0.0);
 
         // Bóng đổ
         paint.setStyle(Paint.Style.FILL);
@@ -451,44 +452,101 @@ public class AndroidGameRenderer {
     }
 
     private void renderArenaFloor(Canvas canvas, Camera2D camera, int screenW, int screenH) {
-        // Nền đen sẫm tổng thể
-        canvas.drawColor(Color.rgb(18, 22, 28));
+        // 1. Nền bầu trời đêm Tinh Vân 3D
+        canvas.drawColor(Color.rgb(12, 16, 28));
 
-        // Mặt sàn đấu trường 1600x1200
-        float left = (float) camera.worldToScreenX(0);
-        float top = (float) camera.worldToScreenY(0);
-        float right = (float) camera.worldToScreenX(GameWorld.WORLD_WIDTH);
-        float bottom = (float) camera.worldToScreenY(GameWorld.WORLD_HEIGHT);
+        double W = GameWorld.WORLD_WIDTH;
+        double H = GameWorld.WORLD_HEIGHT;
 
-        // Sàn đá đấu trường
+        float tlX = (float) camera.worldToScreenX(0, 0);
+        float tlY = (float) camera.worldToScreenY(0, 0);
+        float trX = (float) camera.worldToScreenX(W, 0);
+        float trY = (float) camera.worldToScreenY(0, 0);
+        float brX = (float) camera.worldToScreenX(W, H);
+        float brY = (float) camera.worldToScreenY(H, 0);
+        float blX = (float) camera.worldToScreenX(0, H);
+        float blY = (float) camera.worldToScreenY(H, 0);
+
+        // 2. Vách đá đế đấu trường nổi 3D (wz = -80)
+        float blBottomY = (float) camera.worldToScreenY(H, -80.0);
+        float brBottomY = (float) camera.worldToScreenY(H, -80.0);
+        slashPath.reset();
+        slashPath.moveTo(blX, blY);
+        slashPath.lineTo(brX, brY);
+        slashPath.lineTo(brX, brBottomY);
+        slashPath.lineTo(blX, blBottomY);
+        slashPath.close();
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.rgb(36, 42, 54));
-        canvas.drawRect(left, top, right, bottom, paint);
+        paint.setColor(Color.rgb(20, 26, 40));
+        canvas.drawPath(slashPath, paint);
 
-        // Các đường lưới ô gạch đá 128x128
-        paint.setColor(Color.argb(45, 255, 255, 255));
+        // 3. Mặt sàn đấu trường Hình Thang Phối Cảnh 3D
+        slashPath.reset();
+        slashPath.moveTo(tlX, tlY);
+        slashPath.lineTo(trX, trY);
+        slashPath.lineTo(brX, brY);
+        slashPath.lineTo(blX, blY);
+        slashPath.close();
+        paint.setColor(Color.rgb(36, 44, 58));
+        canvas.drawPath(slashPath, paint);
+
+        // 4. Các đường lưới ô gạch đá hội tụ phối cảnh 3D
+        paint.setColor(Color.argb(55, 160, 200, 255));
         paint.setStrokeWidth(1.5f);
         paint.setStyle(Paint.Style.STROKE);
 
-        for (double gx = 0; gx <= GameWorld.WORLD_WIDTH; gx += 128) {
-            float sx = (float) camera.worldToScreenX(gx);
-            canvas.drawLine(sx, top, sx, bottom, paint);
+        for (double gx = 0; gx <= W; gx += 128) {
+            float x1 = (float) camera.worldToScreenX(gx, 0);
+            float y1 = (float) camera.worldToScreenY(0, 0);
+            float x2 = (float) camera.worldToScreenX(gx, H);
+            float y2 = (float) camera.worldToScreenY(H, 0);
+            canvas.drawLine(x1, y1, x2, y2, paint);
         }
-        for (double gy = 0; gy <= GameWorld.WORLD_HEIGHT; gy += 128) {
-            float sy = (float) camera.worldToScreenY(gy);
-            canvas.drawLine(left, sy, right, sy, paint);
+        for (double gy = 0; gy <= H; gy += 128) {
+            float x1 = (float) camera.worldToScreenX(0, gy);
+            float y1 = (float) camera.worldToScreenY(gy, 0);
+            float x2 = (float) camera.worldToScreenX(W, gy);
+            float y2 = (float) camera.worldToScreenY(gy, 0);
+            canvas.drawLine(x1, y1, x2, y2, paint);
         }
 
-        // Tường thành bảo vệ bao quanh đấu trường
-        strokePaint.setColor(Color.rgb(0, 180, 216));
-        strokePaint.setStrokeWidth(8f);
-        canvas.drawRect(left, top, right, bottom, strokePaint);
+        // 5. Viền tường thành năng lượng 3D bao quanh đấu trường
+        strokePaint.setColor(Color.rgb(0, 210, 255));
+        strokePaint.setStrokeWidth(6f);
+        canvas.drawPath(slashPath, strokePaint);
+
+        // 6. Vẽ 4 Trụ Đá Cổ Đại 3D ở 4 góc chiến thuật
+        double[][] obelisks = {{320, 280}, {1280, 280}, {320, 920}, {1280, 920}};
+        for (double[] ob : obelisks) {
+            float ox = (float) camera.worldToScreenX(ob[0], ob[1]);
+            float oy = (float) camera.worldToScreenY(ob[1], 0);
+            float topOy = (float) camera.worldToScreenY(ob[1], 88.0);
+            float sc = (float) camera.getPerspectiveScale(ob[1]);
+            float hw = 24f * sc;
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(90, 0, 0, 0));
+            rectF.set(ox - hw, oy - 12 * sc, ox + hw * 1.4f, oy + 16 * sc);
+            canvas.drawOval(rectF, paint);
+
+            paint.setColor(Color.rgb(55, 72, 98));
+            rectF.set(ox - hw * 0.85f, topOy, ox + hw * 0.85f, oy);
+            canvas.drawRoundRect(rectF, 8, 8, paint);
+
+            strokePaint.setStrokeWidth(2.5f);
+            strokePaint.setColor(Color.rgb(0, 229, 255));
+            canvas.drawRoundRect(rectF, 8, 8, strokePaint);
+
+            // Pha lê 3D trên đỉnh trụ
+            paint.setColor(Color.rgb(0, 245, 255));
+            canvas.drawCircle(ox, topOy - 18f * sc, 9f * sc, paint);
+        }
     }
 
     private void renderPlayerCharacter(Canvas canvas, Player player, Camera2D camera, boolean isLocal) {
         if (player == null) return;
-        float sx = (float) camera.worldToScreenX(player.getPosition().getX());
-        float sy = (float) camera.worldToScreenY(player.getPosition().getY());
+        float sx = (float) camera.worldToScreenX(player.getPosition().getX(), player.getPosition().getY());
+        float sy = (float) camera.worldToScreenY(player.getPosition().getY(), 0.0);
 
         // Bóng đổ dưới chân
         paint.setStyle(Paint.Style.FILL);
@@ -560,8 +618,8 @@ public class AndroidGameRenderer {
 
     private void renderMonster(Canvas canvas, Monster monster, Camera2D camera) {
         if (monster == null || !monster.isAlive()) return;
-        float sx = (float) camera.worldToScreenX(monster.getPosition().getX());
-        float sy = (float) camera.worldToScreenY(monster.getPosition().getY());
+        float sx = (float) camera.worldToScreenX(monster.getPosition().getX(), monster.getPosition().getY());
+        float sy = (float) camera.worldToScreenY(monster.getPosition().getY(), 0.0);
 
         // Bóng đổ
         paint.setStyle(Paint.Style.FILL);
@@ -640,12 +698,15 @@ public class AndroidGameRenderer {
         if (ce == null) return;
         strokePaint.setStyle(Paint.Style.STROKE);
 
-        // 1. Vẽ hiệu ứng Vòng Xoáy / Sóng Xung Kích của 3 Kỹ Năng AOV (Skill Rings)
+        // 1. Vẽ hiệu ứng Vòng Xoáy / Sóng Xung Kích 3D của 3 Kỹ Năng AOV (Skill Rings)
         for (CombatEffects.SkillRingEffect ring : ce.getSkillRings()) {
-            float sx = (float) camera.worldToScreenX(ring.x);
-            float sy = (float) camera.worldToScreenY(ring.y);
+            float sx = (float) camera.worldToScreenX(ring.x, ring.y);
+            float sy = (float) camera.worldToScreenY(ring.y, 0.0);
+            float sc = (float) camera.getPerspectiveScale(ring.y);
+            float pitch = (float) camera.getPitchTilt();
             float progress = (float) Math.max(0.0, Math.min(1.0, 1.0 - (ring.lifeTime / ring.maxLifeTime)));
-            float currentRadius = (float) (ring.maxRadius * (0.25f + 0.75f * progress));
+            float rx = (float) (ring.maxRadius * (0.25f + 0.75f * progress) * sc);
+            float ry = rx * pitch;
             float alpha = (float) Math.max(0f, ring.lifeTime / ring.maxLifeTime);
 
             int c = ring.color;
@@ -653,22 +714,43 @@ public class AndroidGameRenderer {
             int g = (c >> 8) & 0xFF;
             int b = c & 0xFF;
 
-            // Vùng sáng nền bán trong suốt
+            // Vùng sáng Elip 3D dưới mặt đất
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(Color.argb((int) (alpha * 65), r, g, b));
-            canvas.drawCircle(sx, sy, currentRadius, paint);
+            rectF.set(sx - rx, sy - ry, sx + rx, sy + ry);
+            canvas.drawOval(rectF, paint);
 
-            // Viền sóng xung kích phát sáng
+            // Viền sóng xung kích Elip 3D phát sáng
             strokePaint.setStrokeWidth(ring.skillType == 3 ? 8f : 5f);
             strokePaint.setColor(Color.argb((int) (alpha * 240), r, g, b));
-            canvas.drawCircle(sx, sy, currentRadius, strokePaint);
+            canvas.drawOval(rectF, strokePaint);
+
+            // Hiệu ứng trục độ cao Z 3D: Lốc xoáy lửa đa tầng (Chiêu 2) hoặc Thiên thạch rơi từ trời (Chiêu 3)
+            if (ring.skillType == 2) {
+                for (int layer = 1; layer <= 3; layer++) {
+                    float zY = (float) camera.worldToScreenY(ring.y, layer * 28.0);
+                    float lRx = rx * (1f - layer * 0.14f);
+                    float lRy = ry * (1f - layer * 0.14f);
+                    rectF.set(sx - lRx, zY - lRy, sx + lRx, zY + lRy);
+                    strokePaint.setStrokeWidth(4f);
+                    canvas.drawOval(rectF, strokePaint);
+                }
+            } else if (ring.skillType == 3 && progress < 0.55f) {
+                float fallRatio = 1f - (progress / 0.55f);
+                float meteorY = (float) camera.worldToScreenY(ring.y, 400.0 * fallRatio);
+                float meteorX = sx - 90f * fallRatio * sc;
+                paint.setColor(Color.argb(240, 255, 90, 20));
+                canvas.drawCircle(meteorX, meteorY, 32f * sc, paint);
+                paint.setColor(Color.argb(255, 255, 240, 160));
+                canvas.drawCircle(meteorX, meteorY, 18f * sc, paint);
+            }
         }
 
         // 2. Vẽ vệt chém thường (Slash Arcs)
         strokePaint.setStrokeWidth(6f);
         for (CombatEffects.SlashEffect slash : ce.getSlashEffects()) {
-            float sx = (float) camera.worldToScreenX(slash.x);
-            float sy = (float) camera.worldToScreenY(slash.y);
+            float sx = (float) camera.worldToScreenX(slash.x, slash.y);
+            float sy = (float) camera.worldToScreenY(slash.y, 12.0);
             float alpha = (float) Math.max(0f, slash.lifeTime / slash.maxLifeTime);
 
             strokePaint.setColor(Color.argb((int) (alpha * 220), 255, 215, 0));
@@ -683,8 +765,8 @@ public class AndroidGameRenderer {
         paint.setStyle(Paint.Style.FILL);
 
         for (CombatEffects.HitParticle p : ce.getParticles()) {
-            float sx = (float) camera.worldToScreenX(p.x);
-            float sy = (float) camera.worldToScreenY(p.y);
+            float sx = (float) camera.worldToScreenX(p.x, p.y);
+            float sy = (float) camera.worldToScreenY(p.y, 14.0);
             float alpha = (float) Math.max(0f, p.lifeTime / p.maxLifeTime);
 
             int c = p.color;
@@ -702,8 +784,8 @@ public class AndroidGameRenderer {
         paint.setTextAlign(Paint.Align.CENTER);
 
         for (CombatEffects.FloatingText ft : ce.getFloatingTexts()) {
-            float sx = (float) camera.worldToScreenX(ft.x);
-            float sy = (float) camera.worldToScreenY(ft.y);
+            float sx = (float) camera.worldToScreenX(ft.x, ft.y);
+            float sy = (float) camera.worldToScreenY(ft.y, 28.0);
             float alpha = (float) Math.max(0f, ft.lifeTime / ft.maxLifeTime);
 
             int c = ft.color;

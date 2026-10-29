@@ -67,7 +67,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo [5/5] Dong goi APK, Zipalign 4-byte va Ky chung chi so (Apksigner)...
 copy /Y Android_Game\build\base.apk Android_Game\build\unaligned.apk >nul
-powershell -Command "$zip = [System.IO.Compression.ZipFile]::Open('E:\UML-Patterns-Mastery\Android_Game\build\unaligned.apk', 'Update'); $existing = $zip.GetEntry('classes.dex'); if ($existing) { $existing.Delete() }; [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, 'E:\UML-Patterns-Mastery\Android_Game\build\classes.dex', 'classes.dex') | Out-Null; $zip.Dispose()"
+powershell -Command "Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::Open('E:\UML-Patterns-Mastery\Android_Game\build\unaligned.apk', 'Update'); $existing = $zip.GetEntry('classes.dex'); if ($existing) { $existing.Delete() }; [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, 'E:\UML-Patterns-Mastery\Android_Game\build\classes.dex', 'classes.dex') | Out-Null; $zip.Dispose()"
 
 "%ZIPALIGN%" -f -p 4 Android_Game\build\unaligned.apk Android_Game\build\aligned.apk
 
