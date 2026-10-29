@@ -28,11 +28,11 @@
 
 | STT | Họ và Tên Sinh Viên | Mã Sinh Viên | Vai trò Kỹ thuật & Module Phụ trách | Trụ cột Học thuật Nghiên cứu (Pillar) | Tỷ lệ Đóng góp |
 |:---:|:---|:---:|:---|:---|:---:|
-| **1** | **[Họ và tên] Nam** *(Trưởng nhóm)* | `...` | **Team Leader & Lead Software Architect**<br>• Kiến trúc tổng thể, Core Game Loop, Player State Machine | **Craig Larman** (*Applying UML & Patterns*) & **Vaughn Vernon** (*IDDD*) | **100%** |
-| **2** | **[Họ và tên] Kiên** | `...` | **Network & Distributed Systems Engineer**<br>• Dedicated WebSocket Server, Packet Serialization DTO, LERP | **Joshua Glazer & Sanjay Madhav** (*Multiplayer Game Programming*) | **100%** |
-| **3** | **[Họ và tên] Anh** | `...` | **Combat Mechanics & Physics Engineer**<br>• Combat Engine, Hộp va chạm AABB, Spatial Partitioning | **Robert Nystrom** (*Game Programming Patterns*) | **100%** |
-| **4** | **[Họ và tên] Huy** | `...` | **Client Graphics & UX Engineer**<br>• HTML5 Canvas Renderer 60 FPS, Model-View Separation, HUD UI | **Robert Nystrom** (Game Loop & Double Buffer) & **GoF** | **100%** |
-| **5** | **[Họ và tên] Hoàng** | `...` | **Data Persistence & QA/QC Test Engineer**<br>• Lưu trữ dữ liệu trận đấu (Data Mapper Pattern), Benchmark Jitter | **Martin Fowler** (*PoEAA*) & **Martin Kleppmann** (*DDIA*) | **100%** |
+| **1** | **Trung Kiên** *(Trưởng nhóm)* | `...` | **Team Leader & Combat Architecture Engineer**<br>• Quản trị dự án, Combat Engine, 3 Kỹ năng AOV (`ISkillAction`), Hitbox AABB | **Craig Larman** (*Applying UML & Patterns*) & **Robert Nystrom** (*Game Patterns*) | **100%** |
+| **2** | **Duy Nam** | `...` | **Lead Software Architect & Core Developer**<br>• Kiến trúc tổng thể, Core Game Loop, Player State Machine, Android Port | **Craig Larman** (*OOAD*) & **Vaughn Vernon** (*IDDD*) | **100%** |
+| **3** | **Nguyễn Đức Huy** | `...` | **Network & Distributed Systems Engineer**<br>• Dedicated Server 20Hz, Hybrid LAN + 4G Cloud MQTT Relay, LERP | **Joshua Glazer & Sanjay Madhav** (*Multiplayer Game Programming*) | **100%** |
+| **4** | **Đức Anh** | `...` | **Client Graphics & UX Engineer**<br>• 2D LPC Renderer 60 FPS, Camera2D, Model-View Separation, HUD Observer | **Robert Nystrom** (Game Loop & Double Buffer) & **GoF** | **100%** |
+| **5** | **Huy Hoàng** | `...` | **Data Persistence & QA/QC Test Engineer**<br>• Lưu trữ lịch sử đấu JSON (`IMatchRepository`), Bộ 15/15 Unit Tests | **Martin Fowler** (*PoEAA*) & **SOLID Principles** | **100%** |
 
 ---
 

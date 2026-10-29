@@ -6,13 +6,13 @@
 
 ## 👥 Thành Viên Nhóm 5
 
-| STT | Họ và Tên | Vai Trò & Phân hệ Phụ Trách |
-| :-: | :--- | :--- |
-| 1 | **Duy Nam** *(Nhóm trưởng)* | Kiến trúc tổng thể (Clean Architecture), `Core` Domain & State Machine |
-| 2 | **Trung Kiên** | Hệ thống Chiến đấu & Kỹ năng định hướng AOV (`Combat`, Strategy/Command Pattern) |
-| 3 | **Đức Anh** | Đồ họa 2D LPC Sprite, Camera2D & Giao diện PC (`Render`, `UI`, Flyweight/Composite) |
-| 4 | **Đức Huy** | Mạng Thời gian thực 20Hz, Hybrid LAN & 4G Cloud Relay (`Network`, `Server`) |
-| 5 | **Huy Hoàng** | Lưu trữ dữ liệu JSON, Giao diện Android & Kiểm thử (`Persistence`, `Android_Game`, `Tests`) |
+| STT | Họ và Tên | GitHub | Vai Trò & Phân hệ Phụ Trách |
+| :-: | :--- | :--- | :--- |
+| 1 | **Trung Kiên** *(Nhóm trưởng)* | [`KienEsto`](https://github.com/KienEsto) | **Team Leader**, Kiến trúc Chiến đấu & Kỹ năng định hướng AOV (`Combat`, Strategy/Command Pattern) |
+| 2 | **Duy Nam** | [`Tran1209`](https://github.com/Tran1209) | **Lead Architect**, `Core` Domain, State Machine & Tích hợp Đa nền tảng (PC + Android) |
+| 3 | **Nguyễn Đức Huy** | [`nguyenduchuy20070406-oss`](https://github.com/nguyenduchuy20070406-oss) | Mạng Thời gian thực 20Hz, Hybrid LAN & 4G Cloud Relay (`Network`, `Server`) |
+| 4 | **Đức Anh** | *(Thành viên)* | Đồ họa 2D LPC Sprite, Camera2D & Giao diện PC (`Render`, `UI`, Flyweight/Composite) |
+| 5 | **Huy Hoàng** | *(Thành viên)* | Lưu trữ dữ liệu JSON, Giao diện Android & Kiểm thử (`Persistence`, `Android_Game`, `Tests`) |
 
 ---
 

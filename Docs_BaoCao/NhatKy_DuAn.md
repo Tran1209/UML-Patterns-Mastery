@@ -1,183 +1,146 @@
-# NHẬT KÝ TIẾN ĐỘ DỰ ÁN & ĐÁNH GIÁ ĐÓNG GÓP THÀNH VIÊN (PROJECT WORK LOG & AUDIT TRAIL)
-> **Đồ án môn học: Lập trình Hướng đối tượng (Object-Oriented Programming - OOP)**  
-> **Đề tài: Hệ thống Trò chơi Đấu trường Trực tuyến Nhiều người chơi (Multiplayer Action RPG Game) theo Quy trình Phân tích Thiết kế Hướng đối tượng của Craig Larman**  
-> **Kho lưu trữ (Repository)**: `https://github.com/Tran1209/UML-Patterns-Mastery.git`  
+# NHẬT KÝ TIẾN ĐỘ DỰ ÁN, NHẬT KÝ SỬA CHỮA KỸ THUẬT & ĐÁNH GIÁ ĐÓNG GÓP THÀNH VIÊN
+> **Đồ án môn học**: Lập trình Hướng đối tượng (Object-Oriented Programming - OOP) — HUCE 2026  
+> **Đề tài**: Thiết kế và Xây dựng Hệ thống Trò chơi Đấu trường Hành động Đa nền tảng (PC & Android Multiplayer Action RPG) theo Quy trình Unified Process (Craig Larman), SOLID và GoF Design Patterns  
+> **Kho lưu trữ (Private Repository)**: [`https://github.com/Tran1209/UML-Patterns-Mastery.git`](https://github.com/Tran1209/UML-Patterns-Mastery.git)  
 > **Phương pháp luận phát triển**: Unified Process (UP) — Tiến trình Lặp và Tiến hóa (Iterative & Evolutionary Development)
 
 ---
 
 ## 🎯 MỤC ĐÍCH VÀ Ý NGHĨA CỦA NHẬT KÝ DỰ ÁN
-Nhật ký dự án (Work Log) là văn bản học thuật bắt buộc và là **bằng chứng đối soát pháp lý (Audit Trail)** trước Hội đồng chấm thi đại học nhằm:
-1. **Minh bạch hóa sự đóng góp cá nhân**: Đo lường chính xác khối lượng công việc, dòng code, và phần báo cáo của từng cá nhân trong nhóm 5 người; loại bỏ triệt để hiện tượng "free-rider" (ngồi không hưởng điểm).
-2. **Chứng minh quy trình kỹ nghệ phần mềm chuẩn**: Khẳng định sản phẩm được xây dựng theo phương pháp lặp tiến hóa (Iterative & Evolutionary Process) của Craig Larman với từng vòng lặp (Iteration) có sản phẩm thực thi (Executable Baseline), không phải mô hình "làm dồn một đêm trước ngày nộp" (Waterfall chắp vá).
-3. **Liên kết vết (Traceability Matrix)**: Kết nối trực tiếp giữa **Yêu cầu (FURPS+) $\rightarrow$ Mô hình phân tích (Use Case, Domain Model) $\rightarrow$ Thiết kế (GRASP, GoF DCD) $\rightarrow$ Mã nguồn thực tế trên Git $\rightarrow$ Bộ kịch bản kiểm thử (Test Cases)**.
+Nhật ký dự án (Work Log & Engineering Audit Trail) là tài liệu đối soát học thuật và kỹ thuật trước Hội đồng chấm đồ án nhằm:
+1. **Minh bạch hóa sự đóng góp cá nhân**: Đo lường chính xác khối lượng công việc, phân hệ mã nguồn (`Package`), và phần báo cáo của từng thành viên trong nhóm 5 người.
+2. **Ghi nhận thực tế quá trình phát hiện lỗi & sửa chữa (Bug Fix & Refactoring Log)**: Minh chứng sản phẩm được thử nghiệm thực tế trên cả máy tính lẫn điện thoại Android, phát hiện các bài toán hóc búa (xung đột đa luồng, lệch tâm hệ quy chiếu Camera 2D, rào cản NAT khi chơi khác mạng WiFi/4G, và tái cấu trúc Clean Code SOLID) và giải quyết triệt để.
+3. **Liên kết vết (Traceability Matrix)**: Kết nối trực tiếp từ **Yêu cầu (FURPS+) $\rightarrow$ Phân tích OOA $\rightarrow$ Thiết kế OOD (GRASP, GoF) $\rightarrow$ Mã nguồn Java/Android thực tế trên GitHub $\rightarrow$ Bộ kiểm thử tự động (`15/15 PASS`)**.
 
 ---
 
 ## 1. THÔNG TIN THÀNH VIÊN VÀ MA TRẬN PHÂN VAI TRÁCH NHIỆM (RACI MATRIX)
 
 ### 1.1. Bảng phân công 5 Vị trí Kỹ thuật Cốt lõi
-Nhóm được tổ chức theo cấu trúc chuyên nghiệp của một studio kỹ nghệ phần mềm game, phân định rõ ràng giữa các tầng kiến trúc:
 
-| STT | Họ và Tên | Mã Sinh Viên | GitHub Username | Vai trò Kỹ thuật (Role) | Trụ cột Sách Nghiên cứu Chính (Pillars) | Module Phụ trách Chính (Territory) | Nhánh Git Làm việc |
-|:---:|:---|:---:|:---:|:---|:---|:---|:---|
-| **1** | **Nam** *(Trưởng nhóm)* | ... | `Tran1209` | **Team Leader & Lead Architect** | **Craig Larman** (*Applying UML & Patterns*), **Vaughn Vernon** (*IDDD*) & **Glazer-Madhav** (*Netcode*) | • Kiến trúc tổng thể hệ thống<br>• Core Loop & Player State Machine<br>• Phân tích OOA/OOD & Tổng hợp Báo cáo<br>• Đồng thiết kế Netcode LERP | `main`, `feature/core-loop` |
-| **2** | **Kiên** | ... | *(kien_git)* | **Network & Distributed Systems Engineer** | **Joshua Glazer & Sanjay Madhav** (*Multiplayer Game Programming*) | • Dedicated Server & WebSocket/TCP Sockets<br>• Serialization & Network Packet DTOs<br>• LERP Snapshot Interpolation & Prediction | `feature/network-server` |
-| **3** | **Anh** | ... | *(anh_git)* | **Combat Mechanics & Physics Engineer** | **Robert Nystrom** (*Game Programming Patterns*) | • Combat Engine & Hitbox va chạm AABB<br>• Chiến lược tính sát thương (Strategy Pattern)<br>• Spatial Partitioning tối ưu hóa va chạm | `feature/combat-system` |
-| **4** | **Huy** | ... | *(huy_git)* | **Client Graphics & UX Engineer** | **Robert Nystrom** (Game Loop & Double Buffer) & **GoF** | • 2D Canvas Renderer (60 FPS)<br>• Controller Input Adapter & Xử lý phím<br>• HUD UI & Observer Pattern cập nhật máu/sự kiện | `feature/client-ui` |
-| **5** | **Hoàng** | ... | *(hoang_git)* | **Data Persistence & QA/QC Test Engineer** | **Martin Fowler** (*PoEAA*) & **Martin Kleppmann** (*DDIA*) | • Lưu trữ dữ liệu (Data Mapper Pattern)<br>• Bộ kiểm thử tự động (Unit Test / Integration Test)<br>• Đo lường hiệu năng mạng, Profiling độ trễ & Jitter | `feature/data-testing` |
+| STT | Họ và Tên | GitHub Username | Vai trò Kỹ thuật (Role) | Trụ cột Học thuật Nghiên cứu (Pillars) | Phân hệ Mã nguồn Phụ trách (`Src_Game` / `Android_Game`) |
+|:---:|:---|:---:|:---|:---|:---|
+| **1** | **Trung Kiên** *(Trưởng nhóm)* | [`KienEsto`](https://github.com/KienEsto) | **Team Leader & Combat Systems Architect** | **Craig Larman** (*Applying UML & Patterns*) & **Robert Nystrom** (*Game Programming Patterns*) | • Điều phối chung tiến độ & Phê duyệt thiết kế<br>• `Src_Game/Combat/` (`CombatEngine`, `ISkillAction`, 3 kỹ năng AOV kéo thả, `Hitbox`, `SpatialGridAoI`)<br>• Tái cấu trúc Clean Code & SOLID (Strategy/Command Pattern) |
+| **2** | **Duy Nam** | [`Tran1209`](https://github.com/Tran1209) | **Lead Software Architect & Core/Mobile Engineer** | **Craig Larman** (*OOAD*), **Vaughn Vernon** (*IDDD*) | • Quản trị kho chứa Git & Kiến trúc Đa nền tảng<br>• `Src_Game/Core/` (`LivingEntity`, `Player`, `Monster`, `IPlayerState` FSM, `GameWorld`)<br>• `Android_Game/` (Tích hợp cảm ứng đa điểm Multi-Touch & APK Build Pipeline) |
+| **3** | **Nguyễn Đức Huy** | [`nguyenduchuy20070406-oss`](https://github.com/nguyenduchuy20070406-oss) | **Network & Distributed Systems Engineer** | **Joshua Glazer & Sanjay Madhav** (*Multiplayer Game Programming*) | • `Src_Game/Server/` (`DedicatedGameServer` 20Hz Authoritative)<br>• `Src_Game/Network/` (`NetworkGameClient`, `SnapshotInterpolator` LERP, `LanDiscovery` UDP, `MiniMqttClient` & `CloudServerBridge` 4G Relay) |
+| **4** | **Đức Anh** | *(Thành viên)* | **Client Graphics, Camera & UX Engineer** | **Robert Nystrom** (*Double Buffer, Flyweight*) & **GoF** | • `Src_Game/Render/` (`Camera2D`, `LpcSpriteSheet` Flyweight, `CompositeCharacterVisual`, `LpcCharacterBuilder`)<br>• `Src_Game/UI/` (`GameWindow`, `LobbyPanel`, `GameCanvas`, `DesktopHudRenderer`, `HudObserver`) |
+| **5** | **Huy Hoàng** | *(Thành viên)* | **Data Persistence & QA/QC Test Engineer** | **Martin Fowler** (*PoEAA*) & **SOLID Principles** | • `Src_Game/Persistence/` (`IMatchRepository`, `JsonFileMatchRepository`, `MatchSummary`)<br>• `Tests/` (`GameUnitTestSuite.java` — 15/15 kịch bản kiểm thử tự động) |
 
 ---
 
 ### 1.2. Ma trận Trách nhiệm RACI (Responsible - Accountable - Consulted - Informed)
 
 * **R (Responsible)**: Người trực tiếp thực hiện nhiệm vụ và viết mã nguồn/tài liệu.
-* **A (Accountable)**: Người chịu trách nhiệm cao nhất về chất lượng và duyệt kết quả (Trưởng nhóm).
+* **A (Accountable)**: Người chịu trách nhiệm cao nhất nghiệm thu chất lượng (**Trưởng nhóm Trung Kiên** & Kiến trúc sư **Duy Nam**).
 * **C (Consulted)**: Người được tham vấn ý kiến chuyên môn (phối hợp liên module).
 * **I (Informed)**: Người được thông báo kết quả sau khi hoàn thành.
 
-| Giai đoạn / Sản phẩm đầu ra (Deliverable)                | TV1 (Leader) | TV2 (Network) | TV3 (Combat) | TV4 (UI) | TV5 (QA/Data) |
-| :------------------------------------------------------- | :----------: | :-----------: | :----------: | :------: | :-----------: |
-| **Thiết lập Git, Quy chuẩn Code & Quản trị Repo**        |  **A / R**   |       I       |      I       |    I     |       I       |
-| **Khảo sát Base Engine (`Arcane-Engine-2D`) & Netcode**  |  **A / R**   |       R       |      C       |    C     |       R       |
-| **Báo cáo Phần I: Phát biểu bài toán, FURPS+, Vision**   |  **A / R**   |       C       |      C       |    C     |       C       |
-| **Báo cáo Phần II: Use Case Model & Domain Model (OOA)** |    **A**     |       R       |      R       |    R     |       R       |
-| **Thiết kế Kiến trúc Gói tin & WebSocket Server**        |      A       |     **R**     |      C       |    C     |       C       |
-| **Thiết kế Combat System, Hitbox & Damage Strategy**     |      A       |       C       |    **R**     |    C     |       C       |
-| **Thiết kế Canvas View, HUD & Input Adapter**            |      A       |       C       |      C       |  **R**   |       I       |
-| **Thiết kế Data Mapper, Lưu trữ JSON/DB**                |      A       |       C       |      I       |    I     |     **R**     |
-| **Xây dựng Bộ Test Case (Unit Test & Integration Test)** |      A       |       C       |      C       |    C     |     **R**     |
-| **Đo lường & Khắc phục Micro-stutter / Network Jitter**  |      A       |     **R**     |      I       |    C     |     **R**     |
-| **Tổng duyệt & Đóng gói Báo cáo Bão hòa (100 trang)**    |  **A / R**   |       C       |      C       |    C     |       C       |
+| Giai đoạn / Sản phẩm đầu ra (Deliverable) | TV1 (Kiên - Leader) | TV2 (Nam - Core/Arch) | TV3 (Huy - Network) | TV4 (Anh - Render/UI) | TV5 (Hoàng - QA/Data) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **1. Thiết lập Kiến trúc Đa nền tảng & Quản trị Git** | **A** | **R** | I | I | I |
+| **2. Phân tích Yêu cầu FURPS+, Use Case & Domain Model** | **A / R** | **R** | C | C | C |
+| **3. Xây dựng Core Domain & State Machine (`IDLE/MOVING/ATTACKING/DEAD`)** | **A** | **R** | C | C | I |
+| **4. Thiết kế Hệ thống Chiến đấu & 3 Kỹ năng Kéo thả AOV (`ISkillAction`)** | **A / R** | C | C | C | I |
+| **5. Xây dựng Dedicated Server 20Hz, LAN Discovery & 4G Cloud Relay** | **A** | C | **R** | I | C |
+| **6. Đồ họa LPC 2D, `Camera2D` & Giao diện PC/Android 60 FPS** | **A** | **R** *(Android)* | C | **R** *(PC)* | I |
+| **7. Lưu trữ Lịch sử trận đấu JSON & Bộ 15/15 Unit Tests** | **A** | C | I | I | **R** |
+| **8. Tái cấu trúc Clean Code & SOLID (`CombatEngine`, `DesktopHudRenderer`)** | **A / R** | **R** | I | C | C |
 
 ---
 
-### 1.3. Môi trường & Hệ Công cụ Kỹ nghệ (Engineering Toolchain & Second Brain)
-Để đảm bảo tính liên kết vết chặt chẽ và chuẩn mực kỹ nghệ phần mềm, nhóm thiết lập hệ sinh thái công cụ:
-
-1. **Obsidian Vault (`E:\UML-Patterns-Mastery`) — Trạm Chỉ huy Tri thức (Second Brain)**:
-   * **Quản trị Tri thức Học thuật (PKM)**: Bóc tách 38 chương sách Craig Larman, Martin Fowler PoEAA và Vaughn Vernon DDD thành các ghi chú liên kết 2 chiều (Bi-directional Wikilinks `[[...]]`).
-   * **Đồ thị Tri thức (Graph View - `Ctrl + G`)**: Trực quan hóa mạng lưới kết nối giữa Yêu cầu $\leftrightarrow$ Khái niệm thực tế $\leftrightarrow$ Mẫu thiết kế GRASP/GoF $\leftrightarrow$ Mã nguồn.
-   * **Bản đồ Kiến trúc Không gian (Spatial Canvas)**: Sử dụng [`Architecture_Canvas.canvas`](file:///E:/UML-Patterns-Mastery/Architecture_Canvas.canvas) để theo dõi luồng tương tác và phân rã module.
-   * **Bản đồ Điều hướng Trung tâm**: [`DASHBOARD.md`](file:///E:/UML-Patterns-Mastery/DASHBOARD.md).
-2. **IDE Lập trình & Soạn thảo**: **Cursor / VS Code** (tích hợp AI Pair Programming và extension Markdown).
-3. **Quản lý Mã nguồn & Phiên bản**: **Git & GitHub** (`https://github.com/Tran1209/UML-Patterns-Mastery.git`).
-4. **Mô hình hóa UML Chuẩn**: **Mermaid.js** render trực tiếp trong Obsidian và GitHub Markdown.
-5. **Nền tảng Thực thi (Runtime Engine)**: **Node.js / Bun** (Dedicated WebSocket Server) kết hợp **HTML5 Canvas** (Client Renderer) và **Java Core Models**.
-
----
-
-## 2. NHẬT KÝ TIẾN ĐỘ THEO TỪNG VÒNG LẶP (UNIFIED PROCESS WORK LOG)
+## 2. NHẬT KÝ TIẾN ĐỘ THEO TỪNG VÒNG LẶP (UNIFIED PROCESS ITERATION LOG)
 
 ```mermaid
-timeline
-    title TIẾN TRÌNH UNIFIED PROCESS DỰ ÁN GAME MULTIPLAYER
-    Pha Inception (Tuần 1) : Khảo sát bài toán & Rủi ro : Khảo sát Netcode Arcane-Engine : Viết Phần I Báo cáo (FURPS+) : Thiết lập Git & 5 Module
-    Iteration 1 (Tuần 2-3) : Use Case Fully Dressed : Domain Model (Không Method) : Dedicated Server 20Hz : Core Game Loop & FSM : Unit Test LivingEntity
-    Iteration 2 (Tuần 4-5) : Combat Engine & Hitbox : Strategy Damage Pattern : Buff Composite Pattern : Observer HUD Event : Xử lý LERP chống giật hình
-    Iteration 3 & Nộp bài (Tuần 6-7) : Data Mapper Persistence : Stress Test 4 Clients : Hoàn thiện Báo cáo 100 trang : Quay Video Demo & Bảo vệ
+flowchart LR
+    I["Pha Inception<br>(17/10 - 20/10)<br>Khởi tạo & OOA/OOD"] --> E1["Iteration 1<br>(21/10 - 25/10)<br>Core Loop, LPC Render & Server 20Hz"]
+    E1 --> E2["Iteration 2<br>(26/10 - 27/10)<br>Android APK, 3 Skill AOV Kéo Thả & Fix Crash"]
+    E2 --> C["Iteration 3 & Transition<br>(28/10 - 29/10)<br>4G Cloud Relay, SOLID Refactor & Release v1.0"]
 ```
 
----
-
-### GIAI ĐOẠN 1: PHA INCEPTION (KHỞI TẠO DỰ ÁN — TUẦN 1: 17/10/2026 – 23/10/2026)
-* **Trọng tâm lý thuyết (Craig Larman Chapter 4 & 5)**: Xác định tính khả thi (Feasibility), nhận diện rủi ro kỹ thuật nền tảng, thiết lập môi trường cộng tác và phác thảo 10% Use Case cốt lõi.
-
-|   Thời gian    |  Thành viên   | Chi tiết Công việc Thực hiện                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Sản phẩm Đầu ra (Deliverables)                                                                                                                                                                                                                                                                                                                                                                                           | Đối soát Git / Vị trí Tệp      |     Trạng thái     |
-| :------------: | :-----------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------- | :----------------: |
-| **17/10/2026** |    **TV1**    | • Khởi tạo Local Repository tại `E:\UML-Patterns-Mastery`.<br>• Thiết lập kho lưu trữ thành **Obsidian Vault**; khởi tạo Trạm chỉ huy tri thức [`DASHBOARD.md`](file:///E:/UML-Patterns-Mastery/DASHBOARD.md) và bản đồ không gian [`Architecture_Canvas.canvas`](file:///E:/UML-Patterns-Mastery/Architecture_Canvas.canvas).<br>• Bóc tách cơ sở tri thức Craig Larman (38 chương trích xuất), Martin Fowler PoEAA và Vaughn Vernon DDD để xây dựng mạng lưới Đồ thị Tri thức (Graph View).<br>• Viết tài liệu nền tảng học thuật OOAD & UP. | • Thư mục `00_Raw_PDF/_Knowledge_Base_Larman/`<br>• File [`DASHBOARD.md`](file:///E:/UML-Patterns-Mastery/DASHBOARD.md)<br>• File [`Architecture_Canvas.canvas`](file:///E:/UML-Patterns-Mastery/Architecture_Canvas.canvas)<br>• File [`HocPhan_01_NenTang_OOAD_va_UP.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/HocPhan_01_NenTang_OOAD_va_UP.md)<br>• Bộ 6 ghi chú phân tích kiến trúc trong `01_Report_Notes/` | Commit `7491f6f`               |   **Hoàn thành**   |
-| **18/10/2026** |  **Cả nhóm**  | • Họp nhóm khởi động (Kick-off Meeting): Phân chia 5 vai trò kỹ thuật.<br>• Ban hành tài liệu hướng dẫn Git chuẩn, phân vùng thư mục độc lập để triệt tiêu 100% rủi ro Merge Conflict.<br>• Chuyển đổi tài khoản quản trị repo sang GitHub `Tran1209`.                                                                                                                                                                                                                                                                                         | • File [`HUONG_DAN_GIT_CHO_NHOM.md`](file:///E:/UML-Patterns-Mastery/HUONG_DAN_GIT_CHO_NHOM.md)<br>• Repo Remote: `Tran1209/UML-Patterns-Mastery`                                                                                                                                                                                                                                                                        | Commit `70ca404`               |   **Hoàn thành**   |
-| **18/10/2026** | **TV1 + TV2** | • Khảo sát mã nguồn thực tế `Arcane-Engine-2D` (kiến trúc Node/Bun WebSocket server và TypeScript/Java models).<br>• **Phát hiện kỹ thuật quan trọng**: Đo đạc cơ chế đồng bộ snapshot 20Hz (`server.ts`) kết hợp Canvas 60fps (`GameCanvas.tsx`) phát hiện hiện tượng nhảy khung hình (Micro-stutter / Jitter) do thiếu cơ chế nội suy tuyến tính (Linear Interpolation - LERP).<br>• Đưa hiện tượng này vào danh mục kiểm thử và bài toán cải tiến kỹ thuật cho Báo cáo (Chương 5 & 6).                                                      | • Báo cáo phân tích Netcode `Arcane-Engine-2D`<br>• File kiến trúc `DesignPatternsViewer.tsx` và `NetcodeSimulator.tsx`                                                                                                                                                                                                                                                                                                  | Biên bản khảo sát mã nguồn     |   **Hoàn thành**   |
-| **19/10/2026** |    **TV1**    | • Soạn thảo hoàn chỉnh Phần I Báo cáo theo chuẩn Craig Larman:<br>&nbsp;&nbsp;+ Bối cảnh kỹ thuật, Lý do chọn đề tài (Mục 1.1)<br>&nbsp;&nbsp;+ Tầm nhìn sản phẩm & Kịch bản đấu trường (Mục 1.2)<br>&nbsp;&nbsp;+ Bảng phân loại yêu cầu FURPS+ (Mục 1.3)<br>&nbsp;&nbsp;+ Phạm vi Inception & Kế hoạch lặp (Mục 1.4)<br>• Khởi tạo khung thư mục độc lập cho 5 thành viên trong `Src_Game/` và `Tests/`.                                                                                                                                     | • File [`Phan_01_PhatBieu_BaiToan.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/Phan_01_PhatBieu_BaiToan.md)<br>• 5 thư mục module: `Core/`, `Server/`, `Combat/`, `UI/`, `Persistence/`, `Tests/`                                                                                                                                                                                                                    | Commit `02b5330`               |   **Hoàn thành**   |
-| **20/10/2026** | **TV2 + TV5** | • Phác thảo sơ đồ mạng logic: Server Authoritative Architecture.<br>• Định nghĩa cấu trúc dữ liệu gói tin nguyên thủy (Packet DTO: `MoveIntentPacket`, `WorldSnapshotPacket`).                                                                                                                                                                                                                                                                                                                                                                 | • Sơ đồ Network Architecture phác thảo<br>• File tài liệu đặc tả Packet DTO                                                                                                                                                                                                                                                                                                                                              | Nhánh `feature/network-server` | **Đang tiến hành** |
-| **21/10/2026** | **TV3 + TV4** | • Phác thảo bản vẽ giao diện đấu trường 2D và HUD hiển thị thanh máu, ping.<br>• Thống nhất công thức tính toán va chạm hình chữ nhật giới hạn (Axis-Aligned Bounding Box - AABB).                                                                                                                                                                                                                                                                                                                                                             | • Bản vẽ Wireframe UI<br>• Tài liệu giải thuật AABB Collision                                                                                                                                                                                                                                                                                                                                                            | Nhánh `feature/combat-system`  | **Đang tiến hành** |
-| **22/10/2026** |  **Cả nhóm**  | • Họp sơ kết Pha Inception: Rà soát tài liệu Phần I, nghiệm thu kế hoạch Elaboration Iteration 1.                                                                                                                                                                                                                                                                                                                                                                                                                                              | • Biên bản nghiệm thu Pha Inception                                                                                                                                                                                                                                                                                                                                                                                      | Ghi nhận trong Nhật ký         | **Đang tiến hành** |
+| Vòng lặp | Thời gian | Nội dung Công việc Thực hiện | Sản phẩm Đầu ra (Deliverables) | Trạng thái |
+| :---: | :---: | :--- | :--- | :---: |
+| **Inception** | 17/10 – 20/10/2026 | • Khảo sát bài toán đấu trường ARPG thời gian thực.<br>• Xây dựng bộ báo cáo 7 chương theo chuẩn Craig Larman (FURPS+, Use Case, Domain Model, 9 nguyên lý GRASP, GoF Patterns). | • Toàn bộ 7 phần báo cáo trong [`Docs_BaoCao/`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao) | **Hoàn thành 100%** |
+| **Iteration 1** | 21/10 – 25/10/2026 | • Cài đặt trọn vẹn 7 package Java thuần (`core`, `combat`, `render`, `network`, `server`, `persistence`, `ui`).<br>• Hoàn thiện 15/15 Unit Tests kiểm chứng Immutability, State Pattern, Flyweight, Builder, Composite, LERP, SpatialGridAoI. | • Mã nguồn [`Src_Game/`](file:///E:/UML-Patterns-Mastery/Src_Game)<br>• Bộ test [`GameUnitTestSuite.java`](file:///E:/UML-Patterns-Mastery/Tests/GameUnitTestSuite.java) | **Hoàn thành 100%** |
+| **Iteration 2** | 26/10 – 27/10/2026 | • Phát triển phiên bản di động [`Android_Game/`](file:///E:/UML-Patterns-Mastery/Android_Game) chạy mượt 60 FPS.<br>• Bổ sung 3 kỹ năng phong cách Liên Quân (AOV) có chọn vùng kéo thả định hướng 360° và nút `✖ HỦY CHIÊU`.<br>• Sửa lỗi văng game khi spam đánh thường và lỗi lệch tâm vòng ngắm chiêu. | • Bản cài [`build/UmlPatternsMasteryGame.apk`](file:///E:/UML-Patterns-Mastery/build/UmlPatternsMasteryGame.apk)<br>• [`AndroidGameView.java`](file:///E:/UML-Patterns-Mastery/Android_Game/src/com/huce/oop/game/AndroidGameView.java) | **Hoàn thành 100%** |
+| **Iteration 3** | 28/10 – 29/10/2026 | • Tích hợp **Hybrid LAN + Cloud Internet Relay** (`MiniMqttClient`, `CloudServerBridge`) giúp chơi xuyên mạng khác WiFi và 4G.<br>• Tái cấu trúc Clean Code & SOLID cho [`CombatEngine.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/CombatEngine.java) và [`GameCanvas.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/GameCanvas.java).<br>• Chuẩn hóa cấu trúc thư mục và phát hành Release `v1.0.0` trên GitHub. | • [`ISkillAction.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/ISkillAction.java) & 3 lớp Skill<br>• [`QuanLy_DuAn.bat`](file:///E:/UML-Patterns-Mastery/QuanLy_DuAn.bat) | **Hoàn thành 100%** |
 
 ---
 
-### GIAI ĐOẠN 2: PHA ELABORATION — ITERATION 1 (TUẦN 2 & 3: 24/10/2026 – 07/11/2026)
-* **Mục tiêu vòng lặp (Milestone)**: Xây dựng **Executable Architecture Baseline** — Client kết nối được vào Dedicated Server qua Socket, đồng bộ được việc di chuyển giữa 2 người chơi trong cùng một phòng chơi ảo (Room), thiết lập nền tảng hướng đối tượng vững chắc.
+## 3. NHẬT KÝ PHÁT HIỆN LỖI, SỬA CHỮA & TỐI ƯU HÓA KỸ THUẬT (BUG FIX & REFACTORING LOG)
+*(Phần trọng tâm phục vụ bảo vệ đồ án — ghi nhận các vấn đề thực tế phát sinh khi thử nghiệm và phương án giải quyết bằng kiến trúc hướng đối tượng)*
 
-| Thành viên | Nhiệm vụ Phân tích & Thiết kế (OOA / OOD) | Nhiệm vụ Cài đặt Mã nguồn (OOP) | Nhiệm vụ Báo cáo & Kiểm thử | Sản phẩm Đầu ra Dự kiến |
-|:---:|:---|:---|:---|:---|
-| **TV1** *(Lead)* | • Viết Use Case Fully Dressed: `UC-01: Tham gia phòng chơi & Di chuyển`<br>• Xây dựng Sơ đồ Lớp Khái niệm miền (**Domain Model** - Tuyệt đối không chứa Method)<br>• Áp dụng nguyên lý GRASP **Controller**, **Creator**, **Information Expert** để thiết kế DCD Core Loop. | • Cài đặt `GameEngine.java` / `GameLoop.ts`<br>• Cài đặt State Machine: `PlayerState`, `IdleState`, `MovingState`. | • Viết Mục 2.1 & 2.2 Phần II Báo cáo (Use Case & Domain Model)<br>• Tổng hợp sơ đồ thiết kế Phần III. | • File `Src_Game/Core/Player.java`<br>• File `Src_Game/Core/PlayerStateMachine.java`<br>• Chương II & III (Bản thảo 1) |
-| **TV2** *(Net)* | • Thiết kế Sơ đồ Tuần tự Hệ thống (**SSD - System Sequence Diagram**) cho luồng gửi nhận gói tin di chuyển.<br>• Thiết kế cấu trúc Serialization tối ưu cho băng thông mạng (< 256 bytes/packet). | • Cài đặt Dedicated Server Socket lắng nghe cổng 8080/WebSocket.<br>• Cài đặt mẫu GoF **Strategy** trong `PacketHandlerRegistry` để điều hướng gói tin. | • Viết kịch bản kiểm thử kết nối Socket đa luồng (Multi-client Socket Connection Test). | • File `Src_Game/Server/GameServer.java`<br>• File `Src_Game/Network/PacketHandler.java`<br>• Mục mạng trong Báo cáo |
-| **TV3** *(Combat)* | • Lập danh mục các thuộc tính vật lý của nhân vật (Tọa độ X, Y, Vận tốc Vx, Vy, Hộp va chạm Hitbox AABB).<br>• Phân tích ranh giới tính toán: Server nắm quyền phán quyết va chạm địa hình. | • Cài đặt lớp `Transform` và `HitboxAABB`.<br>• Cài đặt giải thuật kiểm tra chồng lấn va chạm giữa nhân vật và chướng ngại vật bản đồ. | • Viết kịch bản Unit Test kiểm thử giải thuật AABB với 10 cặp tọa độ biên. | • File `Src_Game/Combat/Hitbox.java`<br>• File `Src_Game/Combat/CollisionDetector.java`<br>• Bảng dữ liệu kiểm thử AABB |
-| **TV4** *(UI)* | • Phân tích nguyên tắc **Model-View Separation**: Đảm bảo lớp hiển thị đồ họa hoàn toàn không can thiệp logic game.<br>• Thiết kế Adapter bắt sự kiện phím (WASD / Mũi tên) để chuyển thành `InputIntent`. | • Cài đặt View vẽ nhân vật 2D trên Canvas HTML5/Java Swing.<br>• Cài đặt `InputController` gửi tín hiệu điều khiển sang Core. | • Kiểm thử tốc độ render đạt chuẩn 60 FPS không bị nghẽn CPU. | • File `Src_Game/UI/GameCanvas.java` (hoặc `.tsx`)<br>• File `Src_Game/UI/InputController.java`<br>• Ảnh chụp UI trong Báo cáo |
-| **TV5** *(QA/Data)* | • Xây dựng Ma trận Truy vết Yêu cầu (**Requirement Traceability Matrix**) từ FURPS+ sang Test Cases.<br>• Thiết lập môi trường Unit Test tự động (JUnit 5 hoặc Vitest). | • Viết Unit Test cho lớp `Player` và lệnh di chuyển `MoveCommand`.<br>• Thiết lập công cụ đo đạc chỉ số mạng: Round-Trip Time (RTT/Ping), Packet Loss, và Frame Drop. | • Viết báo cáo thực nghiệm đánh giá độ giật (Jitter Analysis Report) khi chạy ở 20Hz snapshot. | • Thư mục `Tests/Core/PlayerTest.java`<br>• Báo cáo trắc nghiệm hiệu năng Iteration 1 |
-
----
-
-### GIAI ĐOẠN 3: PHA ELABORATION — ITERATION 2 (TUẦN 4 & 5: 08/11/2026 – 21/11/2026)
-* **Mục tiêu vòng lặp (Milestone)**: Tích hợp toàn diện **Hệ thống Chiến đấu (Combat Engine)**, đòn đánh, tính toán sát thương trừ máu, nhặt vật phẩm bùa chú (Buffs) và giải quyết triệt để lỗi giật hình (Micro-stutter) bằng giải thuật nội suy LERP.
-
-| Hạng mục Công việc | Thành viên Phụ trách | Nội dung Kỹ thuật Cốt lõi | Sản phẩm Bàn giao |
-|:---|:---:|:---|:---|
-| **Combat System & Damage Strategy** | **TV3** | Cài đặt mẫu GoF **Strategy Pattern** cho phép thay đổi linh hoạt công thức tính sát thương (Sát thương chuẩn, Sát thương vật lý trừ giáp, Sát thương bạo kích). | `Src_Game/Combat/DamageCalculator.java`, `PhysicalDamageStrategy.java` |
-| **Item & Buff Composite Pattern** | **TV3 + TV1** | Cài đặt mẫu GoF **Composite Pattern** cho phép ghép nối nhiều hiệu ứng bùa chú (Ví dụ: Buff Tốc độ + Hồi máu đồng thời). | `Src_Game/Combat/Buff.java`, `CompositeBuff.java` |
-| **Network LERP & State Interpolation** | **TV2 + TV4** | Xây dựng bộ đệm trạng thái (Snapshot Buffer) và áp dụng giải thuật nội suy tuyến tính (Linear Interpolation - LERP) giữa các gói tin 20Hz để loại bỏ hoàn toàn hiện tượng giật giật (Jitter). | `Src_Game/Network/Interpolator.java`, thuật toán LERP trong View |
-| **HUD Observer Pattern** | **TV4** | Áp dụng mẫu GoF **Observer Pattern**: Khi máu nhân vật thay đổi (`HealthChangedEvent`), thanh máu trên UI tự động cập nhật mà không cần thăm dò (No Polling). | `Src_Game/UI/HealthBarObserver.java`, `GameEventDispatcher.java` |
-| **Data Mapper Pattern (Persistence)** | **TV5** | Cài đặt mẫu Martin Fowler **Data Mapper Pattern** để lưu trữ chỉ số người chơi và kết quả trận đấu ra cơ sở dữ liệu / file JSON độc lập với Domain Model. | `Src_Game/Persistence/PlayerDataMapper.java`, `MatchHistoryRepository.java` |
-| **Viết Báo cáo Phần III & IV** | **Cả nhóm** | Vẽ Sơ đồ Lớp Chi tiết (**DCD - Design Class Diagram**) có đầy đủ kiểu dữ liệu, phương thức và đối số; Viết tài liệu giải trình 9 nguyên lý GRASP. | Chương III & IV của Báo cáo (~35 trang) |
+### 🛠️ Ca sửa chữa 1: Tối ưu hóa Hiệu năng Đồ họa trên Android (Khắc phục hiện tượng Lag/Giật khung hình)
+* **Hiện tượng thực tế**: Ở phiên bản Android đầu tiên, khi nhiều quái vật và hiệu ứng xuất hiện cùng lúc, khung hình trên điện thoại bị khựng (lag) và phản hồi nút bấm chậm.
+* **Nguyên nhân kỹ thuật**: Việc cấp phát đối tượng `Paint` / `RectF` liên tục trong hàm `render()` mỗi khung hình (60 lần/giây) kích hoạt bộ dọn rác (Garbage Collector - GC Pause) của máy ảo Dalvik/ART trên Android; đồng thời vòng lặp vẽ tiêu tốn quá nhiều thời gian dựng hình.
+* **Hướng sửa chữa đã thực hiện**:
+  1. Tái sử dụng toàn bộ đối tượng `Paint`, `strokePaint`, `RectF`, `Path` dưới dạng thuộc tính tĩnh dùng chung (Pre-allocated Fields) trong [`AndroidGameRenderer.java`](file:///E:/UML-Patterns-Mastery/Android_Game/src/com/huce/oop/game/AndroidGameRenderer.java) — **Zero-Allocation trong vòng lặp 60 FPS**.
+  2. Tách biệt hoàn toàn luồng vẽ `GameLoopThread` với bước nhảy thời gian cố định ($\Delta t = 16\text{ms}$).
 
 ---
 
-### GIAI ĐOẠN 4: PHA CONSTRUCTION & TRANSITION (TUẦN 6 & 7: 22/11/2026 – 05/12/2026)
-* **Mục tiêu vòng lặp (Milestone)**: Đóng gói sản phẩm hoàn thiện, chạy thử nghiệm tải đa người chơi trên mạng LAN, thực hiện trọn vẹn bộ kiểm thử tự động, quay video demo và đóng gói Báo cáo Bão hòa (~100 trang).
-
-| Tuần | Nội dung Công việc | Trách nhiệm | Sản phẩm Đầu ra |
-|:---:|:---|:---:|:---|
-| **Tuần 6** | • Tổ chức đợt chạy thử nghiệm trên 4 máy tính kết nối cùng mạng WiFi/LAN.<br>• Thực hiện stress test kiểm tra độ ổn định của Server khi 4 người cùng xả chiêu liên tục.<br>• Đo đạc thông số FPS, Ping thực tế và chụp ảnh làm minh chứng cho Chương V Báo cáo. | Cả nhóm (TV5 chủ trì) | • Bảng số liệu kiểm thử thực tế<br>• Video quay màn hình 4 client đối kháng |
-| **Tuần 7** | • Hợp nhất toàn bộ các chương báo cáo thành file duy nhất (~100 trang):<br>&nbsp;&nbsp;+ Bìa, Mục lục tự động, Danh mục hình vẽ/bảng biểu<br>&nbsp;&nbsp;+ Phần I: Phát biểu bài toán & FURPS+<br>&nbsp;&nbsp;+ Phần II: Phân tích OOA (Use Case, SSD, Domain Model)<br>&nbsp;&nbsp;+ Phần III: Thiết kế OOD (DCD, 9 GRASP, GoF Patterns)<br>&nbsp;&nbsp;+ Phần IV: Cài đặt OOP & Kiến trúc mã nguồn<br>&nbsp;&nbsp;+ Phần V: Kiểm thử phần mềm & Đánh giá hiệu năng mạng<br>&nbsp;&nbsp;+ Phần VI: Kết luận, Đánh giá giới hạn & Hướng phát triển<br>&nbsp;&nbsp;+ Phụ lục: Nhật ký dự án & Bảng đánh giá thành viên.<br>• Xuất file PDF hoàn chỉnh và in ấn đóng quyển. | TV1 chủ trì (Các TV hoàn thiện chương của mình) | • File `BaoCao_TongHop_100Trang.pdf`<br>• Slide thuyết trình bảo vệ đồ án |
-
----
-
-## 3. BẢNG ĐỐI SOÁT GIT COMMIT & TRUY VẾT DÒNG CODE (GIT AUDIT TRAIL)
-
-| Commit Hash | Thời gian | Tác giả (Author) | Nhánh (Branch) | Nội dung Commit (Message) | Tập tin Tác động Chính |
-|:---:|:---:|:---:|:---:|:---|:---|
-| `7491f6f` | 17/10/2026 | `Tran1209` | `main` | `feat: initial commit - project architecture, report notes and git guide` | `README.md`, `01_Report_Notes/`, `Docs_BaoCao/` |
-| `70ca404` | 18/10/2026 | `Tran1209` | `main` | `docs: switch github username to Tran1209` | `README.md`, `HUONG_DAN_GIT_CHO_NHOM.md` |
-| `02b5330` | 19/10/2026 | `Tran1209` | `main` | `feat: add section 1 report draft and team module folders in Src_Game` | `Docs_BaoCao/Phan_01_PhatBieu_BaiToan.md`, `Src_Game/*` |
-| *(Pending)* | 20/10/2026 | `TV2` | `feature/network-server` | `feat(network): setup dedicated websocket server skeleton` | `Src_Game/Server/GameServer.java` |
-| *(Pending)* | 21/10/2026 | `TV3` | `feature/combat-system` | `feat(combat): implement AABB hitbox and collision detector` | `Src_Game/Combat/Hitbox.java` |
-| *(Pending)* | 21/10/2026 | `TV4` | `feature/client-ui` | `feat(ui): implement 60fps canvas renderer and input adapter` | `Src_Game/UI/GameCanvas.java` |
-| *(Pending)* | 22/10/2026 | `TV5` | `feature/data-testing` | `test(core): add unit tests for Player state and move commands` | `Tests/Core/PlayerTest.java` |
+### 🛠️ Ca sửa chữa 2: Khắc phục Lỗi Văng Game (`ConcurrentModificationException`) khi Spam Đánh Thường
+* **Hiện tượng thực tế**: Khi người chơi bấm liên hoàn (spam) nút **Đánh thường (⚔)** với tốc độ cao trên màn hình cảm ứng Android hoặc bàn phím PC, ứng dụng bị văng (Crash / Out game).
+* **Nguyên nhân kỹ thuật**: Sự kiện chạm màn hình `onTouchEvent` chạy trên **Luồng Giao diện chính (Android UI Main Thread)** gọi trực tiếp vào `CombatEngine` để thêm phần tử vào `ArrayList<HitParticle>` và `ArrayList<SlashEffect>`. Đúng lúc đó, **Luồng Vòng lặp Game (`GameLoopThread`)** đang duyệt qua (`for-each`) các danh sách này để vẽ và xóa hiệu ứng hết hạn, gây ra xung đột đa luồng `java.util.ConcurrentModificationException`.
+* **Hướng sửa chữa đã thực hiện**:
+  1. Chuyển đổi toàn bộ cấu trúc danh sách hiệu ứng trong [`CombatEngine.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/CombatEngine.java) từ `ArrayList` sang **`CopyOnWriteArrayList`** (`java.util.concurrent.CopyOnWriteArrayList`) an toàn tuyệt đối cho đa luồng (Thread-Safe).
+  2. Thay vì thực thi đòn đánh ngay trong `onTouchEvent`, luồng cảm ứng chỉ bật cờ tín hiệu (`pendingSkillCast`, `attackPressed`), và nhường quyền thực thi logic chiến đấu đồng bộ 100% về cho `GameLoopThread` trong [`AndroidGameView.java`](file:///E:/UML-Patterns-Mastery/Android_Game/src/com/huce/oop/game/AndroidGameView.java).
 
 ---
 
-## 4. BẢNG TỰ ĐÁNH GIÁ MỨC ĐỘ ĐÓNG GÓP CUỐI KỲ (PEER CONTRIBUTION AUDIT)
-*(Bảng này là căn cứ tối cao để Giảng viên và Hội đồng chấm thi nhân hệ số điểm cá nhân)*
+### 🛠️ Ca sửa chữa 3: Khắc phục Lỗi Lệch Tâm Vòng Ngắm Chiêu Thức và Kẹp Biên `Camera2D` trên Màn hình Điện thoại Rộng
+* **Hiện tượng thực tế**: Khi chơi ở chế độ Đấu Mạng (Multiplayer) trên điện thoại có độ phân giải ngang lớn (`2400x1080`), nhân vật đang đứng ở góc trên bên trái nhưng vòng tròn ngắm kéo thả kỹ năng lại bị lệch cứng ra giữa màn hình tại tọa độ `(1200, 600)`.
+* **Nguyên nhân kỹ thuật**:
+  1. Trong [`Camera2D.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Camera2D.java), công thức kẹp biên cũ `Math.max(halfW, Math.min(worldWidth - halfW, targetX))` bị đảo ngược khi chiều rộng màn hình (`viewWidth = 2400`, `halfW = 1200`) lớn hơn chiều rộng bản đồ (`worldWidth = 1600`, `worldWidth - halfW = 400`), khiến `Math.max(1200, 400)` khóa chết Camera ở `X = 1200`.
+  2. Trong chế độ Multiplayer, hàm vẽ vòng ngắm chiêu cũ lấy tọa độ `camera.getX()` thay vì tọa độ thực tế của nhân vật người chơi trong `SnapshotInterpolator`.
+* **Hướng sửa chữa đã thực hiện**:
+  1. Cập nhật [`Camera2D.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Camera2D.java#L22-L42) sang cơ chế **MOBA Center-Follow**: Luôn đặt nhân vật chính tại đúng tâm màn hình (`screenW / 2`, `screenH / 2`) và chỉ kẹp biên khi kích thước bản đồ lớn hơn màn hình.
+  2. Bổ sung phương thức `getLocalPlayerWorldPos()` trong cả [`AndroidGameView.java`](file:///E:/UML-Patterns-Mastery/Android_Game/src/com/huce/oop/game/AndroidGameView.java#L345-L361) và [`GameCanvas.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/GameCanvas.java) để luôn truy xuất đúng tọa độ thực của nhân vật người chơi dù ở chế độ Offline hay Online.
 
-### 4.1. Tiêu chí Chấm điểm Đóng góp
-1. **Điểm Chuyên cần (Trọng số 20%)**: Tham gia đầy đủ các buổi họp nhóm, nộp bài đúng hạn từng vòng lặp, có tinh thần trách nhiệm.
-2. **Khối lượng Mã nguồn & Git Commits (Trọng số 40%)**: Số lượng commit thực tế trên GitHub, mã nguồn chạy được, không gây lỗi hệ thống, tuân thủ nguyên lý OOP/GRASP.
-3. **Chất lượng Tài liệu Báo cáo (Trọng số 30%)**: Viết đúng chương mục phân công, vẽ sơ đồ UML chuẩn cú pháp Craig Larman, giải trình mạch lạc.
-4. **Hỗ trợ Đồng đội & Phản biện (Trọng số 10%)**: Tích cực review code cho thành viên khác, tham gia tháo gỡ bug chung.
+---
 
-### 4.2. Bảng Tổng kết Đóng góp
-| STT | Họ và Tên | Mã Sinh Viên | Vai trò Phụ trách | Tự Đánh giá (% Đóng góp) | Nhóm Thống nhất (%) | Chữ ký Xác nhận |
+### 🛠️ Ca sửa chữa 4: Vượt Rào Cản Khác Mạng WiFi / 4G bằng Kiến trúc Hybrid LAN + Cloud Internet Relay
+* **Hiện tượng thực tế**: Khi 2 máy chung 1 cục WiFi thì tự động tìm thấy phòng qua UDP Broadcast (`LanDiscovery`) rất mượt, nhưng khi 1 máy dùng WiFi và 1 máy bật 4G (hoặc khác quán cafe) thì không kết nối được do tường lửa NAT của nhà mạng chặn kết nối TCP trực tiếp.
+* **Hướng sửa chữa đã thực hiện**:
+  1. Xây dựng [`MiniMqttClient.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Network/MiniMqttClient.java) (Pure Java Socket, không cần thư viện ngoài) và [`CloudServerBridge.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Network/CloudServerBridge.java).
+  2. Khi người chơi tạo phòng, hệ thống cấp một **Mã Phòng ngắn gọn dạng `ARENA-X-Y`** (mã hóa hai số cuối của IP LAN kèm kênh Cloud).
+  3. Khi máy khách nhập Mã Phòng, [`NetworkGameClient.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Network/NetworkGameClient.java) sẽ ưu tiên thử kết nối **Direct LAN TCP** trong `1.4 giây` (độ trễ `< 2ms`). Nếu khác WiFi hoặc đang dùng 4G, hệ thống tự động chuyển tiếp (Fallback) sang **Cloud Internet Relay** qua Broker trung gian mà không cần mở Port Router.
+
+---
+
+### 🛠️ Ca sửa chữa 5: Tái cấu trúc Mã nguồn (`Refactoring`) theo chuẩn Clean Code & SOLID
+* **Hiện tượng thực tế**: Sau khi bổ sung 3 kỹ năng kéo thả AOV và các hiệu ứng hạt/vòng sáng, lớp [`CombatEngine.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/CombatEngine.java) phình to lên **528 dòng** và [`GameCanvas.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/GameCanvas.java) lên **853 dòng**, chứa các nhánh `if-else` kiểm tra `skillId == 1, 2, 3`, vi phạm **Single Responsibility Principle (SRP)** và **Open/Closed Principle (OCP)**.
+* **Hướng sửa chữa đã thực hiện**:
+  1. **Áp dụng Strategy / Command Pattern cho Kỹ năng**: Tạo giao diện [`ISkillAction.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/ISkillAction.java) và tách 3 chiêu thức thành 3 lớp độc lập:
+     * [`DashStrikeSkill.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/DashStrikeSkill.java) (Chiêu 1: ⚡ Xung Kích)
+     * [`FireWhirlwindSkill.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/FireWhirlwindSkill.java) (Chiêu 2: 🔥 Vòng Xoáy Lửa)
+     * [`MeteorUltimateSkill.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/MeteorUltimateSkill.java) (Chiêu 3: ☄️ Thiên Phạt Ultimate)
+  2. **Tách lớp Dữ liệu Hiệu ứng & Lớp Vẽ HUD**:
+     * Tách 4 lớp hiệu ứng sang [`CombatEffects.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/CombatEffects.java), giúp [`CombatEngine.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/CombatEngine.java) giảm còn **275 dòng** và xóa bỏ 100% câu lệnh `if-else` chọn chiêu.
+     * Tách toàn bộ phần vẽ bảng máu, thanh kỹ năng và vòng ngắm trên PC sang [`DesktopHudRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/DesktopHudRenderer.java), giúp [`GameCanvas.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/GameCanvas.java) giảm hơn **210 dòng**.
+
+---
+
+## 4. BẢNG ĐỐI SOÁT LỊCH SỬ GIT COMMIT THỰC TẾ (GIT AUDIT TRAIL)
+
+| Commit Hash | Thời gian | Nội dung Commit (Message) | Phân hệ Tác động Chính |
+|:---:|:---:|:---|:---|
+| `7491f6f` | 17/10/2026 | `feat: initial commit - project architecture, report notes and git guide` | Khởi tạo kiến trúc & Tài liệu OOAD |
+| `02b5330` | 19/10/2026 | `feat: add section 1 report draft and team module folders in Src_Game` | `Docs_BaoCao/`, khung 7 package `Src_Game/` |
+| `e6593a1` | 26/10/2026 | `feat: complete 7-chapter OOP report, full Java implementation & 15/15 unit tests` | Toàn bộ `Src_Game/`, `Tests/`, `Docs_BaoCao/` |
+| `a2a3b4e` | 27/10/2026 | `feat(combat,android): add 3 AOV drag-and-drop skills and fix ConcurrentModificationException` | `CombatEngine.java`, `AndroidGameView.java` |
+| `6b47685` | 27/10/2026 | `fix(render,ui): lock Camera2D center-follow and anchor skill indicator to local hero` | `Camera2D.java`, `AndroidGameView.java`, `GameCanvas.java` |
+| `04f1ded` | 28/10/2026 | `feat(network): add Hybrid LAN + Cloud Internet Relay (MiniMqttClient & CloudServerBridge)` | `MiniMqttClient.java`, `CloudServerBridge.java`, `NetworkGameClient.java` |
+| `b671af7` | 28/10/2026 | `refactor(combat,ui): apply Strategy/Command pattern and SRP to CombatEngine and GameCanvas` | `ISkillAction.java`, `DashStrikeSkill.java`, `CombatEffects.java`, `DesktopHudRenderer.java` |
+| `97097cf` | 28/10/2026 | `chore(repo): reorganize root folder structure and add unified QuanLy_DuAn.bat launcher` | `QuanLy_DuAn.bat`, `README.md`, `scripts/` |
+
+---
+
+## 5. BẢNG TỰ ĐÁNH GIÁ MỨC ĐỘ ĐÓNG GÓP CUỐI KỲ (PEER CONTRIBUTION AUDIT)
+
+| STT | Họ và Tên | GitHub Username | Vai trò Phụ trách | Tự Đánh giá (%) | Nhóm Thống nhất (%) | Chữ ký Xác nhận |
 |:---:|:---|:---:|:---|:---:|:---:|:---:|
-| **1** | **Nam** *(Trưởng nhóm)* | ... | Team Leader & Software Architect | 100% | 100% | *(Ký tên)* |
-| **2** | **Kiên** | ... | Network & Server Engineer | 100% | 100% | *(Ký tên)* |
-| **3** | **Anh** | ... | Combat & Mechanics Engineer | 100% | 100% | *(Ký tên)* |
-| **4** | **Huy** | ... | Client UI & UX Engineer | 100% | 100% | *(Ký tên)* |
-| **5** | **Hoàng** | ... | Data Persistence & QA/QC Tester | 100% | 100% | *(Ký tên)* |
-
----
-
-## 5. QUY CHUẨN GHI CHÉP BIÊN BẢN HỌP (MEETING MINUTES TEMPLATE)
-Mỗi khi nhóm tổ chức họp trực tiếp hoặc họp online (qua Google Meet / Discord), Thư ký cuộc họp (luân phiên giữa TV4 và TV5) có trách nhiệm cập nhật biên bản tóm tắt vào nhật ký theo mẫu sau:
-
-```markdown
-### BIÊN BẢN HỌP SỐ: [XX] — NGÀY: [DD/MM/YYYY]
-* **Hình thức**: Trực tiếp tại Thư viện / Online qua Discord (Thời lượng: 60 phút).
-* **Thành viên tham dự**: Đủ 5/5 thành viên (Có mặt đúng giờ).
-* **Nội dung thảo luận**:
-  1. Kiểm điểm tiến độ các nhánh Git trong tuần.
-  2. Tháo gỡ khó khăn về mặt kỹ thuật (Ví dụ: Thống nhất format gói tin byte giữa TV2 và TV4).
-  3. Phân công mục viết báo cáo cho tuần tiếp theo.
-* **Kết luận & Kế hoạch hành động (Action Items)**:
-  - TV1: Duyệt Pull Request của nhánh `feature/network-server`.
-  - TV3: Bổ sung 3 unit test cho phép tính sát thương trước 23h59 ngày thứ 5.
-```
+| **1** | **Trung Kiên** *(Trưởng nhóm)* | `KienEsto` | Team Leader & Combat Systems Architect | 100% | 100% | *(Ký tên)* |
+| **2** | **Duy Nam** | `Tran1209` | Lead Architect, Core Domain & Android Port | 100% | 100% | *(Ký tên)* |
+| **3** | **Nguyễn Đức Huy** | `nguyenduchuy20070406-oss` | Network & Hybrid LAN/4G Server Engineer | 100% | 100% | *(Ký tên)* |
+| **4** | **Đức Anh** | *(Thành viên)* | Client 2D Graphics, Camera2D & HUD UX | 100% | 100% | *(Ký tên)* |
+| **5** | **Huy Hoàng** | *(Thành viên)* | JSON Persistence & 15/15 Unit Tests QA | 100% | 100% | *(Ký tên)* |
