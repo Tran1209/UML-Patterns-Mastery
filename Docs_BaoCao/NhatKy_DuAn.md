@@ -36,19 +36,19 @@ Nhóm được tổ chức theo cấu trúc chuyên nghiệp của một studio 
 * **C (Consulted)**: Người được tham vấn ý kiến chuyên môn (phối hợp liên module).
 * **I (Informed)**: Người được thông báo kết quả sau khi hoàn thành.
 
-| Giai đoạn / Sản phẩm đầu ra (Deliverable) | TV1 (Leader) | TV2 (Network) | TV3 (Combat) | TV4 (UI) | TV5 (QA/Data) |
-|:---|:---:|:---:|:---:|:---:|:---:|
-| **Thiết lập Git, Quy chuẩn Code & Quản trị Repo** | **A / R** | I | I | I | I |
-| **Khảo sát Base Engine (`Arcane-Engine-2D`) & Netcode** | **A / R** | R | C | C | R |
-| **Báo cáo Phần I: Phát biểu bài toán, FURPS+, Vision** | **A / R** | C | C | C | C |
-| **Báo cáo Phần II: Use Case Model & Domain Model (OOA)** | **A** | R | R | R | R |
-| **Thiết kế Kiến trúc Gói tin & WebSocket Server** | A | **R** | C | C | C |
-| **Thiết kế Combat System, Hitbox & Damage Strategy** | A | C | **R** | C | C |
-| **Thiết kế Canvas View, HUD & Input Adapter** | A | C | C | **R** | I |
-| **Thiết kế Data Mapper, Lưu trữ JSON/DB** | A | C | I | I | **R** |
-| **Xây dựng Bộ Test Case (Unit Test & Integration Test)** | A | C | C | C | **R** |
-| **Đo lường & Khắc phục Micro-stutter / Network Jitter** | A | **R** | I | C | **R** |
-| **Tổng duyệt & Đóng gói Báo cáo Bão hòa (100 trang)** | **A / R** | C | C | C | C |
+| Giai đoạn / Sản phẩm đầu ra (Deliverable)                | TV1 (Leader) | TV2 (Network) | TV3 (Combat) | TV4 (UI) | TV5 (QA/Data) |
+| :------------------------------------------------------- | :----------: | :-----------: | :----------: | :------: | :-----------: |
+| **Thiết lập Git, Quy chuẩn Code & Quản trị Repo**        |  **A / R**   |       I       |      I       |    I     |       I       |
+| **Khảo sát Base Engine (`Arcane-Engine-2D`) & Netcode**  |  **A / R**   |       R       |      C       |    C     |       R       |
+| **Báo cáo Phần I: Phát biểu bài toán, FURPS+, Vision**   |  **A / R**   |       C       |      C       |    C     |       C       |
+| **Báo cáo Phần II: Use Case Model & Domain Model (OOA)** |    **A**     |       R       |      R       |    R     |       R       |
+| **Thiết kế Kiến trúc Gói tin & WebSocket Server**        |      A       |     **R**     |      C       |    C     |       C       |
+| **Thiết kế Combat System, Hitbox & Damage Strategy**     |      A       |       C       |    **R**     |    C     |       C       |
+| **Thiết kế Canvas View, HUD & Input Adapter**            |      A       |       C       |      C       |  **R**   |       I       |
+| **Thiết kế Data Mapper, Lưu trữ JSON/DB**                |      A       |       C       |      I       |    I     |     **R**     |
+| **Xây dựng Bộ Test Case (Unit Test & Integration Test)** |      A       |       C       |      C       |    C     |     **R**     |
+| **Đo lường & Khắc phục Micro-stutter / Network Jitter**  |      A       |     **R**     |      I       |    C     |     **R**     |
+| **Tổng duyệt & Đóng gói Báo cáo Bão hòa (100 trang)**    |  **A / R**   |       C       |      C       |    C     |       C       |
 
 ---
 
