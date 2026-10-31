@@ -120,17 +120,22 @@ flowchart LR
 
 ---
 
-### 🛠️ Ca sửa chữa & nâng cấp 6 (Đêm 31/10/2026): Nâng cấp Toàn diện Engine từ 2D lên 2.5D (Thực hiện: Trung Kiên & Duy Nam)
-* **Bối cảnh & Lý do ưu tiên số 1**: Nhóm đề ra 9 hạng mục nâng cấp lớn (thêm Sảnh chờ, mở rộng Map đi bộ 5 phút, nâng cấp 2D lên 2.5D, thêm Mobs, tối ưu Model, thêm Nhân vật, tối ưu Phím/Chuột, thêm Vòng Bo, thêm Team & Bot). Qua phân tích kiến trúc, **Nhóm trưởng Trung Kiên (`KienEsto`)** và **Duy Nam (`Tran1209`)** xác định: **Chuyển đổi hệ quy chiếu từ 2D sang 2.5D phải được làm đầu tiên**, vì mọi đối tượng về sau (Cây cối trên Map lớn, 6 loại Mobs, 4 Hệ Tướng, Vòng Bo và Tia ngắm Chuột) đều phải đặt trong không gian 2.5D $(X, Y, Z)$.
+### 🛠️ Ca sửa chữa & nâng cấp 6 (Đêm 31/10/2026): Nâng cấp Toàn diện Engine từ 2D lên 2.5D Chuẩn Góc Nhìn Liên Quân / LMHT (Thực hiện: Trung Kiên & Duy Nam)
+* **Bối cảnh & Lý do ưu tiên số 1**: Nhóm đề ra 9 hạng mục nâng cấp lớn. Qua phân tích kiến trúc, **Nhóm trưởng Trung Kiên (`KienEsto`)** và **Duy Nam (`Tran1209`)** xác định: **Chuyển đổi hệ quy chiếu từ 2D sang 2.5D chuẩn MOBA phải được làm mượt mà đầu tiên**, vì mọi đối tượng về sau đều đặt trong không gian 2.5D $(X, Y, Z)$.
+* **Vấn đề kỹ thuật gặp phải ở bản thử nghiệm phối cảnh đầu tiên & Cách khắc phục triệt để**:
+  * *Hiện tượng*: Nếu dùng phép chiếu phối cảnh hình thang (Pinhole Trapezoid Perspective) có tỉ lệ ngang phụ thuộc vào $Y$, khi nhân vật đi lên/xuống (`camY` thay đổi) các đường dọc trên mặt đất bị uốn cong liên tục (*Perspective Swimming*).
+  * *Giải pháp chuẩn Engine MOBA (Liên Quân / Liên Minh)*: Chuyển sang **Phép chiếu Dimetric / Orthographic-Tilt 2.5D** trong [`Camera2D.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Camera2D.java) kết hợp **Nội suy Góc nghiêng mượt mà (`Smooth Camera Pitch LERP`)**:
+    * Giữ tỉ lệ ngang đồng nhất theo `currentZoom` (0% méo hình thang khi di chuyển 8 hướng).
+    * Nén trục mặt đất $Y$ theo góc nghiêng `currentPitchTilt = 0.68` ($\approx 55^\circ$ chuẩn Liên Quân / LMHT) và dựng trục độ cao $Z$ thẳng đứng theo `currentZScale = 1.0`.
+    * Khi người chơi nhấn phím `[V]`, Camera nội suy mượt mà (`LERP`) giữa 3 chế độ (`2.5D MOBA 55°` $\leftrightarrow$ `2.5D Cận cảnh 42°` $\leftrightarrow$ `2D Top-Down 90°`) như cần cẩu máy quay 3D thật.
 * **Phân chia công việc Đêm 31/10/2026 giữa Duy Nam và Trung Kiên**:
   1. **Phần của Duy Nam (`Tran1209` — Nhánh `main`)**:
-     * Nâng cấp [`Camera2D.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Camera2D.java) hỗ trợ hệ trục không gian 3 chiều $(X, Y, Z)$ với phép chiếu nghiêng 2.5D ($\text{pitchTilt} = 0.72$) và hệ số hội tụ chiều sâu `getPerspectiveScale(worldY)`.
-     * Xây dựng [`Arena3DSceneRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Arena3DSceneRenderer.java) dựng Đài Đấu Trường nổi 2.5D có vách đá sâu ($Z = -85\text{px}$), tường thành ($Z = +46\text{px}$) và 4 Trụ Tháp Cổ Đại 2.5D ($Z = 92\text{px}$).
-     * Cài đặt thuật toán **Z-Sorting (`Painter's Algorithm`)** trong [`GameCanvas.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/GameCanvas.java) sắp xếp thứ tự vẽ theo tọa độ chiều sâu $Y$ để khi nhân vật đi ra sau trụ tháp 2.5D sẽ bị che khuất tự nhiên.
+     * Nâng cấp [`Camera2D.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Camera2D.java) sang chuẩn **Dimetric 2.5D MOBA** có nội suy LERP góc nghiêng (`currentPitchTilt`, `currentZScale`, `currentZoom`) và phép chiếu ngược con trỏ chuột chính xác 100% (`screenToWorldX`, `screenToWorldY`).
+     * Xây dựng [`Arena3DSceneRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Arena3DSceneRenderer.java) với địa hình **Bình Nguyên MOBA 2.5D**: Thảm cỏ lục bảo, **Dòng sông nguyên tố cắt ngang bản đồ** có bờ kè đá chìm 2.5D, **Đường Mid Lane & Cầu đá bắc qua sông**, 4 Trụ Thánh Tích 2.5D (`OBELISK_POSITIONS`) và **8 Cây Cổ Thụ Rừng Nguyên Sinh 2.5D** (`TREE_POSITIONS` với tán lá 3 tầng nổi theo trục $Z$).
+     * Cài đặt thuật toán **Z-Sorting (`Painter's Algorithm`)** trong [`GameCanvas.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/GameCanvas.java) cho cả Trụ 2.5D, Cây 2.5D, Quái vật và Tướng, đồng thời bổ sung phím tắt 1 tay (`Q / E / F` + `Chuột Trái` đánh thường).
   2. **Phần của Trung Kiên (`KienEsto` — Nhánh `Kien`)**:
-     * Nâng cấp [`LpcCanvasRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcCanvasRenderer.java) giúp mô hình Nhân vật và Quái vật có bệ đứng hào quang Elip 2.5D dưới mặt đất, bóng đổ nghiêng 2.5D và tự động co giãn kích thước theo độ sâu xa-gần.
+     * Nâng cấp [`LpcCanvasRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcCanvasRenderer.java): Vẽ bệ hào quang Elip 2.5D dưới chân tướng kèm **chấm mũi tên chỉ hướng nhìn** và **Thanh máu chia vạch (Segmented MOBA Health Bar) + Huy hiệu cấp độ `[1]`** chuẩn Liên Quân / LMHT.
      * Nâng cấp [`DesktopHudRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/DesktopHudRenderer.java): Biến đổi toàn bộ vòng tròn giới hạn tầm chiêu và vòng nổ AoE thành **Elip 2.5D nằm sát mặt đất** kèm **Cột sáng định vị thẳng đứng theo trục $Z$**; hiệu ứng Chiêu 2 bốc lên thành cột lốc xoáy lửa nhiều tầng $Z$, Chiêu 3 có quả cầu thiên thạch rơi từ độ cao $Z = 420\text{px}$ xuống đất.
-     * Hiệu chỉnh phép chiếu ngược cho tia ngắm Chuột (`dy / camera.getPitchTilt()`) để ngắm bắn trên mặt phẳng nghiêng 2.5D chính xác tuyệt đối.
 
 ---
 

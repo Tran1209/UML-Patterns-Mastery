@@ -480,15 +480,27 @@ public class AndroidGameRenderer {
         paint.setColor(Color.rgb(20, 26, 40));
         canvas.drawPath(slashPath, paint);
 
-        // 3. Mặt sàn đấu trường Hình Thang Phối Cảnh 3D
+        // 3. Mặt sàn đấu trường Thảo Nguyên MOBA 2.5D (Emerald Turf + River + Mid Bridge)
         slashPath.reset();
         slashPath.moveTo(tlX, tlY);
         slashPath.lineTo(trX, trY);
         slashPath.lineTo(brX, brY);
         slashPath.lineTo(blX, blY);
         slashPath.close();
-        paint.setColor(Color.rgb(36, 44, 58));
+        paint.setColor(Color.rgb(34, 62, 48));
         canvas.drawPath(slashPath, paint);
+
+        // Dòng sông MOBA cắt ngang (wy = 535..665)
+        float rivTopY = (float) camera.worldToScreenY(535, 0);
+        float rivBotY = (float) camera.worldToScreenY(665, 0);
+        paint.setColor(Color.rgb(18, 78, 112));
+        canvas.drawRect(tlX, rivTopY, trX, rivBotY, paint);
+
+        // Đường Mid Lane & Cầu đá qua sông (wx = 690..910)
+        float laneLX = (float) camera.worldToScreenX(690, 0);
+        float laneRX = (float) camera.worldToScreenX(910, 0);
+        paint.setColor(Color.rgb(72, 78, 88));
+        canvas.drawRect(laneLX, tlY, laneRX, blY, paint);
 
         // 4. Các đường lưới ô gạch đá hội tụ phối cảnh 3D
         paint.setColor(Color.argb(55, 160, 200, 255));

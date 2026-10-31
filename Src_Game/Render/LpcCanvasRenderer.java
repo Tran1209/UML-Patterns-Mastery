@@ -56,16 +56,20 @@ public class LpcCanvasRenderer {
             g2d.translate(-screenX, -screenY);
         }
 
-        // Bệ hào quang 3D dưới chân nhân vật (3D MOBA Hero Pedestal Ring)
+        // Bệ hào quang 2.5D dưới chân nhân vật (MOBA Hero Pedestal Ring & Direction Indicator)
+        Direction dir = renderer.getCurrentDirection();
         g2d.setColor(isPlayer ? new Color(0, 229, 255, 55) : new Color(255, 180, 0, 55));
         g2d.fillOval((int) screenX - 24, (int) screenY + 12, 48, 18);
-        g2d.setColor(isPlayer ? new Color(0, 229, 255, 180) : new Color(255, 180, 0, 180));
+        g2d.setColor(isPlayer ? new Color(0, 229, 255, 195) : new Color(255, 180, 0, 195));
         g2d.setStroke(new BasicStroke(2f));
         g2d.drawOval((int) screenX - 24, (int) screenY + 12, 48, 18);
+        // Mũi tên nhỏ chỉ hướng nhìn trên vòng tròn chân tướng chuẩn Liên Quân
+        int arrowX = (int) screenX + dir.getDirX() * 24;
+        int arrowY = (int) screenY + 21 + dir.getDirY() * 9;
+        g2d.fillOval(arrowX - 3, arrowY - 3, 6, 6);
         g2d.setStroke(new BasicStroke(1f));
 
         CompositeCharacterVisual visual = renderer.getVisual();
-        Direction dir = renderer.getCurrentDirection();
         LpcAnimationType anim = renderer.getCurrentAnimation();
         int frameIdx = renderer.getCurrentFrameIndex();
 
@@ -280,29 +284,54 @@ public class LpcCanvasRenderer {
     }
 
     private static void renderOverheadStatus(Graphics2D g2d, double x, double y, String nameTag, int currentHp, int maxHp, boolean isPlayer) {
-        int barW = 36;
-        int barH = 5;
+        int barW = isPlayer ? 52 : 38;
+        int barH = isPlayer ? 7 : 5;
         int barX = (int) x - barW / 2;
-        int barY = (int) y - 30;
+        int barY = (int) y - 34;
 
-        // Vẽ tên
+        // Vẽ tên trên đầu
         g2d.setFont(new Font("Segoe UI", Font.BOLD, 10));
         FontMetrics fm = g2d.getFontMetrics();
         int nameW = fm.stringWidth(nameTag);
 
-        g2d.setColor(new Color(0, 0, 0, 160));
-        g2d.fillRoundRect((int) x - nameW / 2 - 3, barY - 14, nameW + 6, 12, 4, 4);
-        g2d.setColor(isPlayer ? Color.CYAN : Color.WHITE);
-        g2d.drawString(nameTag, (int) x - nameW / 2, barY - 4);
+        g2d.setColor(new Color(0, 0, 0, 165));
+        g2d.fillRoundRect((int) x - nameW / 2 - 4, barY - 15, nameW + 8, 13, 4, 4);
+        g2d.setColor(isPlayer ? new Color(110, 245, 255) : new Color(255, 230, 210));
+        g2d.drawString(nameTag, (int) x - nameW / 2, barY - 5);
+
+        // Huy hiệu cấp độ [1] bên trái thanh máu chuẩn Liên Quân / LMHT
+        if (isPlayer) {
+            g2d.setColor(new Color(18, 26, 38, 235));
+            g2d.fillRoundRect(barX - 15, barY - 3, 13, 13, 4, 4);
+            g2d.setColor(new Color(230, 190, 90));
+            g2d.drawRoundRect(barX - 15, barY - 3, 13, 13, 4, 4);
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 9));
+            g2d.setColor(Color.WHITE);
+            g2d.drawString("1", barX - 11, barY + 7);
+        }
 
         // Khung thanh máu
-        g2d.setColor(new Color(20, 20, 20, 200));
+        g2d.setColor(new Color(15, 18, 24, 225));
         g2d.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
 
         // Lượng máu hiện tại
         float pct = Math.max(0f, Math.min(1f, (float) currentHp / maxHp));
-        Color hpColor = pct > 0.5f ? new Color(50, 205, 50) : (pct > 0.25f ? Color.ORANGE : Color.RED);
+        Color hpColor = isPlayer
+                ? (pct > 0.45f ? new Color(46, 213, 115) : (pct > 0.22f ? new Color(255, 165, 2) : new Color(255, 71, 87)))
+                : new Color(235, 65, 65);
+        int fillW = (int) (barW * pct);
         g2d.setColor(hpColor);
-        g2d.fillRect(barX, barY, (int) (barW * pct), barH);
+        g2d.fillRect(barX, barY, fillW, barH);
+
+        // Chia vạch máu (Segmented Ticks chuẩn MOBA Liên Quân / LMHT)
+        int segments = isPlayer ? 5 : 3;
+        g2d.setColor(new Color(10, 14, 18, 175));
+        for (int i = 1; i < segments; i++) {
+            int tickX = barX + (barW * i) / segments;
+            g2d.drawLine(tickX, barY, tickX, barY + barH - 1);
+        }
+
+        g2d.setColor(isPlayer ? new Color(220, 230, 245, 160) : new Color(90, 40, 40, 160));
+        g2d.drawRect(barX - 1, barY - 1, barW + 2, barH + 2);
     }
 }

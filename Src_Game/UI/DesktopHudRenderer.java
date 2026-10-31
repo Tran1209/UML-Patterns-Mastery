@@ -94,7 +94,7 @@ public final class DesktopHudRenderer {
     }
 
     private static void renderSkillBarAndGuide(Graphics2D g2d, int width, int height, Player p, boolean isOnline) {
-        String[] skillTitles = {"[1/U] ⚡ XUNG KÍCH", "[2/I] 🔥 XOÁY LỬA", "[3/O] ☄️ THIÊN PHẠT"};
+        String[] skillTitles = {"[1/Q] ⚡ XUNG KÍCH", "[2/E] 🔥 XOÁY LỬA", "[3/F] ☄️ THIÊN PHẠT"};
         String[] skillDescs = {"Lướt + Sát thương", "AoE + Hồi 18 HP", "ULTIMATE + Đẩy lùi"};
         Color[] skillColors = {new Color(0, 188, 212), new Color(255, 111, 0), new Color(170, 0, 255)};
 
@@ -140,8 +140,8 @@ public final class DesktopHudRenderer {
             }
         }
 
-        String guide = isOnline ? "🌐 ĐẤU MẠNG: [WASD]: Di chuyển | [SPACE/J]: Đánh | Giữ [1/2/3] hoặc Kéo ô chiêu để Chọn Vùng -> Thả ra để Tung Chiêu!"
-                : "⌨️ CHƠI ĐƠN: [WASD]: Di chuyển | [SPACE/J]: Đánh | Giữ [1/2/3] hoặc Kéo ô chiêu để Chọn Vùng (Chuột phải: Hủy)";
+        String guide = isOnline ? "🌐 ĐẤU MẠNG 2.5D: [WASD]: Di chuyển | [Chuột Trái/SPACE]: Đánh | Giữ [Q/E/F] hoặc [1/2/3] để Chọn Vùng | [V]: Đổi góc 2.5D"
+                : "⌨️ GÓC NHÌN MOBA 2.5D: [WASD]: Di chuyển | [Chuột Trái/SPACE]: Đánh | Giữ [Q/E/F] hoặc [1/2/3] Chọn Vùng | [V]: Nghiêng Camera 2D/2.5D";
         g2d.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         FontMetrics fm = g2d.getFontMetrics();
         int gW = fm.stringWidth(guide);

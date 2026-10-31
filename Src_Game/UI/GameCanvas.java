@@ -85,11 +85,11 @@ public class GameCanvas extends JPanel {
                     } else {
                         world.handlePlayerAttack();
                     }
-                } else if ((code == KeyEvent.VK_1 || code == KeyEvent.VK_U) && isNewPress) {
+                } else if ((code == KeyEvent.VK_1 || code == KeyEvent.VK_Q || code == KeyEvent.VK_U) && isNewPress) {
                     startDesktopSkillAim(1);
-                } else if ((code == KeyEvent.VK_2 || code == KeyEvent.VK_I) && isNewPress) {
+                } else if ((code == KeyEvent.VK_2 || code == KeyEvent.VK_E || code == KeyEvent.VK_I) && isNewPress) {
                     startDesktopSkillAim(2);
-                } else if ((code == KeyEvent.VK_3 || code == KeyEvent.VK_O) && isNewPress) {
+                } else if ((code == KeyEvent.VK_3 || code == KeyEvent.VK_F || code == KeyEvent.VK_O) && isNewPress) {
                     startDesktopSkillAim(3);
                 } else if (code == KeyEvent.VK_ESCAPE) {
                     activeAimingSkill = 0;
@@ -97,6 +97,8 @@ public class GameCanvas extends JPanel {
                 } else if (code == KeyEvent.VK_R) {
                     if (networkClient == null && !world.getPlayer().isAlive()) {
                         world.restartGame();
+                    } else if (isNewPress) {
+                        startDesktopSkillAim(3);
                     }
                 } else if (code == KeyEvent.VK_F1) {
                     showDebugOverlay = !showDebugOverlay;
@@ -110,13 +112,13 @@ public class GameCanvas extends JPanel {
                 int code = e.getKeyCode();
                 pressedKeys.remove(code);
 
-                if ((code == KeyEvent.VK_1 || code == KeyEvent.VK_U) && activeAimingSkill == 1 && !draggingFromSkillBar) {
+                if ((code == KeyEvent.VK_1 || code == KeyEvent.VK_Q || code == KeyEvent.VK_U) && activeAimingSkill == 1 && !draggingFromSkillBar) {
                     triggerDesktopSkill(1, currentAimX, currentAimY);
                     activeAimingSkill = 0;
-                } else if ((code == KeyEvent.VK_2 || code == KeyEvent.VK_I) && activeAimingSkill == 2 && !draggingFromSkillBar) {
+                } else if ((code == KeyEvent.VK_2 || code == KeyEvent.VK_E || code == KeyEvent.VK_I) && activeAimingSkill == 2 && !draggingFromSkillBar) {
                     triggerDesktopSkill(2, currentAimX, currentAimY);
                     activeAimingSkill = 0;
-                } else if ((code == KeyEvent.VK_3 || code == KeyEvent.VK_O) && activeAimingSkill == 3 && !draggingFromSkillBar) {
+                } else if ((code == KeyEvent.VK_3 || code == KeyEvent.VK_F || code == KeyEvent.VK_R || code == KeyEvent.VK_O) && activeAimingSkill == 3 && !draggingFromSkillBar) {
                     triggerDesktopSkill(3, currentAimX, currentAimY);
                     activeAimingSkill = 0;
                 }
@@ -165,6 +167,21 @@ public class GameCanvas extends JPanel {
                     triggerDesktopSkill(activeAimingSkill, currentAimX, currentAimY);
                     activeAimingSkill = 0;
                     draggingFromSkillBar = false;
+                } else if (SwingUtilities.isLeftMouseButton(e)) {
+                    // Chuột trái đánh thường hướng về vị trí con trỏ (thao tác 1 tay mượt mà)
+                    Vector2D heroPos = getLocalPlayerWorldPos();
+                    double wx = camera.screenToWorldX(e.getX());
+                    double wy = camera.screenToWorldY(e.getY());
+                    double dx = wx - heroPos.getX();
+                    double dy = wy - heroPos.getY();
+                    if (Math.hypot(dx, dy) > 4.0) {
+                        world.getPlayer().setFacingDirection(Direction.fromVelocity(dx, dy, world.getPlayer().getFacingDirection()));
+                    }
+                    if (networkClient != null && networkClient.isConnected()) {
+                        attackRequested = true;
+                    } else {
+                        world.handlePlayerAttack();
+                    }
                 }
             }
 
@@ -381,6 +398,12 @@ public class GameCanvas extends JPanel {
             depthQueue.add(() -> Arena3DSceneRenderer.render3DObeliskTower(g2d, camera, ox, oy, nowMs));
         }
 
+        for (double[] tree : Arena3DSceneRenderer.TREE_POSITIONS) {
+            final double tx = tree[0], ty = tree[1];
+            depthY.add(ty);
+            depthQueue.add(() -> Arena3DSceneRenderer.render25DForestTree(g2d, camera, tx, ty));
+        }
+
         for (Monster m : world.getMonsters()) {
             if (!m.isAlive()) continue;
             final Monster monster = m;
@@ -454,6 +477,12 @@ public class GameCanvas extends JPanel {
             final double ox = ob[0], oy = ob[1];
             depthY.add(oy);
             depthQueue.add(() -> Arena3DSceneRenderer.render3DObeliskTower(g2d, camera, ox, oy, clientTime));
+        }
+
+        for (double[] tree : Arena3DSceneRenderer.TREE_POSITIONS) {
+            final double tx = tree[0], ty = tree[1];
+            depthY.add(ty);
+            depthQueue.add(() -> Arena3DSceneRenderer.render25DForestTree(g2d, camera, tx, ty));
         }
 
         for (WorldSnapshotPayload.EntityState state : states.values()) {
