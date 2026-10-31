@@ -1,8 +1,27 @@
-# 🗺️ KẾ HOẠCH 4 NGÀY (01/11 – 04/11/2026): KHO KIẾN THỨC → BÁO CÁO SÁCH → BỘ KHUNG AI → THIẾT KẾ OOA/OOD
+# 🗺️ KẾ HOẠCH 4 NGÀY (01/11 – 04/11/2026): CHUẨN HÓA KHO SÁCH → 4 BÁO CÁO TÓM TẮT → BỘ KHUNG "CHỐNG MẤT TRÍ NHỚ" CHO AI → ĐỒNG BỘ & MỞ RỘNG OOA/OOD/DESIGN
 
-> **Quyết định ngày 31/10/2026**: Trước khi code tiếp 8 hạng mục mở rộng, nhóm dành **4 ngày** (01/11 → 04/11) để dựng nền tri thức và thiết kế. Từ **05/11** mới quay lại code, và **code theo đúng thiết kế đã chốt** (không code theo cảm tính nữa).
->
-> **Nguyên tắc cốt lõi**: Khối lượng này là **hàng chục prompt**, không thể làm trong 1 lần. Mỗi prompt chỉ làm **1 việc nhỏ → ra 1 file → được người phụ trách duyệt → commit**, rồi mới sang prompt kế tiếp.
+> **Bối cảnh & Lý do ra quyết định (Đêm 31/10/2026)**:
+> 1. **Những gì nhóm ĐÃ CÓ SẴN từ giai đoạn trước (17/10 – 26/10/2026)**:
+>    * **272 tệp chương sách đã bóc tách** từ 5 cuốn giáo trình quốc tế trong `_Archive_CaNhan/00_Raw_PDF/_Knowledge_Base_{Larman, Nystrom, Glazer_Madhav, Fowler, Vernon}/`.
+>    * **8 bài ghi chú lý thuyết nền tảng** trong [`Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/GhiChu_Sach_Larman_Nystrom/`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/GhiChu_Sach_Larman_Nystrom) và chuyên đề [`BaoCao_ThietKe_NhanVat_OOP_LPC.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/BaoCao_ThietKe_NhanVat_OOP_LPC.md) (645 dòng).
+>    * **Bộ OOA & OOD v1 hoàn chỉnh** trong [`Chuong_02_PhanTich_OOA.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/Chuong_02_PhanTich_OOA.md) (642 dòng) và [`Chuong_03_ThietKe_OOD.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/Chuong_03_ThietKe_OOD.md) (633 dòng).
+> 2. **Tại sao phải dừng lại 4 ngày trước khi code tiếp? (Khắc phục triệt để lỗi "AI mất trí nhớ ngữ cảnh")**:
+>    * Khi hội thoại kéo dài, AI bị nén ngữ cảnh (*Context Truncation*) nên khi xây dựng [`Src_Game/`](file:///E:/UML-Patterns-Mastery/Src_Game) và sửa nóng các tính năng mới, **AI đã quên mất nhiều lớp và mẫu thiết kế mà chính nhóm đã đặc tả rất kỹ trong `Chuong_02_PhanTich_OOA.md` và `Chuong_03_ThietKe_OOD.md`** (xem Bảng Đối Soát 6 Điểm Lệch ngay bên dưới).
+>    * Vì vậy, nhóm dành **4 ngày (01/11 → 04/11)** chạy **hàng chục prompt nhỏ có kiểm soát** để: **(a)** đóng gói toàn bộ sách đã bóc tách thành 4 báo cáo tóm tắt chuẩn, **(b)** khóa cứng kiến trúc OOA/OOD đã có vào `.agent/rules/` làm **"Bộ nhớ vĩnh viễn cho AI"**, và **(c)** hợp nhất 6 cụm Class bị thiếu ở v1 cùng 9 hạng mục mở rộng vào thiết kế OOA/OOD/Design trước khi code từ **05/11**.
+
+---
+
+## 0. BẢNG ĐỐI SOÁT 6 ĐIỂM LỆCH GIỮA OOA/OOD ĐÃ CÓ (`Chuong_02` & `Chuong_03`) VÀ CODE HIỆN TẠI (`Src_Game/`)
+*(Bằng chứng của việc AI "mất trí nhớ" khi code mà Bộ khung AI ở Pha C và Thiết kế ở Pha D bắt buộc phải khôi phục 100%)*
+
+| # | Thành phần ĐÃ THIẾT KẾ trong `Chuong_02_PhanTich_OOA.md` & `Chuong_03_ThietKe_OOD.md` | Tình trạng thực tế trong `Src_Game/` hiện tại (Do AI quên thiết kế cũ) | Hướng khôi phục & Nối vào 9 Hạng mục Mở rộng (Trong 4 ngày tới) |
+| :-: | :--- | :--- | :--- |
+| **1** | **`GameRoom` (Aggregate Root — Vernon Ch.10)**, `RoomStatus (WAITING, ACTIVE, CONCLUDED)` & **`RoomSessionController` (GRASP Controller)** *(Chương 2 mục `CO-01`, `2.5.5`; Chương 3 mục `3.4`, `3.5 DCD`)* | ❌ **Chưa có class `GameRoom` & `RoomSessionController`**: `DedicatedGameServer` và `GameWorld` ôm trực tiếp danh sách người chơi/quái vật. | ✅ Khôi phục `GameRoom` làm Aggregate Root và nối thẳng vào **Hạng mục 1 (Sảnh chờ sau đăng nhập = trạng thái `WAITING`)** & **Hạng mục 9 (Chia Team/Bot trong phòng)**. |
+| **2** | **`CharacterStats`** (`maxHp`, `currentHp`, `baseMoveSpeed`, `baseAttackPower`, `isAlive`) tách riêng khỏi `LivingEntity` *(Chương 2 mục `2.5.2`, `2.5.5`; Chương 3 mục `3.5 DCD`)* | ❌ **Chưa có class `CharacterStats`**: `LivingEntity` đang khai báo rời rạc các biến `int currentHp, maxHp, defense`. | ✅ Khôi phục `CharacterStats` và dùng làm bảng chỉ số gốc cho **Hạng mục 6 (4 Hệ Nhân vật: Đấu Sĩ, Xạ Thủ, Pháp Sư, Sát Thủ)** & **Hạng mục 4 (6 loại Mobs)**. |
+| **3** | **Hệ thống Bùa chú Đa tầng — GoF Composite Pattern (`UC-03`, `CO-04: applyBuff`)**: `IBuff`, `SpeedBuff`, `DamageBuff`, `CompositeBuff` & `LootRune` trên bản đồ *(Chương 2 mục `2.4`; Chương 3 mục `3.3.4`)* | ❌ **Bị bỏ quên hoàn toàn trong `Src_Game/`**: Chưa có `IBuff`, `CompositeBuff` hay `LootRune`. | ✅ Đưa đầy đủ `IBuff`, `SpeedBuff`, `DamageBuff`, `CompositeBuff` và `LootRune` vào thiết kế **Hạng mục 2 (Vật phẩm/Cổ vật trên Map lớn 2.5D)**. |
+| **4** | **`CombatEncounter` & `DamageEvent`** — Ánh xạ 1:1 từ `Sale` và `SalesLineItem` của NextGen POS *(Chương 2 mục `2.5.4`; Chương 3 mục `3.5`: `processCombatHits() -> List<DamageEvent>`)* | ❌ **Chưa có `CombatEncounter` & `DamageEvent`**: `CombatEngine` trừ máu trực tiếp và chỉ sinh `FloatingText` đồ họa. | ✅ Khôi phục `DamageEvent` (chứa `rawDamage`, `mitigatedDamage`, `isCritical`, `attackerId`, `victimId`) trả về từ `CombatEngine` để thống kê sát thương cuối trận. |
+| **5** | **GoF Command Pattern (`CO-02: processInput`)**: `InputCommand` có `sequenceNumber`, `clientTimestamp` và `Player.lastProcessedSequence` *(Chương 2 mục `CO-02`; Chương 3 mục `3.3.5`)* | ⚠️ **Mới có một nửa**: `InputCommandPayload` mới gửi `vx, vy, attacking, skillId`, chưa có `sequenceNumber` để đối soát thứ tự gói tin. | ✅ Bổ sung `sequenceNumber` và `lastProcessedSequence` khi nâng cấp **Hạng mục 7 (Tối ưu điều khiển Phím + Chuột 2.5D)**. |
+| **6** | **`PlayerScoreRecord` kết hợp với `MatchSummary` (`CO-05: concludeMatch`)** ghi nhận `finalRank`, `totalKills`, `totalDeaths`, `totalDamageDealt` của từng người *(Chương 2 mục `2.5.2`)* | ⚠️ **Mới có `MatchSummary` đơn giản**: Chưa có danh sách `List<PlayerScoreRecord>` cho từng đấu sĩ/team. | ✅ Khôi phục `PlayerScoreRecord` gắn với **Hạng mục 8 (Vòng Bo sinh tồn)** & **Hạng mục 9 (Xếp hạng Team/Bot cuối trận)**. |
 
 ---
 
@@ -100,54 +119,55 @@ TIÊU CHÍ XONG: <checklist kiểm được>
 
 ---
 
-## 5. NGÀY 3 SÁNG (03/11) — PHA C: BỘ KHUNG THỐNG NHẤT CHO AI
+## 5. NGÀY 3 SÁNG (03/11) — PHA C: BỘ KHUNG THỐNG NHẤT CHO AI ("CHỐNG MẤT TRÍ NHỚ")
 
-**Mục tiêu**: 5 người dùng AI theo **cùng một luật** → thiết kế/code của mọi người ghép khớp, không mỗi người một kiểu.
-**Nền có sẵn**: `.agent/rules/project-guide.md` (kiến trúc, lệnh build, quy ước hiện tại) → **mở rộng, không viết lại từ đầu**.
+**Mục tiêu**:
+1. Khóa cứng toàn bộ danh sách Class, Interface, Hợp đồng (`CO-01..05`) và Mẫu thiết kế đã có trong [`Chuong_02_PhanTich_OOA.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/Chuong_02_PhanTich_OOA.md), [`Chuong_03_ThietKe_OOD.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/Chuong_03_ThietKe_OOD.md) và [`BaoCao_ThietKe_NhanVat_OOP_LPC.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/BaoCao_ThietKe_NhanVat_OOP_LPC.md) vào `.agent/rules/` để **AI luôn tự động nạp vào bộ nhớ ở mọi phiên chat mới, không bao giờ quên hoặc tự bịa tên Class khác**.
+2. Giúp cả 5 thành viên dùng AI theo **cùng một luật** → thiết kế và code của mọi người ghép khớp 100%.
 
 | Mã | Việc cần làm | Đầu ra | Phụ trách |
 | :-: | :--- | :--- | :-: |
-| **AI-01** | **Hiến chương dự án**: kiến trúc phân tầng, thuật ngữ thống nhất, điều cấm (vd: không `import java.awt.*` vào `core/combat/network/server/persistence`), ngôn ngữ trả lời | `.agent/rules/project-guide.md` (mở rộng) | Nam |
-| **AI-02** | **Luật truy xuất kiến thức**: AI phải trích mã thẻ, không bịa trang; cách trỏ vào `4_KhoKienThuc/` | `.agent/rules/knowledge-rules.md` | Nam |
+| **AI-01** | **Hiến chương & Sổ đăng ký Lớp chuẩn (Canonical Class Registry)**: ghi rõ kiến trúc phân tầng, danh sách Class bắt buộc phải giữ từ `Chuong_02–03` (`GameRoom`, `RoomSessionController`, `CharacterStats`, `IBuff`/`CompositeBuff`, `DamageEvent`, `PlayerScoreRecord`…), điều cấm (không `import java.awt.*` vào Domain) | `.agent/rules/project-guide.md` (mở rộng) | Nam |
+| **AI-02** | **Luật truy xuất kiến thức & OOA/OOD**: bắt buộc AI đọc `Chuong_02_PhanTich_OOA.md`, `Chuong_03_ThietKe_OOD.md` và trích mã thẻ `4_KhoKienThuc/` trước khi thiết kế hoặc sửa code | `.agent/rules/knowledge-rules.md` | Nam |
 | **AI-03** | **Mẫu prompt chuẩn + Thư viện prompt** theo loại: OOA · OOD · code · test · báo cáo | `Docs_BaoCao/6_BoKhungAI/01_ThuVienPrompt.md` | Nam + Kiên |
-| **AI-04** | **Bộ template tài liệu thiết kế**: Use Case fully dressed, SSD, Operation Contract, DCD, Sequence (Mermaid), State Machine | `6_BoKhungAI/templates/` | Kiên |
-| **AI-05** | **Quy ước code & test**: đặt tên, package, cách thêm test cho mỗi hạng mục (nối tiếp bộ 15/15 hiện có) | `6_BoKhungAI/02_QuyUoc_Code_Test.md` | Hoàng |
-| **AI-06** | **Quy trình Git + AI**: nhánh theo người, commit message, checklist trước khi gộp `main` (nối với `03_HuongDan_Git_Nhom.md`) | `6_BoKhungAI/03_QuyTrinh_Git_AI.md` | Nam |
-| **AI-07** | **Chạy thử (pilot)** bộ khung trên **1 chức năng nhỏ** (đề xuất: *Sảnh chờ*) từ Use Case đến DCD, ghi lại chỗ khung bị thiếu/mâu thuẫn | `6_BoKhungAI/04_KetQua_Pilot.md` | Huy |
+| **AI-04** | **Bộ template tài liệu thiết kế** (kế thừa chuẩn Larman từ `Chuong_02` & `Chuong_03`): Use Case fully dressed, SSD, Operation Contract, DCD, Sequence (Mermaid), State Machine | `6_BoKhungAI/templates/` | Kiên |
+| **AI-05** | **Quy ước code & test**: đặt tên, package, cách thêm test cho 6 cụm Class khôi phục + 9 hạng mục mới (nối tiếp bộ 15/15 hiện có) | `6_BoKhungAI/02_QuyUoc_Code_Test.md` | Hoàng |
+| **AI-06** | **Quy trình Git + AI**: nhánh theo người, commit message, checklist đối soát DCD trước khi gộp `main` | `6_BoKhungAI/03_QuyTrinh_Git_AI.md` | Nam |
+| **AI-07** | **Chạy thử (pilot)** bộ khung trên **Hạng mục 1 (Sảnh chờ = `GameRoom WAITING` từ `CO-01`)** từ Use Case đến DCD, kiểm tra xem AI có tuân thủ đúng `GameRoom` & `RoomSessionController` của `Chuong_02–03` không | `6_BoKhungAI/04_KetQua_Pilot.md` | Huy |
 | **AI-08** | Sửa bộ khung theo kết quả pilot và **chốt v1.0** | cập nhật các file AI-01…06 | Nam |
 
-**Xong buổi sáng khi**: pilot chạy trơn từ UC → DCD mà không phải "giải thích thêm bằng miệng".
+**Xong buổi sáng khi**: pilot chạy trơn từ UC → DCD, dùng đúng các lớp của `Chuong_02–03` mà không phải "nhắc miệng" lại cho AI.
 
 ---
 
-## 6. NGÀY 3 CHIỀU → NGÀY 4 (03/11 – 04/11) — PHA D: THIẾT KẾ OOA → OOD → DESIGN
+## 6. NGÀY 3 CHIỀU → NGÀY 4 (03/11 – 04/11) — PHA D: ĐỒNG BỘ & MỞ RỘNG OOA → OOD → DESIGN
 
-**Mục tiêu**: Thiết kế **gần như toàn bộ chức năng** của dự án (phần đã có + 9 hạng mục mở rộng) để từ 05/11 code là "dịch thiết kế ra Java".
-**Thư mục đầu ra**: `Docs_BaoCao/7_ThietKe/{OOA, OOD, Design}/`. Mọi tài liệu dùng template ở AI-04 và trích thẻ kiến thức.
+**Mục tiêu**: **Kế thừa 100% nền tảng OOA/OOD đã làm ở `Chuong_02_PhanTich_OOA.md`, `Chuong_03_ThietKe_OOD.md` và `BaoCao_ThietKe_NhanVat_OOP_LPC.md`**, khôi phục **6 điểm lệch ở Mục 0**, đồng thời thiết kế nối tiếp **9 hạng mục mở rộng** để từ 05/11 code khớp 1:1 với Báo cáo.
+**Thư mục đầu ra**: `Docs_BaoCao/7_ThietKe/{OOA, OOD, Design}/` (và đồng bộ ngược vào `Chuong_02`, `Chuong_03`, `Chuong_04`).
 
 ### 6.1. D1 — OOA (03/11 chiều)
 
 | Mã | Việc cần làm | Phụ trách |
 | :-: | :--- | :-: |
-| **OOA-01** | **Kiểm kê chức năng**: cái đã có + 9 hạng mục; gán độ ưu tiên **P1/P2/P3** và quan hệ phụ thuộc | Nam + Kiên |
-| **OOA-02** | Sơ đồ Use Case tổng + **Use Case brief** cho toàn bộ chức năng | Kiên |
-| **OOA-03** | **Fully dressed** cho UC ưu tiên, mỗi người một cụm: Sảnh chờ & Vòng bo (Huy) · Map & Mobs (Hoàng) · Hệ nhân vật & Bot (Kiên) · Đồ họa 2.5D (Anh) · Core/Điều khiển (Nam) | Từng người |
-| **OOA-04** | **Domain Model v2** (khái niệm thế giới thật, chưa có method) | Nam |
-| **OOA-05** | **SSD + Operation Contract** cho các thao tác hệ thống chính | Huy (lobby/mạng) · Kiên (chiến đấu) |
-| **OOA-06** | **Supplementary Spec (FURPS+)**: 60 FPS, server 20 Hz, độ trễ, số người, bản đồ 66.000 px | Hoàng |
+| **OOA-01** | **Kiểm kê & Khớp nối**: nối `UC-01..04` + `CO-01..05` đã có trong `Chuong_02_PhanTich_OOA.md` với 6 cụm Class bị thiếu và 9 hạng mục mới; gán độ ưu tiên **P1/P2/P3** | Nam + Kiên |
+| **OOA-02** | Mở rộng Sơ đồ Use Case tổng từ Mục `2.2.1` của `Chuong_02` + **Use Case brief** cho các UC mới (`UC-05..09`) | Kiên |
+| **OOA-03** | **Fully dressed** cho các UC mở rộng (theo đúng chuẩn `UC-01..04` của `Chuong_02`): Sảnh chờ `GameRoom` & Vòng bo (Huy) · Map lớn `ArenaMap` & 6 Mobs + `LootRune` (Hoàng) · 4 Hệ nhân vật & Bot (Kiên) · Đồ họa 2.5D (Anh) · Điều khiển `InputCommand` (Nam) | Từng người |
+| **OOA-04** | **Domain Model v2** (mở rộng trực tiếp từ sơ đồ Mục `2.5.2` & 2 Aggregate Roots Mục `2.5.5` của `Chuong_02_PhanTich_OOA.md`, tuyệt đối không có method) | Nam |
+| **OOA-05** | **SSD + Operation Contract (`CO-06..10`)** nối tiếp `CO-01..05` đã có trong `Chuong_02` | Huy (lobby/vòng bo) · Kiên (class/bot/mobs) |
+| **OOA-06** | Cập nhật **Supplementary Spec (FURPS+)**: 60 FPS, server 20 Hz, 2.5D Dimetric, bản đồ `66.000 px` | Hoàng |
 
 ### 6.2. D2 — OOD (04/11 sáng)
 
 | Mã | Việc cần làm | Phụ trách |
 | :-: | :--- | :-: |
-| **OOD-01** | **Kiến trúc logic & bản đồ package v2** (lớp nào thuộc tầng nào) | Nam |
-| **OOD-02** | **Sơ đồ tương tác (Sequence)** cho từng UC, chỉ rõ GRASP (Controller, Expert, Creator…) | Từng người |
-| **OOD-03** | **DCD v2** từng cụm, sau đó Nam hợp nhất để không trùng/lệch tên lớp | Từng người → Nam |
-| **OOD-04** | **State Machine**: FSM nhân vật, luồng Sảnh chờ → Trận → Kết thúc, trạng thái Vòng bo | Nam · Huy |
-| **OOD-05** | **Thiết kế giao thức mạng**: gói tin, snapshot, đồng bộ Mobs/Bot, relay 4G | Huy |
-| **OOD-06** | **Thiết kế dữ liệu & cấu hình** (6 Mobs, 4 hệ nhân vật, vòng bo) theo Fowler/DDD | Hoàng |
-| **OOD-07** | **Bảng ánh xạ GoF/GRASP → lớp** (mẫu đã chọn + lý do + sách nào) | Kiên |
-| **OOD-08** | **Thiết kế pipeline render 2.5D**: Z-Sorting, culling, sprite/mobs | Anh |
+| **OOD-01** | **Kiến trúc logic & bản đồ package v2** (đưa đầy đủ 6 cụm Class bị thiếu ở Mục 0 + các lớp của 9 hạng mục vào đúng 7 package hiện có) | Nam |
+| **OOD-02** | **Sơ đồ tương tác (Design Sequence)** nối tiếp mục `3.4` của `Chuong_03` (`RoomSessionController`, `GameRoom`, `CombatEngine`, `IDamageStrategy`, `CompositeBuff`…), ghi rõ nhãn 9 nguyên lý GRASP | Từng người |
+| **OOD-03** | **DCD v2** mở rộng trực tiếp từ DCD mục `3.5` của `Chuong_03_ThietKe_OOD.md` và `BaoCao_ThietKe_NhanVat_OOP_LPC.md`, sau đó Nam hợp nhất để không trùng/lệch tên lớp | Từng người → Nam |
+| **OOD-04** | **State Machine**: giữ nguyên FSM `IPlayerState` (`Idle`, `Moving`, `Attacking`, `Dead`) đã có + bổ sung FSM `RoomStatus (WAITING → ACTIVE → CONCLUDED)` và trạng thái Vòng bo | Nam · Huy |
+| **OOD-05** | **Thiết kế giao thức mạng**: bổ sung `sequenceNumber` vào `InputCommand` (`CO-02`), đồng bộ `GameRoom`, 6 Mobs, Bot, Vòng bo qua LAN/4G | Huy |
+| **OOD-06** | **Thiết kế dữ liệu & cấu hình**: `CharacterStats`, `IBuff`/`CompositeBuff`, 6 Mobs, 4 hệ nhân vật, `PlayerScoreRecord` trong `MatchSummary` theo Fowler/DDD | Hoàng |
+| **OOD-07** | **Bảng ánh xạ GoF/GRASP → lớp Code thực tế** (đảm bảo 100% mẫu thiết kế viết trong `Chuong_03` đều có mặt trong `Src_Game/`) | Kiên |
+| **OOD-08** | **Thiết kế pipeline render 2.5D**: `Camera2D` Dimetric, Z-Sorting, View Frustum Culling cho Map `66.000 px`, `LpcCharacterBuilder` cho 4 Hệ Tướng | Anh |
 
 ### 6.3. D3 — DESIGN CHI TIẾT & CHỐT (04/11 chiều)
 
