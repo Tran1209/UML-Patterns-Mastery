@@ -15,17 +15,17 @@ flowchart TD
     Root --> Hoang["🧪 TV5: HUY HOÀNG (Kỹ sư Mobs & Kiểm thử)<br>• Hạng mục 4: Thêm 6 Loại Mobs Đa Dạng (Slime, Goblin, Cung Thủ, Pháp Sư, Orc, Boss Rồng)"]
 ```
 
-| Mã CV | Tên Công Việc (Theo đúng danh sách của Nhóm) | Thành Viên Phụ Trách | Nhánh Git | Phân Hệ Code (`Package`) | Độ Ưu Tiên |
-| :---: | :--- | :--- | :---: | :--- | :---: |
-| **CV-01** | **1. Thêm sảnh chờ sau đăng nhập** (Chọn tướng, chọn Team, thêm Bot, Ready) | **Đức Huy** | `Huy` | `Src_Game/UI/` & `Network/` | 🔥 Cao |
-| **CV-02** | **2. Mở rộng Map cực lớn (đi bộ 5 phút)** & thêm chi tiết sông, rừng, đá, cỏ | **Duy Nam** | `main` | `Src_Game/Core/` & `Render/` | 🔥 Cao |
-| **CV-03** | **3. Nâng cấp đồ họa từ 2D lên 2.5D** (Góc nghiêng, chiều cao Z, Z-Sorting) | **Đức Anh** *(+ Nam)* | `Anh` / `main` | `Src_Game/Render/` | ⭐ Trọng tâm |
-| **CV-04** | **4. Thêm các loại Mobs khác nhau** (6 loại quái + đồng bộ lên cả Server Online) | **Huy Hoàng** *(+ Kiên)* | `Hoang` / `Kien` | `Src_Game/Core/` & `Server/` | 🔥 Cao |
-| **CV-05** | **5. Tối ưu hóa Model Nhân vật và Mobs** (Vẽ đa lớp, hoạt ảnh thở & vung vũ khí) | **Đức Anh** | `Anh` / `main` | `Src_Game/Render/` | ⚡ Trung bình |
-| **CV-06** | **6. Tạo thêm Nhân vật mới** (4 Hệ: Đấu Sĩ, Xạ Thủ, Pháp Sư, Sát Thủ) | **Duy Nam** | `main` | `Src_Game/Core/` & `Combat/` | 🔥 Cao |
-| **CV-07** | **7. Tối ưu lại phím di chuyển và Skill** (Tay trái `WASD + Q/E/R/1/2/3`, Tay phải Chuột) | **Trung Kiên** *(Leader)* | `Kien` | `Src_Game/UI/GameCanvas.java` | 🚨 Cấp bách |
-| **CV-08** | **8. Thêm Vòng Bo sinh tồn** (Thu hẹp dần trên Map & Minimap, đốt máu ngoài bo) | **Đức Huy** | `Huy` | `Src_Game/Core/` & `Server/` | ⭐ Trọng tâm |
-| **CV-09** | **9. Thêm các Team đối địch & AI Bot** (Tự động bù Bot khi thiếu người, biết chạy bo & đánh nhau) | **Trung Kiên** *(Leader)* | `Kien` | `Src_Game/Core/` & `Combat/` | 🔥 Cao |
+|   Mã CV   | Tên Công Việc (Theo đúng danh sách của Nhóm)                                                      | Thành Viên Phụ Trách      |    Nhánh Git     | Phân Hệ Code (`Package`)      |  Độ Ưu Tiên  |
+| :-------: | :------------------------------------------------------------------------------------------------ | :------------------------ | :--------------: | :---------------------------- | :----------: |
+| **CV-01** | **1. Thêm sảnh chờ sau đăng nhập** (Chọn tướng, chọn Team, thêm Bot, Ready)                       | **Đức Huy**               |      `Huy`       | `Src_Game/UI/` & `Network/`   |    🔥 Cao    |
+| **CV-02** | **2. Mở rộng Map cực lớn (đi bộ 5 phút)** & thêm chi tiết sông, rừng, đá, cỏ                      | **Duy Nam**               |      `main`      | `Src_Game/Core/` & `Render/`  |    🔥 Cao    |
+| **CV-03** | **3. Nâng cấp đồ họa từ 2D lên 2.5D** (Góc nghiêng, chiều cao Z, Z-Sorting)                       | **Đức Anh** *(+ Nam)*     |  `Anh` / `main`  | `Src_Game/Render/`            | ⭐ Trọng tâm  |
+| **CV-04** | **4. Thêm các loại Mobs khác nhau** (6 loại quái + đồng bộ lên cả Server Online)                  | **Huy Hoàng** *(+ Kiên)*  | `Hoang` / `Kien` | `Src_Game/Core/` & `Server/`  |    🔥 Cao    |
+| **CV-05** | **5. Tối ưu hóa Model Nhân vật và Mobs** (Vẽ đa lớp, hoạt ảnh thở & vung vũ khí)                  | **Đức Anh**               |  `Anh` / `main`  | `Src_Game/Render/`            | ⚡ Trung bình |
+| **CV-06** | **6. Tạo thêm Nhân vật mới** (4 Hệ: Đấu Sĩ, Xạ Thủ, Pháp Sư, Sát Thủ)                             | **Duy Nam**               |      `main`      | `Src_Game/Core/` & `Combat/`  |    🔥 Cao    |
+| **CV-07** | **7. Tối ưu lại phím di chuyển và Skill** (Tay trái `WASD + Q/E/R/1/2/3`, Tay phải Chuột)         | **Trung Kiên** *(Leader)* |      `Kien`      | `Src_Game/UI/GameCanvas.java` | 🚨 Cấp bách  |
+| **CV-08** | **8. Thêm Vòng Bo sinh tồn** (Thu hẹp dần trên Map & Minimap, đốt máu ngoài bo)                   | **Đức Huy**               |      `Huy`       | `Src_Game/Core/` & `Server/`  | ⭐ Trọng tâm  |
+| **CV-09** | **9. Thêm các Team đối địch & AI Bot** (Tự động bù Bot khi thiếu người, biết chạy bo & đánh nhau) | **Trung Kiên** *(Leader)* |      `Kien`      | `Src_Game/Core/` & `Combat/`  |    🔥 Cao    |
 
 ---
 
