@@ -55,7 +55,6 @@ flowchart LR
     I["Pha Inception<br>(17/10 - 20/10)<br>Khởi tạo & OOA/OOD"] --> E1["Iteration 1<br>(21/10 - 25/10)<br>Core Loop, LPC Render & Server 20Hz"]
     E1 --> E2["Iteration 2<br>(26/10 - 27/10)<br>Android APK, 3 Skill AOV Kéo Thả & Fix Crash"]
     E2 --> C["Iteration 3 & Transition<br>(28/10 - 29/10)<br>4G Cloud Relay, SOLID Refactor & Release v1.0"]
-    C --> E4["Iteration 4 - Elaboration<br>(31/10 - 04/11)<br>Kho kiến thức, Bộ khung AI, OOA/OOD/Design"]
 ```
 
 |    Vòng lặp     |     Thời gian      | Nội dung Công việc Thực hiện                                                                                                                                                                                                                                                                                                                                                                                                     | Sản phẩm Đầu ra (Deliverables)                                                                                                                                                                                                          |     Trạng thái      |
@@ -64,7 +63,6 @@ flowchart LR
 | **Iteration 1** | 21/10 – 25/10/2026 | • Cài đặt trọn vẹn 7 package Java thuần (`core`, `combat`, `render`, `network`, `server`, `persistence`, `ui`).<br>• Hoàn thiện 15/15 Unit Tests kiểm chứng Immutability, State Pattern, Flyweight, Builder, Composite, LERP, SpatialGridAoI.                                                                                                                                                                                    | • Mã nguồn [`Src_Game/`](file:///E:/UML-Patterns-Mastery/Src_Game)<br>• Bộ test [`GameUnitTestSuite.java`](file:///E:/UML-Patterns-Mastery/Tests/GameUnitTestSuite.java)                                                                | **Hoàn thành 100%** |
 | **Iteration 2** | 26/10 – 27/10/2026 | • Phát triển phiên bản di động [`Android_Game/`](file:///E:/UML-Patterns-Mastery/Android_Game) chạy mượt 60 FPS.<br>• Bổ sung 3 kỹ năng phong cách Liên Quân (AOV) có chọn vùng kéo thả định hướng 360° và nút `✖ HỦY CHIÊU`.<br>• Sửa lỗi văng game khi spam đánh thường và lỗi lệch tâm vòng ngắm chiêu.                                                                                                                       | • Bản cài [`build/UmlPatternsMasteryGame.apk`](file:///E:/UML-Patterns-Mastery/build/UmlPatternsMasteryGame.apk)<br>• [`AndroidGameView.java`](file:///E:/UML-Patterns-Mastery/Android_Game/src/com/huce/oop/game/AndroidGameView.java) | **Hoàn thành 100%** |
 | **Iteration 3** | 28/10 – 29/10/2026 | • Tích hợp **Hybrid LAN + Cloud Internet Relay** (`MiniMqttClient`, `CloudServerBridge`) giúp chơi xuyên mạng khác WiFi và 4G.<br>• Tái cấu trúc Clean Code & SOLID cho [`CombatEngine.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/CombatEngine.java) và [`GameCanvas.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/GameCanvas.java).<br>• Chuẩn hóa cấu trúc thư mục và phát hành Release `v1.0.0` trên GitHub. | • [`ISkillAction.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/ISkillAction.java) & 3 lớp Skill<br>• [`QuanLy_DuAn.bat`](file:///E:/UML-Patterns-Mastery/QuanLy_DuAn.bat)                                                      | **Hoàn thành 100%** |
-| **Iteration 4** | 31/10 – 04/11/2026 | • **Tạm dừng code 8 hạng mục mở rộng** để dựng nền tri thức và thiết kế trước (quyết định đêm 31/10).<br>• Ngày 1: Kho kiến thức 5 cuốn sách · Ngày 2: 4 báo cáo tóm tắt (Fowler + Vernon gộp 1) · Ngày 3: Bộ khung thống nhất cho AI + OOA · Ngày 4: OOD + Design, đóng băng thiết kế v1.0.<br>• Làm theo hàng chục prompt nhỏ, mỗi prompt ra 1 file và được duyệt trước khi sang prompt kế tiếp. | • [`05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe.md`](05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe.md) (kế hoạch từng prompt) | **Đang lập kế hoạch** |
 
 ---
 
@@ -147,34 +145,6 @@ flowchart LR
 * **Nội dung thống nhất**:
   1. **Giai đoạn 1 (Đêm 31/10/2026 — Ưu tiên tối cao)**: **Nam** và **Kiên** tập trung hoàn thành 100% việc nâng cấp đồ họa từ **2D lên 2.5D** (gồm Camera 2.5D, Mặt sàn & Trụ 2.5D, Z-Sorting, Nhân vật & Hiệu ứng chiêu thức trục $Z$, kèm nút `[Phím V]` chuyển đổi góc nhìn trực tiếp để chứng minh nguyên lý *Model-View Separation* khi bảo vệ đồ án).
   2. **Giai đoạn 2 (Các ngày tiếp theo)**: Sau khi nền tảng 2.5D đã ổn định trên nhánh `main` và `Kien`, cả nhóm mới triển khai tiếp 8 hạng mục còn lại trên nền 2.5D theo kế hoạch tại [`04_KeHoach_PhanCong_9_HangMuc.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc.md).
-
-  3. **Quyết định bổ sung cuối buổi (23h30 ngày 31/10/2026) — Phát hiện lỗi "AI trôi ngữ cảnh (Context Drift)" làm Code lệch khỏi OOA/OOD đã có & Lập lộ trình 4 ngày (01/11 → 04/11)**:
-     * **Vấn đề cốt lõi được Duy Nam phát hiện**: Ngay từ giai đoạn Inception (17/10 – 26/10), nhóm **ĐÃ LÀM XONG** bộ phân tích OOA ([`Chuong_02_PhanTich_OOA.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/Chuong_02_PhanTich_OOA.md) — 642 dòng), thiết kế OOD ([`Chuong_03_ThietKe_OOD.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/Chuong_03_ThietKe_OOD.md) — 633 dòng), chuyên đề nhân vật LPC ([`BaoCao_ThietKe_NhanVat_OOP_LPC.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/BaoCao_ThietKe_NhanVat_OOP_LPC.md)), 8 bài ghi chú lý thuyết ([`GhiChu_Sach_Larman_Nystrom/`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/GhiChu_Sach_Larman_Nystrom)) và bóc tách 272 file chương sách trong `_Archive_CaNhan/00_Raw_PDF/_Knowledge_Base_*`.
-     * **Tuy nhiên**, khi hội thoại kéo dài và qua nhiều lần sửa nóng (Android, 3 kỹ năng AOV, mạng 4G, 2.5D), **AI bị mất trí nhớ ngữ cảnh (Context Truncation)** và tự ý viết code trong [`Src_Game/`](file:///E:/UML-Patterns-Mastery/Src_Game) **bỏ sót/lệch khỏi chính bản thiết kế OOA/OOD ban đầu của nhóm**:
-       1. Bỏ sót lớp **`GameRoom` (Aggregate Root — Vernon Ch.10)**, trạng thái phòng `RoomStatus (WAITING, ACTIVE, CONCLUDED)` và **`RoomSessionController` (GRASP Controller)** đã thiết kế ở `CO-01`, `CO-05` và mục `2.5.5` — dồn thẳng vào `DedicatedGameServer` và `GameWorld`.
-       2. Bỏ sót lớp **`CharacterStats`** (mục `2.5.2` & `3.5 DCD`) — để các biến `currentHp`, `maxHp`, `defense` rời rạc trong `LivingEntity`.
-       3. Bỏ sót toàn bộ cụm **`UC-03` & `CO-04` (Bùa chú Đa tầng — GoF Composite Pattern)**: chưa cài đặt `IBuff`, `SpeedBuff`, `DamageBuff`, `CompositeBuff` và `LootRune` (đã vẽ chi tiết tại mục `3.3.4` của `Chuong_03_ThietKe_OOD.md`).
-       4. Bỏ sót lớp **`CombatEncounter`** và **`DamageEvent`** (ánh xạ từ `Sale` và `SalesLineItem` của NextGen POS tại mục `2.5.4`).
-       5. Bỏ sót **`PlayerScoreRecord`** trong `MatchSummary` (`CO-05`) và bộ đếm `sequenceNumber` / `lastProcessedSequence` của **Command Pattern (`InputCommand` — `CO-02`)**.
-     * **Giải pháp triệt để trong 4 ngày (01/11 → 04/11/2026)**: Dừng việc code 8 hạng mục mới theo cảm tính; dành 4 ngày thực hiện theo **hàng chục prompt nhỏ có kiểm soát**:
-       * **(1) Chuẩn hóa Kho kiến thức từ 272 file sách đã bóc tách**: hệ thống hóa toàn bộ sách thành thẻ kiến thức có mã tra cứu để AI không bao giờ quên hoặc bịa lý thuyết.
-       * **(2) Làm 4 File Báo cáo Tóm tắt 4 trụ cột sách**: Larman · Nystrom · Glazer & Madhav · Fowler + Vernon (kế thừa và nâng cấp từ 8 file trong `GhiChu_Sach_Larman_Nystrom/`).
-       * **(3) Tạo Bộ khung Thống nhất cho AI (`.agent/rules/` — "Bộ nhớ ngoài vĩnh viễn")**: khóa cứng danh sách Class/Interface của `Chuong_02_PhanTich_OOA.md` & `Chuong_03_ThietKe_OOD.md` vào Rule để mỗi prompt mới AI đều buộc phải đọc và tuân thủ 100%, chấm dứt tình trạng "mất trí nhớ".
-       * **(4) Khớp nối & Mở rộng OOA → OOD → Design cho toàn bộ chức năng**: vừa **khôi phục 6 cụm Class bị lệch giữa `Chuong_02–03` và `Src_Game/`**, vừa thiết kế nối tiếp 9 hạng mục mở rộng (Sảnh chờ chính là `GameRoom WAITING`, Map lớn là `ArenaMap`, 6 Mobs, 4 Hệ Tướng dùng `CharacterStats` + `LpcCharacterBuilder`, Vòng Bo, Team & Bot) thành một bản vẽ thống nhất trước khi code từ 05/11.
-  4. **Cách làm việc**: Khối lượng này cần **siêu nhiều prompt**, tuyệt đối không làm gộp trong 1 lần. Mỗi prompt chỉ làm 1 việc nhỏ, ra 1 file, người phụ trách duyệt xong mới sang prompt kế tiếp. Chi tiết toàn bộ kế hoạch nằm tại [`05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe.md).
-
-### 4.1. Lộ trình 4 ngày (01/11 – 04/11/2026)
-
-| Ngày | Pha | Nội dung chính | Sản phẩm đầu ra | Số prompt (ước tính) |
-| :-: | :-: | :--- | :--- | :-: |
-| **01/11** | A | Kho kiến thức 5 cuốn sách | `Docs_BaoCao/4_KhoKienThuc/` (mục lục + thẻ kiến thức từng chương) | ~30 |
-| **02/11** | B | 4 báo cáo tóm tắt + ma trận Sách → Hạng mục | `Docs_BaoCao/5_BaoCaoTomTat/` | ~13 |
-| **03/11 sáng** | C | Bộ khung thống nhất cho AI (luật, mẫu prompt, template, quy ước, pilot) | `.agent/rules/` + `Docs_BaoCao/6_BoKhungAI/` | ~8 |
-| **03/11 chiều** | D1 | OOA: danh mục chức năng, Use Case, Domain Model, SSD, Contract, FURPS+ | `Docs_BaoCao/7_ThietKe/OOA/` | ~11 |
-| **04/11 sáng** | D2 | OOD: kiến trúc, Sequence, DCD, FSM, giao thức mạng, ánh xạ GRASP/GoF | `Docs_BaoCao/7_ThietKe/OOD/` | ~18 |
-| **04/11 chiều** | D3 | Design: wireframe, bảng số liệu, kế hoạch test, ma trận truy vết, đóng băng v1.0 | `Docs_BaoCao/7_ThietKe/Design/` | ~6 |
-
-> ⚠️ Các số prompt trên là **ước tính**; số thực tế sẽ ghi lại khi từng pha hoàn thành. Nếu trễ tiến độ, nhóm ưu tiên các chương dùng ngay (Pha A) và các hạng mục độ ưu tiên P1 (Pha D) để không chậm việc code từ 05/11.
 
 ---
 

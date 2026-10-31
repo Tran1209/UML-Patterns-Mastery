@@ -13,11 +13,10 @@ flowchart TD
     Root --> F2["📁 2_BaoCao_ChinhThuc_7Chuong<br>(Quyển Báo cáo chính thức nộp Thầy/Cô)"]
     Root --> F3["📁 3_PhuLuc_UML_Va_LyThuyet<br>(Sơ đồ UML chi tiết & Ghi chú sách)"]
 
-    F1 --> N1["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/01_NhatKy_TienDo_Va_SuaLoi|01. Nhật ký Tiến độ & 6 Ca Sửa Lỗi Kỹ Thuật]]"]
+    F1 --> N1["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/01_NhatKy_TienDo_Va_SuaLoi|01. Nhật ký Tiến độ & 5 Ca Sửa Lỗi Kỹ Thuật]]"]
     F1 --> N2["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/02_CamNang_SuaCode_Cho_Nhom|02. Cẩm nang Sửa Code & Mở rộng cho Nhóm]]"]
     F1 --> N3["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/03_HuongDan_Git_Nhom|03. Hướng dẫn Git Nhóm]]"]
     F1 --> N4["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc|04. Kế hoạch Chi tiết 9 Hạng mục Nâng cấp]]"]
-    F1 --> N5["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe|05. Kế hoạch 4 Ngày: Kho Kiến thức, Bộ khung AI & OOA/OOD]]"]
 
     F2 --> C0["[[Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/00_Trang_Bia_BaoCao_HUCE|00. Trang Bìa Báo Cáo HUCE]]"]
     F2 --> C1["[[Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/Chuong_01_PhatBieu_BaiToan|Chương 1: Phát biểu Bài toán & FURPS+]]"]
@@ -44,8 +43,6 @@ flowchart TD
    * Quy chuẩn làm việc chung không xung đột giữa các nhánh `main`, `Kien`, `Huy`.
 4. 📋 **[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc|04_KeHoach_PhanCong_9_HangMuc.md]]**:
    * Bản kế hoạch phân công chi tiết 9 hạng mục nâng cấp (Sảnh chờ, Map lớn đi bộ 5 phút, Đồ họa 2.5D, 6 loại Mobs, 4 Hệ Nhân vật, Phím + Chuột chuẩn MOBA, Vòng Bo sinh tồn, Team đối địch & AI Bot) kèm câu lệnh mẫu cho từng thành viên.
-5. 🗺️ **[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe|05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe.md]]**:
-   * Kế hoạch 4 ngày (01/11 – 04/11/2026) chia theo hàng chục prompt nhỏ: **Pha A (Kho kiến thức 5 sách) $\rightarrow$ Pha B (4 báo cáo tóm tắt) $\rightarrow$ Pha C (Bộ khung thống nhất cho AI) $\rightarrow$ Pha D (OOA $\rightarrow$ OOD $\rightarrow$ Design chi tiết)**.
 
 ---
 
