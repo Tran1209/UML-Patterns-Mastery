@@ -39,15 +39,21 @@ goto MENU
 
 :RUN_PC
 echo.
-echo [DANG KHOI DONG GAME PC...]
-if not exist "build\UmlPatternsMasteryGame.jar" call scripts\build.bat
+echo [DANG BIEN DICH CODE MOI NHAT VA KHOI DONG GAME 2.5D PC...]
+if not exist "build\classes" mkdir "build\classes"
+powershell -Command "Stop-Process -Name java, javaw -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 200; javac -encoding UTF-8 -d build\classes (Get-ChildItem -Path Src_Game, Tests -Recurse -Filter *.java | ForEach-Object { $_.FullName })"
+echo Main-Class: Main> build\manifest.txt
+jar cfm build\UmlPatternsMasteryGame.jar build\manifest.txt -C build\classes .
 start "" javaw -jar build\UmlPatternsMasteryGame.jar
 goto MENU
 
 :DEMO_MULTI
 echo.
-echo [DANG KHOI DONG SERVER 20HZ + 2 CUA SO NGUOI CHOI (KIEN VA NAM)...]
-if not exist "build\UmlPatternsMasteryGame.jar" call scripts\build.bat
+echo [DANG BIEN DICH VA KHOI DONG SERVER 20HZ + 2 CLIENT (KIEN VA NAM)...]
+if not exist "build\classes" mkdir "build\classes"
+powershell -Command "Stop-Process -Name java, javaw -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 200; javac -encoding UTF-8 -d build\classes (Get-ChildItem -Path Src_Game, Tests -Recurse -Filter *.java | ForEach-Object { $_.FullName })"
+echo Main-Class: Main> build\manifest.txt
+jar cfm build\UmlPatternsMasteryGame.jar build\manifest.txt -C build\classes .
 start "Server 20Hz" cmd /c "java -jar build\UmlPatternsMasteryGame.jar --server 7777 & pause"
 timeout /t 1 /nobreak >nul
 start "Player 1 - Trung Kien" javaw -jar build\UmlPatternsMasteryGame.jar --client 127.0.0.1 7777 "Trung Kien"
@@ -56,7 +62,10 @@ goto MENU
 
 :RUN_TESTS
 echo.
-if not exist "build\UmlPatternsMasteryGame.jar" call scripts\build.bat
+if not exist "build\classes" mkdir "build\classes"
+powershell -Command "javac -encoding UTF-8 -d build\classes (Get-ChildItem -Path Src_Game, Tests -Recurse -Filter *.java | ForEach-Object { $_.FullName })"
+echo Main-Class: Main> build\manifest.txt
+jar cfm build\UmlPatternsMasteryGame.jar build\manifest.txt -C build\classes .
 java -jar build\UmlPatternsMasteryGame.jar --test
 echo.
 pause
