@@ -16,6 +16,7 @@ flowchart TD
     F1 --> N1["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/01_NhatKy_TienDo_Va_SuaLoi|01. Nhật ký Tiến độ & 5 Ca Sửa Lỗi Kỹ Thuật]]"]
     F1 --> N2["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/02_CamNang_SuaCode_Cho_Nhom|02. Cẩm nang Sửa Code & Mở rộng cho Nhóm]]"]
     F1 --> N3["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/03_HuongDan_Git_Nhom|03. Hướng dẫn Git Nhóm]]"]
+    F1 --> N4["[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc|04. Kế hoạch Chi tiết 9 Hạng mục Nâng cấp]]"]
 
     F2 --> C0["[[Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/00_Trang_Bia_BaoCao_HUCE|00. Trang Bìa Báo Cáo HUCE]]"]
     F2 --> C1["[[Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/Chuong_01_PhatBieu_BaiToan|Chương 1: Phát biểu Bài toán & FURPS+]]"]
@@ -40,6 +41,8 @@ flowchart TD
    * Bản đồ chỉ dẫn *"Muốn sửa tính năng X thì mở đúng dòng nào của file nào?"* (Chỉnh máu, hồi chiêu, sát thương 3 kỹ năng AOV, thêm quái vật, đổi góc nhìn 3D `[Phím V]`).
 3. 📄 **[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/03_HuongDan_Git_Nhom|03_HuongDan_Git_Nhom.md]]**:
    * Quy chuẩn làm việc chung không xung đột giữa các nhánh `main`, `Kien`, `Huy`.
+4. 📋 **[[Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc|04_KeHoach_PhanCong_9_HangMuc.md]]**:
+   * Bản kế hoạch phân công chi tiết 9 hạng mục nâng cấp (Sảnh chờ, Map lớn đi bộ 5 phút, Đồ họa 2.5D, 6 loại Mobs, 4 Hệ Nhân vật, Phím + Chuột chuẩn MOBA, Vòng Bo sinh tồn, Team đối địch & AI Bot) kèm câu lệnh mẫu cho từng thành viên.
 
 ---
 
