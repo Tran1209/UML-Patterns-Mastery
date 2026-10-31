@@ -120,7 +120,30 @@ flowchart LR
 
 ---
 
-## 4. BẢNG ĐỐI SOÁT LỊCH SỬ GIT COMMIT THỰC TẾ (GIT AUDIT TRAIL)
+### 🛠️ Ca sửa chữa & nâng cấp 6 (Đêm 31/10/2026): Nâng cấp Toàn diện Engine từ 2D lên 2.5D (Thực hiện: Trung Kiên & Duy Nam)
+* **Bối cảnh & Lý do ưu tiên số 1**: Nhóm đề ra 9 hạng mục nâng cấp lớn (thêm Sảnh chờ, mở rộng Map đi bộ 5 phút, nâng cấp 2D lên 2.5D, thêm Mobs, tối ưu Model, thêm Nhân vật, tối ưu Phím/Chuột, thêm Vòng Bo, thêm Team & Bot). Qua phân tích kiến trúc, **Nhóm trưởng Trung Kiên (`KienEsto`)** và **Duy Nam (`Tran1209`)** xác định: **Chuyển đổi hệ quy chiếu từ 2D sang 2.5D phải được làm đầu tiên**, vì mọi đối tượng về sau (Cây cối trên Map lớn, 6 loại Mobs, 4 Hệ Tướng, Vòng Bo và Tia ngắm Chuột) đều phải đặt trong không gian 2.5D $(X, Y, Z)$.
+* **Phân chia công việc Đêm 31/10/2026 giữa Duy Nam và Trung Kiên**:
+  1. **Phần của Duy Nam (`Tran1209` — Nhánh `main`)**:
+     * Nâng cấp [`Camera2D.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Camera2D.java) hỗ trợ hệ trục không gian 3 chiều $(X, Y, Z)$ với phép chiếu nghiêng 2.5D ($\text{pitchTilt} = 0.72$) và hệ số hội tụ chiều sâu `getPerspectiveScale(worldY)`.
+     * Xây dựng [`Arena3DSceneRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/Arena3DSceneRenderer.java) dựng Đài Đấu Trường nổi 2.5D có vách đá sâu ($Z = -85\text{px}$), tường thành ($Z = +46\text{px}$) và 4 Trụ Tháp Cổ Đại 2.5D ($Z = 92\text{px}$).
+     * Cài đặt thuật toán **Z-Sorting (`Painter's Algorithm`)** trong [`GameCanvas.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/GameCanvas.java) sắp xếp thứ tự vẽ theo tọa độ chiều sâu $Y$ để khi nhân vật đi ra sau trụ tháp 2.5D sẽ bị che khuất tự nhiên.
+  2. **Phần của Trung Kiên (`KienEsto` — Nhánh `Kien`)**:
+     * Nâng cấp [`LpcCanvasRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/Render/LpcCanvasRenderer.java) giúp mô hình Nhân vật và Quái vật có bệ đứng hào quang Elip 2.5D dưới mặt đất, bóng đổ nghiêng 2.5D và tự động co giãn kích thước theo độ sâu xa-gần.
+     * Nâng cấp [`DesktopHudRenderer.java`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/DesktopHudRenderer.java): Biến đổi toàn bộ vòng tròn giới hạn tầm chiêu và vòng nổ AoE thành **Elip 2.5D nằm sát mặt đất** kèm **Cột sáng định vị thẳng đứng theo trục $Z$**; hiệu ứng Chiêu 2 bốc lên thành cột lốc xoáy lửa nhiều tầng $Z$, Chiêu 3 có quả cầu thiên thạch rơi từ độ cao $Z = 420\text{px}$ xuống đất.
+     * Hiệu chỉnh phép chiếu ngược cho tia ngắm Chuột (`dy / camera.getPitchTilt()`) để ngắm bắn trên mặt phẳng nghiêng 2.5D chính xác tuyệt đối.
+
+---
+
+## 4. BIÊN BẢN HỌP NHÓM ĐÊM 31/10/2026 (CHỐT LỘ TRÌNH 2 GIAI ĐOẠN)
+* **Thời gian**: 20h30 ngày 31/10/2026
+* **Chủ trì**: Nhóm trưởng **Trung Kiên (`KienEsto`)** & Kiến trúc sư **Duy Nam (`Tran1209`)**
+* **Nội dung thống nhất**:
+  1. **Giai đoạn 1 (Đêm 31/10/2026 — Ưu tiên tối cao)**: **Nam** và **Kiên** tập trung hoàn thành 100% việc nâng cấp đồ họa từ **2D lên 2.5D** (gồm Camera 2.5D, Mặt sàn & Trụ 2.5D, Z-Sorting, Nhân vật & Hiệu ứng chiêu thức trục $Z$, kèm nút `[Phím V]` chuyển đổi góc nhìn trực tiếp để chứng minh nguyên lý *Model-View Separation* khi bảo vệ đồ án).
+  2. **Giai đoạn 2 (Các ngày tiếp theo)**: Sau khi nền tảng 2.5D đã ổn định trên nhánh `main` và `Kien`, cả nhóm mới triển khai tiếp 8 hạng mục còn lại trên nền 2.5D theo kế hoạch tại [`04_KeHoach_PhanCong_9_HangMuc.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc.md).
+
+---
+
+## 5. BẢNG ĐỐI SOÁT LỊCH SỬ GIT COMMIT THỰC TẾ (GIT AUDIT TRAIL)
 
 | Commit Hash | Thời gian | Nội dung Commit (Message) | Phân hệ Tác động Chính |
 |:---:|:---:|:---|:---|
@@ -132,10 +155,11 @@ flowchart LR
 | `04f1ded` | 28/10/2026 | `feat(network): add Hybrid LAN + Cloud Internet Relay (MiniMqttClient & CloudServerBridge)` | `MiniMqttClient.java`, `CloudServerBridge.java`, `NetworkGameClient.java` |
 | `b671af7` | 28/10/2026 | `refactor(combat,ui): apply Strategy/Command pattern and SRP to CombatEngine and GameCanvas` | `ISkillAction.java`, `DashStrikeSkill.java`, `CombatEffects.java`, `DesktopHudRenderer.java` |
 | `97097cf` | 28/10/2026 | `chore(repo): reorganize root folder structure and add unified QuanLy_DuAn.bat launcher` | `QuanLy_DuAn.bat`, `README.md`, `scripts/` |
+| `227e2f5` | 31/10/2026 | `feat(render,docs): upgrade to 2.5D/3D Perspective MOBA Arena and organize Docs_BaoCao` | `Camera2D.java`, `Arena3DSceneRenderer.java`, `LpcCanvasRenderer.java`, `DesktopHudRenderer.java` |
 
 ---
 
-## 5. BẢNG TỰ ĐÁNH GIÁ MỨC ĐỘ ĐÓNG GÓP CUỐI KỲ (PEER CONTRIBUTION AUDIT)
+## 6. BẢNG TỰ ĐÁNH GIÁ MỨC ĐỘ ĐÓNG GÓP CUỐI KỲ (PEER CONTRIBUTION AUDIT)
 
 | STT | Họ và Tên | GitHub Username | Vai trò Phụ trách | Tự Đánh giá (%) | Nhóm Thống nhất (%) | Chữ ký Xác nhận |
 |:---:|:---|:---:|:---|:---:|:---:|:---:|
