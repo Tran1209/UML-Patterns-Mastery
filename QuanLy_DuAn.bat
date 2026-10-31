@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 cd /d "%~dp0"
 title QUAN LY DU AN NHOM 5 - 2D ACTION RPG ARENA (HUCE OOP 2026)
 

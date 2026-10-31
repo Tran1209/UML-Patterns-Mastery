@@ -11,7 +11,7 @@
 | 1 | **Trung Kiên** *(Nhóm trưởng)* | [`KienEsto`](https://github.com/KienEsto) | **Team Leader**, Hạng mục 7 (Tối ưu Phím `WASD + Q/E/R` & Chuột) + Hạng mục 9 (Team Đối Địch & AI Bot) |
 | 2 | **Duy Nam** | [`Tran1209`](https://github.com/Tran1209) | **Lead Architect**, Hạng mục 2 (Map Lớn đi bộ 5 phút `66,000px`) + Hạng mục 6 (4 Hệ Nhân Vật) |
 | 3 | **Nguyễn Đức Huy** | [`duchuy462007`](https://github.com/duchuy462007) | **Network Engineer**, Hạng mục 1 (Sảnh Chờ Chọn Tướng/Team/Bot) + Hạng mục 8 (Vòng Bo Sinh Tồn) |
-| 4 | **Đức Anh** | *(Thành viên)* | **2.5D Graphics Engineer**, Hạng mục 3 (Đồ họa 2.5D & Z-Sorting) + Hạng mục 5 (Tối ưu Model Nhân vật & Mobs) |
+| 4 | **Đức Anh** | [`Alonee-code`](https://github.com/Alonee-code) | **2.5D Graphics Engineer**, Hạng mục 3 (Đồ họa 2.5D & Z-Sorting) + Hạng mục 5 (Tối ưu Model Nhân vật & Mobs) |
 | 5 | **Huy Hoàng** | *(Thành viên)* | **Mobs & QA Engineer**, Hạng mục 4 (Thêm 6 loại Mobs đa dạng & Đồng bộ Server) + 15/15 Unit Tests |
 
 > 📌 **BẢN KẾ HOẠCH CHI TIẾT 9 HẠNG MỤC NÂNG CẤP CHO TỪNG THÀNH VIÊN**:
