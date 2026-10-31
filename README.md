@@ -14,8 +14,9 @@
 | 4 | **Đức Anh** | [`Alonee-code`](https://github.com/Alonee-code) | **2.5D Graphics Engineer**, Hạng mục 3 (Đồ họa 2.5D & Z-Sorting) + Hạng mục 5 (Tối ưu Model Nhân vật & Mobs) |
 | 5 | **Huy Hoàng** | [`HHoang2903`](https://github.com/HHoang2903) | **Mobs & QA Engineer**, Hạng mục 4 (Thêm 6 loại Mobs đa dạng & Đồng bộ Server) + 15/15 Unit Tests |
 
-> 📌 **BẢN KẾ HOẠCH CHI TIẾT 9 HẠNG MỤC NÂNG CẤP CHO TỪNG THÀNH VIÊN**:
-> Xem chi tiết tại 👉 **[`Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc.md`](Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc.md)**
+> 📌 **BẢN KẾ HOẠCH CHI TIẾT CHO TỪNG THÀNH VIÊN**:
+> * 🗺️ **Kế hoạch 4 Ngày (01/11 – 04/11): Kho Kiến Thức $\rightarrow$ 4 Báo Cáo Tóm Tắt $\rightarrow$ Bộ Khung AI $\rightarrow$ Thiết kế OOA/OOD/Design**: **[`Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe.md`](Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/05_KeHoach_4_Ngay_KhoKienThuc_va_ThietKe.md)**
+> * 📋 **Kế hoạch 9 Hạng mục Nâng cấp**: **[`Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc.md`](Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc.md)**
 
 ---
 
