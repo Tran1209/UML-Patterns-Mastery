@@ -14,14 +14,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Bộ vẽ đồ họa Canvas 2D theo chuẩn Universal LPC và cơ chế vẽ dự phòng (Procedural Fallback).
- * Nếu tệp ảnh PNG tồn tại trên đĩa: Thực hiện cắt ghép ảnh ma trận 64x64 siêu tốc (Hardware Blitting).
- * Nếu chưa tải ảnh PNG: Tự động vẽ giả lập mô hình nhân vật Vector/Pixel đa lớp chuẩn LPC
- * (Đảm bảo game luôn chạy mượt mà 100% không bao giờ gặp lỗi thiếu ảnh).
+ * Bộ dựng hình đồ họa Canvas 2.5D (Isometric / Dimetric Depth Projection)
+ * tích hợp chuẩn Universal LPC và mô hình thể tích giả lập 3D (2.5D Volumetric Shading).
+ * 
+ * Các nâng cấp 2.5D cốt lõi:
+ * 1. Hệ thống bóng đổ xiên 2.5D đa lớp (Multi-layer Directional Drop Shadow) theo góc chiếu sáng Tây-Bắc.
+ * 2. Đổ bóng thể tích 3D (Volumetric Shading & Rim Lighting): Giáp ngực vát cạnh 3D (Beveled Plates),
+ *    vũ khí lưỡi vát kim loại phản quang, vệt chém quét 3D theo góc phối cảnh.
+ * 3. Quái vật 2.5D: Slime thạch cầu 3D với điểm sáng gương (Specular Highlight), Orc giáp vai gai 3D,
+ *    Goblin dao găm vát thép nổi.
+ * 4. Thanh máu & Danh hiệu dạng 3D Floating Billboard có bóng đổ tách lớp.
  */
 public class LpcCanvasRenderer {
 
     private static final Map<String, BufferedImage> TEXTURE_CACHE = new HashMap<>();
+    public static final double PROJECTION_RATIO_25D = 0.58; // Tỷ lệ nén trục Y trong phối cảnh 2.5D
 
     public static BufferedImage getTextureImage(LpcSpriteSheet sheet) {
         if (sheet == null || sheet.getAssetPath() == null || sheet.getAssetPath().isEmpty()) return null;
@@ -34,7 +41,7 @@ public class LpcCanvasRenderer {
                 TEXTURE_CACHE.put(path, img);
                 return img;
             } catch (Exception e) {
-                // Ignore fallback to procedural
+                // Fallback to procedural
             }
         }
         return null;
@@ -44,36 +51,17 @@ public class LpcCanvasRenderer {
         return getTextureImage(sheet) != null;
     }
 
-    public static void renderCharacter(Graphics2D g2d, CharacterRenderer renderer, double screenX, double screenY, String nameTag, int currentHp, int maxHp, boolean isPlayer) {
-        renderCharacter(g2d, renderer, screenX, screenY, nameTag, currentHp, maxHp, isPlayer, 1.0);
-    }
-
-    public static void renderCharacter(Graphics2D g2d, CharacterRenderer renderer, double screenX, double screenY, String nameTag, int currentHp, int maxHp, boolean isPlayer, double scale) {
-        AffineTransform saved = g2d.getTransform();
-        if (Math.abs(scale - 1.0) > 0.01) {
-            g2d.translate(screenX, screenY);
-            g2d.scale(scale, scale);
-            g2d.translate(-screenX, -screenY);
-        }
-
-        // Bệ hào quang 2.5D dưới chân nhân vật (MOBA Hero Pedestal Ring & Direction Indicator)
-        Direction dir = renderer.getCurrentDirection();
-        g2d.setColor(isPlayer ? new Color(0, 229, 255, 55) : new Color(255, 180, 0, 55));
-        g2d.fillOval((int) screenX - 24, (int) screenY + 12, 48, 18);
-        g2d.setColor(isPlayer ? new Color(0, 229, 255, 195) : new Color(255, 180, 0, 195));
-        g2d.setStroke(new BasicStroke(2f));
-        g2d.drawOval((int) screenX - 24, (int) screenY + 12, 48, 18);
-        // Mũi tên nhỏ chỉ hướng nhìn trên vòng tròn chân tướng chuẩn Liên Quân
-        int arrowX = (int) screenX + dir.getDirX() * 24;
-        int arrowY = (int) screenY + 21 + dir.getDirY() * 9;
-        g2d.fillOval(arrowX - 3, arrowY - 3, 6, 6);
-        g2d.setStroke(new BasicStroke(1f));
-
+    /**
+     * Dựng hình nhân vật với hiệu ứng chiều sâu 2.5D.
+     */
+    public static void renderCharacter(Graphics2D g2d, CharacterRenderer renderer, double screenX, double screenY,
+                                       String nameTag, int currentHp, int maxHp, boolean isPlayer) {
         CompositeCharacterVisual visual = renderer.getVisual();
+        Direction dir = renderer.getCurrentDirection();
         LpcAnimationType anim = renderer.getCurrentAnimation();
         int frameIdx = renderer.getCurrentFrameIndex();
 
-        // 1. Kiểm tra xem có ảnh kết cấu thật từ Spritesheet không
+        // 1. Kiểm tra ảnh Spritesheet thật
         boolean hasTexture = false;
         List<SpriteLayer> layers = visual.getVisibleLayersSorted();
         for (SpriteLayer layer : layers) {
@@ -83,9 +71,8 @@ public class LpcCanvasRenderer {
             }
         }
 
-        // Vẽ bóng đổ (Drop Shadow) dưới chân nhân vật
-        g2d.setColor(new Color(0, 0, 0, 95));
-        g2d.fillOval((int) screenX - 16, (int) screenY + 16, 32, 11);
+        // --- 2.5D MULTI-LAYER DIRECTIONAL SHADOW (Bóng đổ xiên theo nguồn sáng Tây-Bắc) ---
+        render25DDirectionalShadow(g2d, screenX, screenY, 34, 16);
 
         if (hasTexture) {
             // Vẽ bằng SpriteSheet thật (Painter's Algorithm: Lớp Z thấp vẽ trước, Z cao vẽ sau)
@@ -106,75 +93,127 @@ public class LpcCanvasRenderer {
                 }
             }
         } else {
-            // Vẽ Procedural Vector/Pixel Avatar chuẩn các lớp LPC
-            renderProceduralLpcAvatar(g2d, renderer, screenX, screenY, isPlayer);
+            // Vẽ mô hình thể tích 2.5D giả lập đa lớp chuẩn LPC
+            render25DProceduralLpcAvatar(g2d, renderer, screenX, screenY, isPlayer);
         }
 
-        // 2. Vẽ thanh máu nhỏ (Health Bar) và Tên nhân vật trên đầu
+        // 2. Vẽ thanh máu nhỏ (Health Bar) và Tên nhân vật dạng 3D Billboard trên đầu
         renderOverheadStatus(g2d, screenX, screenY, nameTag, currentHp, maxHp, isPlayer);
-        g2d.setTransform(saved);
     }
 
-    private static void renderProceduralLpcAvatar(Graphics2D g2d, CharacterRenderer renderer, double x, double y, boolean isPlayer) {
+    /**
+     * Vẽ bóng đổ xiên 2.5D đa lớp (Soft Directional Drop Shadow).
+     * Nguồn sáng từ góc Tây-Bắc (Top-Left) làm bóng đổ hơi chếch sang Đông-Nam (Bottom-Right).
+     */
+    public static void render25DDirectionalShadow(Graphics2D g2d, double x, double y, int width, int height) {
+        int shadowX = (int) x - width / 2 + 3;
+        int shadowY = (int) y + 16;
+
+        // Lớp bóng mờ ngoài (Penumbra)
+        g2d.setColor(new Color(0, 0, 0, 45));
+        g2d.fillOval(shadowX - 3, shadowY - 1, width + 6, height + 3);
+
+        // Lớp bóng đậm giữa (Umbra)
+        g2d.setColor(new Color(0, 0, 0, 85));
+        g2d.fillOval(shadowX, shadowY, width, height);
+
+        // Lớp bóng tiếp xúc mặt sàn (Contact Shadow)
+        g2d.setColor(new Color(0, 0, 0, 130));
+        g2d.fillOval((int) x - width / 4 + 2, shadowY + height / 4, width / 2, height / 2);
+    }
+
+    /**
+     * Dựng hình nhân vật theo mô hình thể tích 2.5D (Volumetric Pseudo-3D LPC).
+     */
+    private static void render25DProceduralLpcAvatar(Graphics2D g2d, CharacterRenderer renderer, double x, double y, boolean isPlayer) {
         Direction dir = renderer.getCurrentDirection();
         LpcAnimationType anim = renderer.getCurrentAnimation();
         int frame = renderer.getCurrentFrameIndex();
 
-        // Tính toán độ nhún khi đi bộ (Bobbing effect)
+        // Độ nhún khi di chuyển
         double bobY = (anim == LpcAnimationType.WALK) ? Math.sin(frame * 0.8) * 2.5 : 0;
         double swingAngle = 0.0;
         if (anim == LpcAnimationType.SLASH) {
-            swingAngle = (frame - 2.5) * 0.6; // Động tác chém xoay kiếm
+            swingAngle = (frame - 2.5) * 0.65;
         }
 
         int px = (int) x;
         int py = (int) (y + bobY);
 
-        Color skinColor = isPlayer ? new Color(240, 195, 155) : new Color(130, 185, 120);
-        Color shirtColor = isPlayer ? new Color(45, 115, 195) : new Color(165, 80, 50);
-        Color armorColor = isPlayer ? new Color(190, 200, 215) : new Color(95, 105, 115);
-        Color hairColor = isPlayer ? new Color(90, 50, 30) : new Color(40, 35, 30);
-        Color pantsColor = new Color(55, 60, 70);
+        Color skinColor = isPlayer ? new Color(245, 202, 165) : new Color(135, 190, 125);
+        Color skinShadow = isPlayer ? new Color(205, 155, 120) : new Color(95, 140, 90);
+        Color shirtColor = isPlayer ? new Color(50, 125, 210) : new Color(175, 85, 55);
+        Color shirtShadow = isPlayer ? new Color(30, 80, 145) : new Color(120, 50, 30);
+        Color armorBase = isPlayer ? new Color(195, 205, 220) : new Color(100, 110, 120);
+        Color armorHighlight = isPlayer ? new Color(240, 245, 255) : new Color(155, 165, 175);
+        Color armorShadow = isPlayer ? new Color(130, 140, 155) : new Color(60, 65, 75);
+        Color hairColor = isPlayer ? new Color(95, 55, 32) : new Color(45, 40, 35);
+        Color pantsColor = new Color(55, 60, 72);
+        Color pantsShadow = new Color(35, 40, 48);
 
-        // --- LAYER 1: Chân & Quần (Pants) ---
-        g2d.setColor(pantsColor);
+        // --- LAYER 1: Chân & Quần (2.5D Depth Stride) ---
         int legOffset = (anim == LpcAnimationType.WALK) ? (int) (Math.sin(frame * 1.2) * 5) : 0;
-        g2d.fillRect(px - 8, py + 10, 6, 12 + legOffset);
-        g2d.fillRect(px + 2, py + 10, 6, 12 - legOffset);
+        // Chân sau (tối hơn, tạo chiều sâu xa-gần)
+        g2d.setColor(pantsShadow);
+        g2d.fillRoundRect(px - 9, py + 10, 6, 12 - legOffset, 3, 3);
+        // Chân trước (sáng hơn)
+        g2d.setColor(pantsColor);
+        g2d.fillRoundRect(px + 3, py + 10, 6, 12 + legOffset, 3, 3);
 
-        // --- LAYER 2: Thân & Áo (Torso & Shirt) ---
-        g2d.setColor(shirtColor);
+        // --- LAYER 2: Thân & Áo (2.5D Beveled Shading) ---
+        g2d.setColor(shirtShadow);
         g2d.fillRoundRect(px - 10, py - 4, 20, 16, 6, 6);
+        g2d.setColor(shirtColor);
+        g2d.fillRoundRect(px - 10, py - 4, 16, 14, 6, 6); // Highlight bên trái (hướng ánh sáng)
 
-        // --- LAYER 3: Giáp Ngực (Armor Cuirass) ---
-        g2d.setColor(armorColor);
+        // --- LAYER 3: Giáp Ngực 3D (Beveled Cuirass Plate) ---
+        // Phần thân giáp bóng tối
+        g2d.setColor(armorShadow);
         g2d.fillRoundRect(px - 8, py - 2, 16, 12, 4, 4);
-        g2d.setColor(armorColor.brighter());
-        g2d.drawRoundRect(px - 8, py - 2, 16, 12, 4, 4);
+        // Phần thân giáp chính
+        g2d.setColor(armorBase);
+        g2d.fillRoundRect(px - 8, py - 2, 13, 10, 4, 4);
+        // Gờ phản quang kim loại (Specular Rim Highlight)
+        g2d.setColor(armorHighlight);
+        g2d.drawLine(px - 7, py - 2, px + 2, py - 2);
+        g2d.drawLine(px - 7, py - 2, px - 7, py + 7);
 
-        // --- LAYER 4: Đầu & Mặt (Head & Eyes) ---
-        g2d.setColor(skinColor);
+        // --- LAYER 4: Đầu & Mặt 3D (Cầu phối cảnh) ---
+        g2d.setColor(skinShadow);
         g2d.fillOval(px - 9, py - 22, 18, 18);
+        g2d.setColor(skinColor);
+        g2d.fillOval(px - 9, py - 22, 15, 15); // Highlight hướng sáng phía trên bên trái
 
         // Mắt theo hướng nhìn
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(new Color(25, 25, 30));
         if (dir == Direction.DOWN) {
             g2d.fillRect(px - 5, py - 14, 3, 3);
             g2d.fillRect(px + 2, py - 14, 3, 3);
+            // Ánh mắt (Glint)
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(px - 5, py - 14, 1, 1);
+            g2d.fillRect(px + 2, py - 14, 1, 1);
         } else if (dir == Direction.LEFT) {
             g2d.fillRect(px - 7, py - 14, 3, 3);
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(px - 7, py - 14, 1, 1);
         } else if (dir == Direction.RIGHT) {
             g2d.fillRect(px + 4, py - 14, 3, 3);
-        } // Hướng UP (quay lưng) không vẽ mắt
-
-        // --- LAYER 5: Tóc / Mũ (Hair / Helmet) ---
-        g2d.setColor(hairColor);
-        g2d.fillArc(px - 10, py - 24, 20, 16, 0, 180);
-        if (dir == Direction.UP) {
-            g2d.fillOval(px - 9, py - 22, 18, 14); // Nhìn từ sau thấy trọn tóc
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(px + 4, py - 14, 1, 1);
         }
 
-        // --- LAYER 6: Vũ khí (Weapon) ---
+        // --- LAYER 5: Tóc / Mũ Giáp (Hair / Helmet 3D Volume) ---
+        g2d.setColor(hairColor);
+        g2d.fillArc(px - 10, py - 24, 20, 16, 0, 180);
+        g2d.setColor(hairColor.brighter());
+        g2d.drawArc(px - 9, py - 23, 17, 13, 40, 110); // Ánh sáng đỉnh đầu
+        if (dir == Direction.UP) {
+            g2d.setColor(hairColor);
+            g2d.fillOval(px - 9, py - 22, 18, 14);
+        }
+
+        // --- LAYER 6: Vũ khí 2.5D (Extruded 3D Weapon with Metallic Glint) ---
         AffineTransform oldTransform = g2d.getTransform();
         int weaponHandX = px + (dir == Direction.LEFT ? -12 : 12);
         int weaponHandY = py + 2;
@@ -186,152 +225,189 @@ public class LpcCanvasRenderer {
             g2d.rotate(dir.getRowOffset() * 0.4 - 0.6);
         }
 
-        // Vẽ kiếm sắt
-        g2d.setColor(new Color(130, 90, 40)); // Chuôi kiếm gỗ
+        // Vẽ kiếm sắt thể tích 3D
+        // Bóng dưới chuôi kiếm
+        g2d.setColor(new Color(60, 40, 20));
+        g2d.fillRect(-1, 2, 4, 8);
+        // Chuôi kiếm gỗ phong
+        g2d.setColor(new Color(145, 95, 45));
         g2d.fillRect(-2, 0, 4, 8);
-        g2d.setColor(new Color(220, 190, 50)); // Chắn tay hoàng kim
-        g2d.fillRect(-6, -2, 12, 3);
-        g2d.setColor(new Color(230, 235, 245)); // Lưỡi kiếm bạc
-        g2d.fillRect(-3, -24, 6, 22);
+        // Chắn tay hoàng kim có gờ nổi 3D
+        g2d.setColor(new Color(180, 140, 30));
+        g2d.fillRect(-6, -1, 12, 3);
+        g2d.setColor(new Color(255, 220, 70));
+        g2d.fillRect(-6, -2, 11, 2);
+        // Lưỡi kiếm bạc vát 2 mặt (Dual-tone Beveled Blade)
+        g2d.setColor(new Color(185, 195, 210)); // Mặt khuất bóng
+        g2d.fillRect(0, -26, 3, 24);
+        g2d.setColor(new Color(240, 245, 255)); // Mặt đón sáng
+        g2d.fillRect(-3, -26, 3, 24);
+        // Sống kiếm phát sáng phản quang (Specular Core Line)
         g2d.setColor(Color.WHITE);
-        g2d.drawLine(0, -24, 0, -2); // Sống kiếm phát sáng
+        g2d.drawLine(0, -26, 0, -2);
+
+        // Mũi nhọn kiếm
+        g2d.setColor(Color.WHITE);
+        g2d.fillPolygon(new int[]{-3, 0, 3}, new int[]{-26, -30, -26}, 3);
 
         g2d.setTransform(oldTransform);
     }
 
+    /**
+     * Dựng hình quái vật với hiệu ứng thể tích 2.5D.
+     */
     public static void renderMonster(Graphics2D g2d, Monster monster, double screenX, double screenY) {
-        renderMonster(g2d, monster, screenX, screenY, 1.0);
-    }
-
-    public static void renderMonster(Graphics2D g2d, Monster monster, double screenX, double screenY, double scale) {
         if (!monster.isAlive()) return;
 
-        AffineTransform saved = g2d.getTransform();
-        if (Math.abs(scale - 1.0) > 0.01) {
-            g2d.translate(screenX, screenY);
-            g2d.scale(scale, scale);
-            g2d.translate(-screenX, -screenY);
-        }
-
-        double x = screenX;
-        double y = screenY;
         Direction dir = monster.getFacingDirection();
-
-        // Bệ đỏ 3D & Bóng đổ dưới chân quái vật
-        g2d.setColor(new Color(231, 76, 60, 45));
-        g2d.fillOval((int) x - 18, (int) y + 11, 36, 13);
-        g2d.setColor(new Color(0, 0, 0, 85));
-        g2d.fillOval((int) x - 14, (int) y + 14, 28, 9);
-
         Monster.MonsterType type = monster.getType();
-        int px = (int) x;
-        int py = (int) y;
+        int px = (int) screenX;
+        int py = (int) screenY;
 
         switch (type) {
             case SLIME:
-                // Slime dạng thạch rung rinh
-                g2d.setColor(new Color(50, 205, 50, 220));
-                g2d.fillOval(px - 16, py - 12, 32, 24);
-                g2d.setColor(new Color(144, 238, 144));
-                g2d.fillOval(px - 10, py - 10, 10, 6);
-                // Mắt Slime
-                g2d.setColor(Color.BLACK);
+                // Bóng đổ dẹt dưới chân
+                render25DDirectionalShadow(g2d, screenX, screenY + 4, 36, 14);
+
+                // Thân Slime dạng giọt nước thạch 3D
+                g2d.setColor(new Color(35, 145, 35, 200)); // Lớp đáy bóng
+                g2d.fillOval(px - 16, py - 10, 32, 22);
+                g2d.setColor(new Color(50, 215, 60, 225)); // Lớp chính
+                g2d.fillOval(px - 15, py - 13, 30, 22);
+
+                // Nhân thạch phát sáng bên trong (Internal Core)
+                g2d.setColor(new Color(120, 255, 130, 180));
+                g2d.fillOval(px - 8, py - 8, 16, 12);
+
+                // Điểm sáng phản chiếu gương 3D (3D Specular Reflection)
+                g2d.setColor(new Color(255, 255, 255, 220));
+                g2d.fillOval(px - 10, py - 11, 7, 4);
+
+                // Mắt Slime 3D
+                g2d.setColor(new Color(20, 40, 20));
                 g2d.fillOval(px - 6 + dir.getDirX() * 2, py - 4, 4, 4);
                 g2d.fillOval(px + 3 + dir.getDirX() * 2, py - 4, 4, 4);
+                g2d.setColor(Color.WHITE);
+                g2d.fillRect(px - 6 + dir.getDirX() * 2, py - 4, 1, 1);
+                g2d.fillRect(px + 3 + dir.getDirX() * 2, py - 4, 1, 1);
                 break;
 
             case GOBLIN:
-                // Goblin yêu tinh xanh lá
-                g2d.setColor(new Color(85, 150, 65));
-                g2d.fillOval(px - 10, py - 18, 20, 16); // Đầu
-                // Tai nhọn
-                g2d.fillPolygon(new int[]{px - 10, px - 16, px - 8}, new int[]{py - 14, py - 20, py - 10}, 3);
-                g2d.fillPolygon(new int[]{px + 10, px + 16, px + 8}, new int[]{py - 14, py - 20, py - 10}, 3);
+                render25DDirectionalShadow(g2d, screenX, screenY, 30, 14);
+
+                // Đầu Goblin
+                g2d.setColor(new Color(60, 110, 45)); // Bóng đầu
+                g2d.fillOval(px - 10, py - 18, 20, 16);
+                g2d.setColor(new Color(88, 160, 68)); // Sáng đầu
+                g2d.fillOval(px - 10, py - 18, 16, 14);
+
+                // Tai nhọn 3D
+                g2d.setColor(new Color(88, 160, 68));
+                g2d.fillPolygon(new int[]{px - 10, px - 18, px - 8}, new int[]{py - 14, py - 20, py - 10}, 3);
+                g2d.fillPolygon(new int[]{px + 10, px + 18, px + 8}, new int[]{py - 14, py - 20, py - 10}, 3);
+
                 // Mắt vàng rực
-                g2d.setColor(Color.YELLOW);
+                g2d.setColor(new Color(255, 215, 0));
                 g2d.fillRect(px - 6, py - 12, 3, 3);
                 g2d.fillRect(px + 3, py - 12, 3, 3);
-                // Thân mặc áo da nâu
-                g2d.setColor(new Color(110, 70, 40));
+                g2d.setColor(Color.BLACK);
+                g2d.fillRect(px - 5, py - 12, 1, 3);
+                g2d.fillRect(px + 4, py - 12, 1, 3);
+
+                // Thân áo da nâu 2.5D
+                g2d.setColor(new Color(85, 50, 30));
                 g2d.fillRoundRect(px - 8, py - 2, 16, 14, 4, 4);
-                // Dao găm
-                g2d.setColor(Color.LIGHT_GRAY);
-                g2d.fillRect(px + 8, py + 2, 8, 3);
+                g2d.setColor(new Color(130, 80, 45));
+                g2d.fillRoundRect(px - 8, py - 2, 12, 12, 4, 4);
+
+                // Dao găm kim loại có sống sắc bén
+                g2d.setColor(new Color(80, 85, 95));
+                g2d.fillRect(px + 8, py + 3, 9, 3);
+                g2d.setColor(Color.WHITE);
+                g2d.drawLine(px + 8, py + 3, px + 16, py + 3);
                 break;
 
             case ORC_WARRIOR:
-                // Orc chiến binh to lớn, giáp sắt
-                g2d.setColor(new Color(70, 110, 80));
-                g2d.fillOval(px - 13, py - 24, 26, 20); // Đầu bự
+                render25DDirectionalShadow(g2d, screenX, screenY + 2, 44, 18);
+
+                // Thân giáp sắt nặng 3D vát khối
+                g2d.setColor(new Color(50, 55, 65));
+                g2d.fillRoundRect(px - 14, py - 4, 28, 20, 6, 6);
+                g2d.setColor(new Color(95, 105, 120));
+                g2d.fillRoundRect(px - 13, py - 4, 20, 16, 6, 6);
+
+                // Giáp vai gai nhọn (Heavy Pauldrons)
+                g2d.setColor(new Color(185, 55, 55));
+                g2d.fillOval(px - 18, py - 12, 10, 10);
+                g2d.fillOval(px + 8, py - 12, 10, 10);
+                g2d.setColor(Color.WHITE);
+                g2d.fillPolygon(new int[]{px - 14, px - 18, px - 10}, new int[]{py - 16, py - 10, py - 10}, 3);
+                g2d.fillPolygon(new int[]{px + 14, px + 10, px + 18}, new int[]{py - 16, py - 10, py - 10}, 3);
+
+                // Đầu Orc bự cơ bắp
+                g2d.setColor(new Color(55, 90, 65));
+                g2d.fillOval(px - 13, py - 24, 26, 20);
+                g2d.setColor(new Color(75, 125, 85));
+                g2d.fillOval(px - 13, py - 24, 20, 16);
+
+                // Mắt đỏ ngầu
+                g2d.setColor(Color.RED);
+                g2d.fillRect(px - 6, py - 16, 3, 2);
+                g2d.fillRect(px + 3, py - 16, 3, 2);
+
                 // Răng nanh chìa lên
                 g2d.setColor(Color.WHITE);
                 g2d.fillPolygon(new int[]{px - 6, px - 4, px - 2}, new int[]{py - 8, py - 14, py - 8}, 3);
                 g2d.fillPolygon(new int[]{px + 2, px + 4, px + 6}, new int[]{py - 8, py - 14, py - 8}, 3);
-                // Thân giáp sắt nặng
-                g2d.setColor(new Color(80, 85, 95));
-                g2d.fillRoundRect(px - 12, py - 4, 24, 18, 6, 6);
-                // Rìu chiến khổng lồ
-                g2d.setColor(new Color(180, 50, 50));
-                g2d.fillRect(px + 12, py - 18, 6, 24);
-                g2d.setColor(Color.LIGHT_GRAY);
-                g2d.fillArc(px + 8, py - 22, 16, 16, 0, 180);
+
+                // Rìu chiến khổng lồ 2.5D (Double-edged Battleaxe)
+                g2d.setColor(new Color(90, 50, 30));
+                g2d.fillRect(px + 14, py - 20, 5, 26);
+                g2d.setColor(new Color(140, 150, 165));
+                g2d.fillArc(px + 8, py - 24, 18, 18, 0, 180);
+                g2d.setColor(Color.WHITE);
+                g2d.drawArc(px + 8, py - 24, 18, 18, 0, 180); // Lưỡi rìu sắc bén
                 break;
         }
 
-        // Trạng thái thanh máu quái vật
+        // Trạng thái thanh máu & Tên dạng 3D Overhead Billboard
         renderOverheadStatus(g2d, screenX, screenY, type.displayName, monster.getCurrentHp(), monster.getMaxHp(), false);
-        g2d.setTransform(saved);
     }
 
+    /**
+     * Dựng hình bảng chỉ số trên đầu (Overhead Status Billboard) với độ nổi 2.5D.
+     */
     private static void renderOverheadStatus(Graphics2D g2d, double x, double y, String nameTag, int currentHp, int maxHp, boolean isPlayer) {
-        int barW = isPlayer ? 52 : 38;
-        int barH = isPlayer ? 7 : 5;
+        int barW = 38;
+        int barH = 5;
         int barX = (int) x - barW / 2;
-        int barY = (int) y - 34;
+        int barY = (int) y - 32;
 
-        // Vẽ tên trên đầu
+        // Vẽ tên
         g2d.setFont(new Font("Segoe UI", Font.BOLD, 10));
         FontMetrics fm = g2d.getFontMetrics();
         int nameW = fm.stringWidth(nameTag);
 
-        g2d.setColor(new Color(0, 0, 0, 165));
-        g2d.fillRoundRect((int) x - nameW / 2 - 4, barY - 15, nameW + 8, 13, 4, 4);
-        g2d.setColor(isPlayer ? new Color(110, 245, 255) : new Color(255, 230, 210));
-        g2d.drawString(nameTag, (int) x - nameW / 2, barY - 5);
+        // Nền tên có bóng đổ
+        g2d.setColor(new Color(0, 0, 0, 180));
+        g2d.fillRoundRect((int) x - nameW / 2 - 4, barY - 14, nameW + 8, 12, 4, 4);
+        g2d.setColor(isPlayer ? new Color(0, 240, 255) : Color.WHITE);
+        g2d.drawString(nameTag, (int) x - nameW / 2, barY - 4);
 
-        // Huy hiệu cấp độ [1] bên trái thanh máu chuẩn Liên Quân / LMHT
-        if (isPlayer) {
-            g2d.setColor(new Color(18, 26, 38, 235));
-            g2d.fillRoundRect(barX - 15, barY - 3, 13, 13, 4, 4);
-            g2d.setColor(new Color(230, 190, 90));
-            g2d.drawRoundRect(barX - 15, barY - 3, 13, 13, 4, 4);
-            g2d.setFont(new Font("Segoe UI", Font.BOLD, 9));
-            g2d.setColor(Color.WHITE);
-            g2d.drawString("1", barX - 11, barY + 7);
-        }
-
-        // Khung thanh máu
-        g2d.setColor(new Color(15, 18, 24, 225));
+        // Khung thanh máu có viền 3D dập nổi
+        g2d.setColor(new Color(15, 15, 20, 230));
         g2d.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
-
-        // Lượng máu hiện tại
-        float pct = Math.max(0f, Math.min(1f, (float) currentHp / maxHp));
-        Color hpColor = isPlayer
-                ? (pct > 0.45f ? new Color(46, 213, 115) : (pct > 0.22f ? new Color(255, 165, 2) : new Color(255, 71, 87)))
-                : new Color(235, 65, 65);
-        int fillW = (int) (barW * pct);
-        g2d.setColor(hpColor);
-        g2d.fillRect(barX, barY, fillW, barH);
-
-        // Chia vạch máu (Segmented Ticks chuẩn MOBA Liên Quân / LMHT)
-        int segments = isPlayer ? 5 : 3;
-        g2d.setColor(new Color(10, 14, 18, 175));
-        for (int i = 1; i < segments; i++) {
-            int tickX = barX + (barW * i) / segments;
-            g2d.drawLine(tickX, barY, tickX, barY + barH - 1);
-        }
-
-        g2d.setColor(isPlayer ? new Color(220, 230, 245, 160) : new Color(90, 40, 40, 160));
+        g2d.setColor(new Color(50, 55, 65));
         g2d.drawRect(barX - 1, barY - 1, barW + 2, barH + 2);
+
+        // Lượng máu hiện tại với gradient
+        float pct = Math.max(0f, Math.min(1f, (float) currentHp / maxHp));
+        Color hpColor = pct > 0.5f ? new Color(46, 204, 113) : (pct > 0.25f ? new Color(241, 196, 15) : new Color(231, 76, 60));
+        g2d.setColor(hpColor);
+        g2d.fillRect(barX, barY, (int) (barW * pct), barH);
+
+        // Gờ sáng trên cùng thanh máu
+        g2d.setColor(new Color(255, 255, 255, 90));
+        g2d.drawLine(barX, barY, barX + (int) (barW * pct) - 1, barY);
     }
 }

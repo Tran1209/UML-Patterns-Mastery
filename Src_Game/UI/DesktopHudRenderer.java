@@ -2,7 +2,6 @@ package ui;
 
 import combat.CombatEngine;
 import core.Player;
-import render.Camera2D;
 import render.Direction;
 
 import java.awt.*;
@@ -18,7 +17,7 @@ public final class DesktopHudRenderer {
     public static void renderHUD(Graphics2D g2d, int width, int height, Player player,
                                  String name, int hp, int maxHp, String stateName,
                                  int kills, int wave, int score, int monsterCount,
-                                 int playerCount, int currentFps, boolean isOnline, Camera2D camera) {
+                                 int playerCount, int currentFps, boolean isOnline) {
         int hudX = 20;
         int hudY = 20;
         int barW = 220;
@@ -74,27 +73,18 @@ public final class DesktopHudRenderer {
         int subW = g2d.getFontMetrics().stringWidth(subWave);
         g2d.drawString(subWave, width / 2 - subW / 2, 50);
 
-        // TOP-RIGHT: FPS & 3D Camera Mode Switcher Badge
+        // TOP-RIGHT
         g2d.setFont(new Font("Consolas", Font.BOLD, 12));
+        g2d.setColor(new Color(46, 204, 113));
+        g2d.drawString("🌲 ĐỒ HỌA: 2.5D NATURE ARENA", width - 215, 24);
         g2d.setColor(Color.GREEN);
-        g2d.drawString(currentFps + " FPS (60Hz)", width - 140, 26);
-
-        if (camera != null) {
-            String camBadge = "[Phím V] " + camera.getCameraModeLabel();
-            g2d.setColor(new Color(18, 26, 42, 225));
-            g2d.fillRoundRect(width - 215, 36, 195, 28, 10, 10);
-            g2d.setColor(new Color(0, 225, 255));
-            g2d.drawRoundRect(width - 215, 36, 195, 28, 10, 10);
-            g2d.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            g2d.setColor(new Color(0, 240, 255));
-            g2d.drawString(camBadge, width - 203, 54);
-        }
+        g2d.drawString(currentFps + " FPS (60Hz)", width - 215, 42);
 
         renderSkillBarAndGuide(g2d, width, height, player, isOnline);
     }
 
     private static void renderSkillBarAndGuide(Graphics2D g2d, int width, int height, Player p, boolean isOnline) {
-        String[] skillTitles = {"[1/Q] ⚡ XUNG KÍCH", "[2/E] 🔥 XOÁY LỬA", "[3/F] ☄️ THIÊN PHẠT"};
+        String[] skillTitles = {"[1/U] ⚡ XUNG KÍCH", "[2/I] 🔥 XOÁY LỬA", "[3/O] ☄️ THIÊN PHẠT"};
         String[] skillDescs = {"Lướt + Sát thương", "AoE + Hồi 18 HP", "ULTIMATE + Đẩy lùi"};
         Color[] skillColors = {new Color(0, 188, 212), new Color(255, 111, 0), new Color(170, 0, 255)};
 
@@ -140,8 +130,8 @@ public final class DesktopHudRenderer {
             }
         }
 
-        String guide = isOnline ? "🌐 ĐẤU MẠNG 2.5D: [WASD]: Di chuyển | [Chuột Trái/SPACE]: Đánh | Giữ [Q/E/F] hoặc [1/2/3] để Chọn Vùng | [V]: Đổi góc 2.5D"
-                : "⌨️ GÓC NHÌN MOBA 2.5D: [WASD]: Di chuyển | [Chuột Trái/SPACE]: Đánh | Giữ [Q/E/F] hoặc [1/2/3] Chọn Vùng | [V]: Nghiêng Camera 2D/2.5D";
+        String guide = isOnline ? "🌐 ĐẤU MẠNG: [WASD]: Di chuyển | [SPACE/J]: Đánh | Giữ [1/2/3] hoặc Kéo ô chiêu để Chọn Vùng -> Thả ra để Tung Chiêu!"
+                : "⌨️ CHƠI ĐƠN: [WASD]: Di chuyển | [SPACE/J]: Đánh | Giữ [1/2/3] hoặc Kéo ô chiêu để Chọn Vùng (Chuột phải: Hủy)";
         g2d.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         FontMetrics fm = g2d.getFontMetrics();
         int gW = fm.stringWidth(guide);
@@ -154,7 +144,7 @@ public final class DesktopHudRenderer {
 
     public static void renderSkillTargetIndicator(Graphics2D g2d, double sx, double sy,
                                                   Direction fallbackDir, int activeAimingSkill,
-                                                  double aimX, double aimY, double pitchTilt) {
+                                                  double aimX, double aimY) {
         double mag = Math.hypot(aimX, aimY);
         if (mag < 0.06 && fallbackDir != null) {
             aimX = fallbackDir.getDirX() * (activeAimingSkill == 1 ? 1.0 : 0.55);
@@ -170,31 +160,29 @@ public final class DesktopHudRenderer {
         Color mainColor = (activeAimingSkill == 1) ? new Color(0, 229, 255)
                 : ((activeAimingSkill == 2) ? new Color(255, 145, 0) : new Color(224, 64, 251));
 
+        double ratio = 0.58; // Tỷ lệ phối cảnh 2.5D mặt đất (Ground Plane Compression)
+
         if (activeAimingSkill == 1) {
-            int rangeX = (int) CombatEngine.SKILL1_MAX_RANGE;
-            int rangeY = (int) (rangeX * pitchTilt);
+            int range = (int) CombatEngine.SKILL1_MAX_RANGE;
+            int rangeY = (int) (range * ratio);
             double ux = (mag > 0.01) ? (aimX / mag) : 0.0;
             double uy = (mag > 0.01) ? (aimY / mag) : 1.0;
-            double endX = sx + ux * rangeX;
-            double endY = sy + uy * rangeY;
+            double endX = sx + ux * range;
+            double endY = sy + uy * range * ratio;
 
-            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 25));
-            g2d.fillOval((int) sx - rangeX, (int) sy - rangeY, rangeX * 2, rangeY * 2);
-            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 130));
+            // Vành elip 2.5D giới hạn tầm lướt quanh chân tướng
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 28));
+            g2d.fillOval((int) sx - range, (int) sy - rangeY, range * 2, rangeY * 2);
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 140));
             g2d.setStroke(new BasicStroke(2f));
-            g2d.drawOval((int) sx - rangeX, (int) sy - rangeY, rangeX * 2, rangeY * 2);
+            g2d.drawOval((int) sx - range, (int) sy - rangeY, range * 2, rangeY * 2);
 
-            double dx = endX - sx;
-            double dy = endY - sy;
-            double screenLen = Math.max(1.0, Math.hypot(dx, dy));
-            double sux = dx / screenLen;
-            double suy = dy / screenLen;
-            double px = -suy;
-            double py = sux;
+            double px = -uy;
+            double py = ux * ratio;
             double halfW = 24.0;
-            double headLen = 36.0;
-            double bodyEndX = endX - sux * headLen;
-            double bodyEndY = endY - suy * headLen;
+            double headLen = 34.0;
+            double bodyEndX = endX - ux * headLen;
+            double bodyEndY = endY - uy * headLen * ratio;
 
             Path2D arrow = new Path2D.Double();
             arrow.moveTo(sx + px * halfW, sy + py * halfW);
@@ -206,62 +194,51 @@ public final class DesktopHudRenderer {
             arrow.lineTo(sx - px * halfW, sy - py * halfW);
             arrow.closePath();
 
-            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 85));
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 90));
             g2d.fill(arrow);
-            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 230));
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 235));
             g2d.setStroke(new BasicStroke(3.5f));
             g2d.draw(arrow);
             g2d.setStroke(new BasicStroke(1f));
         } else {
-            int maxRangeX = (int) (activeAimingSkill == 2 ? CombatEngine.SKILL2_MAX_RANGE : CombatEngine.SKILL3_MAX_RANGE);
-            int maxRangeY = (int) (maxRangeX * pitchTilt);
-            int aoeRx = (int) (activeAimingSkill == 2 ? CombatEngine.SKILL2_AOE_RADIUS : CombatEngine.SKILL3_AOE_RADIUS);
-            int aoeRy = (int) (aoeRx * pitchTilt);
-            int targetX = (int) (sx + aimX * maxRangeX);
-            int targetY = (int) (sy + aimY * maxRangeY);
+            int maxRange = (int) (activeAimingSkill == 2 ? CombatEngine.SKILL2_MAX_RANGE : CombatEngine.SKILL3_MAX_RANGE);
+            int maxRangeY = (int) (maxRange * ratio);
+            int aoeRadius = (int) (activeAimingSkill == 2 ? CombatEngine.SKILL2_AOE_RADIUS : CombatEngine.SKILL3_AOE_RADIUS);
+            int aoeRadiusY = (int) (aoeRadius * ratio);
+            int targetX = (int) (sx + aimX * maxRange);
+            int targetY = (int) (sy + aimY * maxRange * ratio);
 
-            // 1. Vòng giới hạn tầm chiêu Elip 3D dưới chân tướng
+            // 1. Vành elip 2.5D tầm thi triển quanh chân
             g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 22));
-            g2d.fillOval((int) sx - maxRangeX, (int) sy - maxRangeY, maxRangeX * 2, maxRangeY * 2);
+            g2d.fillOval((int) sx - maxRange, (int) sy - maxRangeY, maxRange * 2, maxRangeY * 2);
             g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 140));
             g2d.setStroke(new BasicStroke(2f));
-            g2d.drawOval((int) sx - maxRangeX, (int) sy - maxRangeY, maxRangeX * 2, maxRangeY * 2);
+            g2d.drawOval((int) sx - maxRange, (int) sy - maxRangeY, maxRange * 2, maxRangeY * 2);
 
+            // Đường dẫn tia ngắm
             g2d.drawLine((int) sx, (int) sy, targetX, targetY);
 
-            // 2. Vòng nổ AoE Elip 3D trên mặt đất
+            // 2. Vùng nổ AoE dạng hình Elip 2.5D bám mặt đất (2.5D Ground Decal)
             g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 75));
-            g2d.fillOval(targetX - aoeRx, targetY - aoeRy, aoeRx * 2, aoeRy * 2);
-            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 235));
+            g2d.fillOval(targetX - aoeRadius, targetY - aoeRadiusY, aoeRadius * 2, aoeRadiusY * 2);
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 240));
             g2d.setStroke(new BasicStroke(3.5f));
-            g2d.drawOval(targetX - aoeRx, targetY - aoeRy, aoeRx * 2, aoeRy * 2);
+            g2d.drawOval(targetX - aoeRadius, targetY - aoeRadiusY, aoeRadius * 2, aoeRadiusY * 2);
 
-            // 3. Cột Sáng Định Vị 3D (3D Vertical Targeting Light Cylinder) dựng thẳng đứng trên tâm vùng chọn
-            if (pitchTilt < 0.95) {
-                int beamH = 140;
-                GradientPaint beamGrad = new GradientPaint(
-                        targetX, targetY - beamH, new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 0),
-                        targetX, targetY, new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 95)
-                );
-                g2d.setPaint(beamGrad);
-                int bw = (int) (aoeRx * 0.35);
-                g2d.fillRect(targetX - bw, targetY - beamH, bw * 2, beamH);
+            // 3. Cột sáng chỉ điểm 3D (Vertical Light Beam along Z-axis)
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 45));
+            g2d.fillRect(targetX - 8, targetY - 60, 16, 60);
+            g2d.setColor(new Color(mainColor.getRed(), mainColor.getGreen(), mainColor.getBlue(), 160));
+            g2d.drawLine(targetX, targetY, targetX, targetY - 60);
 
-                // Vòng khóa mục tiêu lơ lửng trên không (Z = 45)
-                int ringUpRx = (int) (aoeRx * 0.65);
-                int ringUpRy = (int) (aoeRy * 0.65);
-                g2d.setColor(new Color(255, 245, 180, 175));
-                g2d.setStroke(new BasicStroke(1.8f));
-                g2d.drawOval(targetX - ringUpRx, targetY - 45 - ringUpRy, ringUpRx * 2, ringUpRy * 2);
-            }
-
+            // Vòng tâm elip 2.5D bên trong
             g2d.setColor(new Color(255, 245, 180, 200));
             g2d.setStroke(new BasicStroke(1.8f));
-            int innerRx = (int) (aoeRx * 0.45);
-            int innerRy = (int) (aoeRy * 0.45);
+            int innerRx = (int) (aoeRadius * 0.45);
+            int innerRy = (int) (innerRx * ratio);
             g2d.drawOval(targetX - innerRx, targetY - innerRy, innerRx * 2, innerRy * 2);
             g2d.drawLine(targetX - 16, targetY, targetX + 16, targetY);
-            g2d.drawLine(targetX, targetY - 12, targetX, targetY + 12);
+            g2d.drawLine(targetX, targetY - 10, targetX, targetY + 10);
             g2d.setStroke(new BasicStroke(1f));
         }
     }
