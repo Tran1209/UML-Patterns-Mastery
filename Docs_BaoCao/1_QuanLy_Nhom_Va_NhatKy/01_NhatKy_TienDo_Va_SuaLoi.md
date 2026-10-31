@@ -23,8 +23,8 @@ Nhật ký dự án (Work Log & Engineering Audit Trail) là tài liệu đối 
 | **1** | **Trung Kiên** *(Trưởng nhóm)* |                 [`KienEsto`](https://github.com/KienEsto)                 | **Team Leader & Combat Systems Architect**         | **Craig Larman** (*Applying UML & Patterns*) & **Robert Nystrom** (*Game Programming Patterns*) | • Điều phối chung tiến độ & Phê duyệt thiết kế<br>• `Src_Game/Combat/` (`CombatEngine`, `ISkillAction`, 3 kỹ năng AOV kéo thả, `Hitbox`, `SpatialGridAoI`)<br>• Tái cấu trúc Clean Code & SOLID (Strategy/Command Pattern)    |
 | **2** | **Duy Nam**                    |                 [`Tran1209`](https://github.com/Tran1209)                 | **Lead Software Architect & Core/Mobile Engineer** | **Craig Larman** (*OOAD*), **Vaughn Vernon** (*IDDD*)                                           | • Quản trị kho chứa Git & Kiến trúc Đa nền tảng<br>• `Src_Game/Core/` (`LivingEntity`, `Player`, `Monster`, `IPlayerState` FSM, `GameWorld`)<br>• `Android_Game/` (Tích hợp cảm ứng đa điểm Multi-Touch & APK Build Pipeline) |
 | **3** | **Nguyễn Đức Huy**             | [`nguyenduchuy20070406-oss`](https://github.com/nguyenduchuy20070406-oss) | **Network & Distributed Systems Engineer**         | **Joshua Glazer & Sanjay Madhav** (*Multiplayer Game Programming*)                              | • `Src_Game/Server/` (`DedicatedGameServer` 20Hz Authoritative)<br>• `Src_Game/Network/` (`NetworkGameClient`, `SnapshotInterpolator` LERP, `LanDiscovery` UDP, `MiniMqttClient` & `CloudServerBridge` 4G Relay)              |
-| **4** | **Đức Anh**                    |                 [`Alonee-code`](https://github.com/Alonee-code)                 | **Client Graphics, Camera & UX Engineer**          | **Robert Nystrom** (*Double Buffer, Flyweight*) & **GoF**                                       | • `Src_Game/Render/` (`Camera2D`, `LpcSpriteSheet` Flyweight, `CompositeCharacterVisual`, `LpcCharacterBuilder`)<br>• `Src_Game/UI/` (`GameWindow`, `LobbyPanel`, `GameCanvas`, `DesktopHudRenderer`, `HudObserver`)          |
-| **5** | **Huy Hoàng**                  |                              *(Thành viên)*                               | **Data Persistence & QA/QC Test Engineer**         | **Martin Fowler** (*PoEAA*) & **SOLID Principles**                                              | • `Src_Game/Persistence/` (`IMatchRepository`, `JsonFileMatchRepository`, `MatchSummary`)<br>• `Tests/` (`GameUnitTestSuite.java` — 15/15 kịch bản kiểm thử tự động)                                                          |
+| **4** | **Đức Anh**                    |              [`Alonee-code`](https://github.com/Alonee-code)              | **Client Graphics, Camera & UX Engineer**          | **Robert Nystrom** (*Double Buffer, Flyweight*) & **GoF**                                       | • `Src_Game/Render/` (`Camera2D`, `LpcSpriteSheet` Flyweight, `CompositeCharacterVisual`, `LpcCharacterBuilder`)<br>• `Src_Game/UI/` (`GameWindow`, `LobbyPanel`, `GameCanvas`, `DesktopHudRenderer`, `HudObserver`)          |
+| **5** | **Huy Hoàng**                  |                 [`HHoang2903`](https://github.com/HHoang2903)                 | **Data Persistence & QA/QC Test Engineer**         | **Martin Fowler** (*PoEAA*) & **SOLID Principles**                                              | • `Src_Game/Persistence/` (`IMatchRepository`, `JsonFileMatchRepository`, `MatchSummary`)<br>• `Tests/` (`GameUnitTestSuite.java` — 15/15 kịch bản kiểm thử tự động)                                                          |
 
 ---
 
@@ -150,26 +150,26 @@ flowchart LR
 
 ## 5. BẢNG ĐỐI SOÁT LỊCH SỬ GIT COMMIT THỰC TẾ (GIT AUDIT TRAIL)
 
-| Commit Hash | Thời gian | Nội dung Commit (Message) | Phân hệ Tác động Chính |
-|:---:|:---:|:---|:---|
-| `7491f6f` | 17/10/2026 | `feat: initial commit - project architecture, report notes and git guide` | Khởi tạo kiến trúc & Tài liệu OOAD |
-| `02b5330` | 19/10/2026 | `feat: add section 1 report draft and team module folders in Src_Game` | `Docs_BaoCao/`, khung 7 package `Src_Game/` |
-| `e6593a1` | 26/10/2026 | `feat: complete 7-chapter OOP report, full Java implementation & 15/15 unit tests` | Toàn bộ `Src_Game/`, `Tests/`, `Docs_BaoCao/` |
-| `a2a3b4e` | 27/10/2026 | `feat(combat,android): add 3 AOV drag-and-drop skills and fix ConcurrentModificationException` | `CombatEngine.java`, `AndroidGameView.java` |
-| `6b47685` | 27/10/2026 | `fix(render,ui): lock Camera2D center-follow and anchor skill indicator to local hero` | `Camera2D.java`, `AndroidGameView.java`, `GameCanvas.java` |
-| `04f1ded` | 28/10/2026 | `feat(network): add Hybrid LAN + Cloud Internet Relay (MiniMqttClient & CloudServerBridge)` | `MiniMqttClient.java`, `CloudServerBridge.java`, `NetworkGameClient.java` |
-| `b671af7` | 28/10/2026 | `refactor(combat,ui): apply Strategy/Command pattern and SRP to CombatEngine and GameCanvas` | `ISkillAction.java`, `DashStrikeSkill.java`, `CombatEffects.java`, `DesktopHudRenderer.java` |
-| `97097cf` | 28/10/2026 | `chore(repo): reorganize root folder structure and add unified QuanLy_DuAn.bat launcher` | `QuanLy_DuAn.bat`, `README.md`, `scripts/` |
-| `227e2f5` | 31/10/2026 | `feat(render,docs): upgrade to 2.5D/3D Perspective MOBA Arena and organize Docs_BaoCao` | `Camera2D.java`, `Arena3DSceneRenderer.java`, `LpcCanvasRenderer.java`, `DesktopHudRenderer.java` |
+| Commit Hash | Thời gian  | Nội dung Commit (Message)                                                                      | Phân hệ Tác động Chính                                                                            |
+| :---------: | :--------: | :--------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
+|  `7491f6f`  | 17/10/2026 | `feat: initial commit - project architecture, report notes and git guide`                      | Khởi tạo kiến trúc & Tài liệu OOAD                                                                |
+|  `02b5330`  | 19/10/2026 | `feat: add section 1 report draft and team module folders in Src_Game`                         | `Docs_BaoCao/`, khung 7 package `Src_Game/`                                                       |
+|  `e6593a1`  | 26/10/2026 | `feat: complete 7-chapter OOP report, full Java implementation & 15/15 unit tests`             | Toàn bộ `Src_Game/`, `Tests/`, `Docs_BaoCao/`                                                     |
+|  `a2a3b4e`  | 27/10/2026 | `feat(combat,android): add 3 AOV drag-and-drop skills and fix ConcurrentModificationException` | `CombatEngine.java`, `AndroidGameView.java`                                                       |
+|  `6b47685`  | 27/10/2026 | `fix(render,ui): lock Camera2D center-follow and anchor skill indicator to local hero`         | `Camera2D.java`, `AndroidGameView.java`, `GameCanvas.java`                                        |
+|  `04f1ded`  | 28/10/2026 | `feat(network): add Hybrid LAN + Cloud Internet Relay (MiniMqttClient & CloudServerBridge)`    | `MiniMqttClient.java`, `CloudServerBridge.java`, `NetworkGameClient.java`                         |
+|  `b671af7`  | 28/10/2026 | `refactor(combat,ui): apply Strategy/Command pattern and SRP to CombatEngine and GameCanvas`   | `ISkillAction.java`, `DashStrikeSkill.java`, `CombatEffects.java`, `DesktopHudRenderer.java`      |
+|  `97097cf`  | 28/10/2026 | `chore(repo): reorganize root folder structure and add unified QuanLy_DuAn.bat launcher`       | `QuanLy_DuAn.bat`, `README.md`, `scripts/`                                                        |
+|  `227e2f5`  | 31/10/2026 | `feat(render,docs): upgrade to 2.5D/3D Perspective MOBA Arena and organize Docs_BaoCao`        | `Camera2D.java`, `Arena3DSceneRenderer.java`, `LpcCanvasRenderer.java`, `DesktopHudRenderer.java` |
 
 ---
 
 ## 6. BẢNG TỰ ĐÁNH GIÁ MỨC ĐỘ ĐÓNG GÓP CUỐI KỲ (PEER CONTRIBUTION AUDIT)
 
-| STT | Họ và Tên | GitHub Username | Vai trò Phụ trách | Tự Đánh giá (%) | Nhóm Thống nhất (%) | Chữ ký Xác nhận |
-|:---:|:---|:---:|:---|:---:|:---:|:---:|
-| **1** | **Trung Kiên** *(Trưởng nhóm)* | `KienEsto` | Team Leader & Combat Systems Architect | 100% | 100% | *(Ký tên)* |
-| **2** | **Duy Nam** | `Tran1209` | Lead Architect, Core Domain & Android Port | 100% | 100% | *(Ký tên)* |
-| **3** | **Nguyễn Đức Huy** | `nguyenduchuy20070406-oss` | Network & Hybrid LAN/4G Server Engineer | 100% | 100% | *(Ký tên)* |
-| **4** | **Đức Anh** | [`Alonee-code`](https://github.com/Alonee-code) | Client 2D Graphics, Camera2D & HUD UX | 100% | 100% | *(Ký tên)* |
-| **5** | **Huy Hoàng** | *(Thành viên)* | JSON Persistence & 15/15 Unit Tests QA | 100% | 100% | *(Ký tên)* |
+|  STT  | Họ và Tên                      |                 GitHub Username                 | Vai trò Phụ trách                          | Tự Đánh giá (%) | Nhóm Thống nhất (%) | Chữ ký Xác nhận |
+| :---: | :----------------------------- | :---------------------------------------------: | :----------------------------------------- | :-------------: | :-----------------: | :-------------: |
+| **1** | **Trung Kiên** *(Trưởng nhóm)* |                   `KienEsto`                    | Team Leader & Combat Systems Architect     |      100%       |        100%         |   *(Ký tên)*    |
+| **2** | **Duy Nam**                    |                   `Tran1209`                    | Lead Architect, Core Domain & Android Port |      100%       |        100%         |   *(Ký tên)*    |
+| **3** | **Nguyễn Đức Huy**             |           `nguyenduchuy20070406-oss`            | Network & Hybrid LAN/4G Server Engineer    |      100%       |        100%         |   *(Ký tên)*    |
+| **4** | **Đức Anh**                    | [`Alonee-code`](https://github.com/Alonee-code) | Client 2D Graphics, Camera2D & HUD UX      |      100%       |        100%         |   *(Ký tên)*    |
+| **5** | **Huy Hoàng**                  | [`HHoang2903`](https://github.com/HHoang2903) | JSON Persistence & 15/15 Unit Tests QA     |      100%       |        100%         |   *(Ký tên)*    |

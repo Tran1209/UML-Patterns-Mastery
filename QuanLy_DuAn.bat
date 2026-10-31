@@ -117,24 +117,42 @@ echo ===========================================================================
 echo          QUAN LY NHANH LAM VIEC NHOM (GIT BRANCH WORKFLOW)
 echo          Nhanh hien tai cua may nay: [%CUR_BRANCH%]
 echo ===============================================================================
-echo   [1] Chuyen sang nhanh [Kien] (Danh cho Nhom truong Kien lam viec)
-echo   [2] Chuyen ve nhanh chinh [main]
-echo   [3] Gop code tu nhanh [Kien] vao nhanh chinh [main] (Merge Kien vao main)
-echo   [4] Cap nhat code moi nhat tu nhanh [main] sang nhanh [Kien]
-echo   [5] Chuyen sang nhanh [Huy] (Danh cho Duc Huy lam viec)
-echo   [6] Gop code tu nhanh [Huy] vao nhanh chinh [main] (Merge Huy vao main)
+echo   --- CHUYEN NHANH LAM VIEC ---
+echo   [1] Chuyen sang nhanh [Kien]  (Nhom truong Kien)
+echo   [2] Chuyen sang nhanh [Huy]   (Duc Huy)
+echo   [3] Chuyen sang nhanh [Anh]   (Duc Anh)
+echo   [4] Chuyen sang nhanh [Hoang] (Huy Hoang)
+echo   [5] Chuyen ve nhanh chinh [main]
+echo   --- GOP CODE VAO NHANH CHINH (MERGE) ---
+echo   [6] Gop code tu nhanh [Kien]  vao [main]
+echo   [7] Gop code tu nhanh [Huy]   vao [main]
+echo   [8] Gop code tu nhanh [Anh]   vao [main]
+echo   [9] Gop code tu nhanh [Hoang] vao [main]
+echo   --- DONG BO CODE MOI NHAT TU [main] SANG NHANH CON ---
+echo   [10] Dong bo tu [main] sang [Kien]
+echo   [11] Dong bo tu [main] sang [Huy]
+echo   [12] Dong bo tu [main] sang [Anh]
+echo   [13] Dong bo tu [main] sang [Hoang]
 echo   [0] Quay lai Menu chinh
 echo ===============================================================================
 set "BCHOICE="
-set /p "BCHOICE=Chon thao tac nhanh (0-6): "
+set /p "BCHOICE=Chon thao tac nhanh (0-13): "
 if not defined BCHOICE goto MENU
 set "BCHOICE=%BCHOICE: =%"
 if "%BCHOICE%"=="1" goto BR_KIEN
-if "%BCHOICE%"=="2" goto BR_MAIN
-if "%BCHOICE%"=="3" goto BR_MERGE_KIEN
-if "%BCHOICE%"=="4" goto BR_SYNC_KIEN
-if "%BCHOICE%"=="5" goto BR_HUY
-if "%BCHOICE%"=="6" goto BR_MERGE_HUY
+if "%BCHOICE%"=="2" goto BR_HUY
+if "%BCHOICE%"=="3" goto BR_ANH
+if "%BCHOICE%"=="4" goto BR_HOANG
+if "%BCHOICE%"=="5" goto BR_MAIN
+if "%BCHOICE%"=="6" goto BR_MERGE_KIEN
+if "%BCHOICE%"=="7" goto BR_MERGE_HUY
+if "%BCHOICE%"=="8" goto BR_MERGE_ANH
+if "%BCHOICE%"=="9" goto BR_MERGE_HOANG
+if "%BCHOICE%"=="10" goto BR_SYNC_KIEN
+if "%BCHOICE%"=="11" goto BR_SYNC_HUY
+if "%BCHOICE%"=="12" goto BR_SYNC_ANH
+if "%BCHOICE%"=="13" goto BR_SYNC_HOANG
+if "%BCHOICE%"=="0" goto MENU
 goto MENU
 
 :BR_KIEN
@@ -142,6 +160,30 @@ git fetch --all
 git checkout Kien 2>nul || git checkout -b Kien origin/Kien
 git pull origin Kien --no-edit
 echo [THANH CONG] Da chuyen sang nhanh [Kien]!
+pause
+goto MENU
+
+:BR_HUY
+git fetch --all
+git checkout Huy 2>nul || git checkout -b Huy origin/Huy
+git pull origin Huy --no-edit
+echo [THANH CONG] Da chuyen sang nhanh [Huy]!
+pause
+goto MENU
+
+:BR_ANH
+git fetch --all
+git checkout Anh 2>nul || git checkout -b Anh origin/Anh
+git pull origin Anh --no-edit
+echo [THANH CONG] Da chuyen sang nhanh [Anh]!
+pause
+goto MENU
+
+:BR_HOANG
+git fetch --all
+git checkout Hoang 2>nul || git checkout -b Hoang origin/Hoang
+git pull origin Hoang --no-edit
+echo [THANH CONG] Da chuyen sang nhanh [Hoang]!
 pause
 goto MENU
 
@@ -164,6 +206,39 @@ echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Kien] vao [main]!
 pause
 goto MENU
 
+:BR_MERGE_HUY
+echo Dang keo code moi nhat tu nhanh [Huy] gop vao [main]...
+git fetch --all
+git checkout main
+git pull origin main --no-edit
+git merge origin/Huy -m "merge: gop nhanh Huy vao main"
+git push origin main
+echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Huy] vao [main]!
+pause
+goto MENU
+
+:BR_MERGE_ANH
+echo Dang keo code moi nhat tu nhanh [Anh] gop vao [main]...
+git fetch --all
+git checkout main
+git pull origin main --no-edit
+git merge origin/Anh -m "merge: gop nhanh Anh vao main"
+git push origin main
+echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Anh] vao [main]!
+pause
+goto MENU
+
+:BR_MERGE_HOANG
+echo Dang keo code moi nhat tu nhanh [Hoang] gop vao [main]...
+git fetch --all
+git checkout main
+git pull origin main --no-edit
+git merge origin/Hoang -m "merge: gop nhanh Hoang vao main"
+git push origin main
+echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Hoang] vao [main]!
+pause
+goto MENU
+
 :BR_SYNC_KIEN
 echo Dang dong bo code moi nhat tu [main] sang [Kien]...
 git fetch --all
@@ -174,32 +249,32 @@ echo [THANH CONG] Nhanh [Kien] da co code moi nhat tu [main]!
 pause
 goto MENU
 
-:BR_CUSTOM
-set "NEW_BR="
-set /p "NEW_BR=Nhap ten nhanh muon chuyen/tao (vi du: Huy): "
-if not "%NEW_BR%"=="" (
-    git fetch --all
-    git checkout %NEW_BR% 2>nul || git checkout -b %NEW_BR%
-    git push -u origin %NEW_BR%
-)
-pause
-goto MENU
-
-:BR_HUY
+:BR_SYNC_HUY
+echo Dang dong bo code moi nhat tu [main] sang [Huy]...
 git fetch --all
 git checkout Huy 2>nul || git checkout -b Huy origin/Huy
-git pull origin Huy --no-edit
-echo [THANH CONG] Da chuyen sang nhanh [Huy]!
+git merge origin/main -m "merge: cap nhat main vao nhanh Huy"
+git push origin Huy
+echo [THANH CONG] Nhanh [Huy] da co code moi nhat tu [main]!
 pause
 goto MENU
 
-:BR_MERGE_HUY
-echo Dang keo code moi nhat tu nhanh [Huy] gop vao [main]...
+:BR_SYNC_ANH
+echo Dang dong bo code moi nhat tu [main] sang [Anh]...
 git fetch --all
-git checkout main
-git pull origin main --no-edit
-git merge origin/Huy -m "merge: gop nhanh Huy vao main"
-git push origin main
-echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Huy] vao [main]!
+git checkout Anh 2>nul || git checkout -b Anh origin/Anh
+git merge origin/main -m "merge: cap nhat main vao nhanh Anh"
+git push origin Anh
+echo [THANH CONG] Nhanh [Anh] da co code moi nhat tu [main]!
+pause
+goto MENU
+
+:BR_SYNC_HOANG
+echo Dang dong bo code moi nhat tu [main] sang [Hoang]...
+git fetch --all
+git checkout Hoang 2>nul || git checkout -b Hoang origin/Hoang
+git merge origin/main -m "merge: cap nhat main vao nhanh Hoang"
+git push origin Hoang
+echo [THANH CONG] Nhanh [Hoang] da co code moi nhat tu [main]!
 pause
 goto MENU

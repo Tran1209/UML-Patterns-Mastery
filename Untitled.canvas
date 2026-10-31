@@ -1,0 +1,19 @@
+{
+	"nodes":[
+		{"id":"45cef3de82b560dd","type":"group","x":-520,"y":-220,"width":949,"height":261,"label":"Riêng nhóm"},
+		{"id":"b01e453ca3a57bdc","type":"text","text":"Code tới đâu tối ưu đến đó","x":-180,"y":-200,"width":250,"height":60},
+		{"id":"8ae2fc5ddbb176cb","type":"text","text":"Làm từng chức năng 1","x":-500,"y":-200,"width":250,"height":60},
+		{"id":"809213eced6211b7","type":"text","text":"Có bản thiết toàn bộ chức năng","x":-16,"y":-40,"width":169,"height":60},
+		{"id":"9acc490c7a0dc56a","type":"text","text":"Tách biệt logic","x":-250,"y":-40,"width":147,"height":60},
+		{"id":"45bd881af61d0264","type":"text","text":"Cập nhật liên tục","x":244,"y":-39,"width":165,"height":60},
+		{"id":"5ccf23f7dda24ef9","type":"text","text":"Có màn ","x":-500,"y":160,"width":250,"height":60},
+		{"id":"55e24005d9351bd6","x":-500,"y":320,"width":250,"height":60,"type":"text","text":"Nên có bộ quy tắc"}
+	],
+	"edges":[
+		{"id":"e7e53462afa972a7","fromNode":"b01e453ca3a57bdc","fromSide":"left","toNode":"8ae2fc5ddbb176cb","toSide":"right"},
+		{"id":"0bc4edd7894af32c","fromNode":"8ae2fc5ddbb176cb","fromSide":"right","toNode":"b01e453ca3a57bdc","toSide":"left"},
+		{"id":"26a5c5d639b8ce22","fromNode":"b01e453ca3a57bdc","fromSide":"bottom","toNode":"9acc490c7a0dc56a","toSide":"top"},
+		{"id":"f35242e47bfe1914","fromNode":"b01e453ca3a57bdc","fromSide":"bottom","toNode":"809213eced6211b7","toSide":"top"},
+		{"id":"c4b860d30c1f5a08","fromNode":"809213eced6211b7","fromSide":"right","toNode":"45bd881af61d0264","toSide":"left"}
+	]
+}
