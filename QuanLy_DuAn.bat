@@ -1,52 +1,27 @@
 @echo off
 cd /d "%~dp0"
-title QUAN LY DU AN NHOM 5 - 2D ACTION RPG ARENA (HUCE OOP 2026)
+title QUAN LY DU AN - HUY HOANG (MOBS & QA ENGINEER) - NHOM 5
+
+set "MY_BRANCH=Hoang"
+set "MY_NAME=Huy Hoang"
+set "MY_EMAIL=HHoang2903@users.noreply.github.com"
+set "MY_ROLE=HHoang2903 - Mobs & QA Engineer"
 
 :MENU
 cls
-set "CUR_BRANCH="
-for /f "tokens=*" %%b in ('git branch --show-current 2^>nul') do set "CUR_BRANCH=%%b"
-if "%CUR_BRANCH%"=="" for /f "tokens=*" %%b in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CUR_BRANCH=%%b"
-if "%CUR_BRANCH%"=="" set "CUR_BRANCH=main"
-
-set "OWNER_NAME=Duy Nam"
-set "OWNER_EMAIL=oknha278@gmail.com"
-set "OWNER_ROLE=Tran1209 - Lead Architect / Core"
-
-if /i "%CUR_BRANCH%"=="Kien" (
-    set "OWNER_NAME=Trung Kien"
-    set "OWNER_EMAIL=kienesto@huce.edu.vn"
-    set "OWNER_ROLE=KienEsto - Team Leader / Combat"
-)
-if /i "%CUR_BRANCH%"=="Huy" (
-    set "OWNER_NAME=Nguyen Duc Huy"
-    set "OWNER_EMAIL=nguyenduchuy20070406-oss@users.noreply.github.com"
-    set "OWNER_ROLE=duchuy462007 - Network Engineer"
-)
-if /i "%CUR_BRANCH%"=="Anh" (
-    set "OWNER_NAME=Duc Anh"
-    set "OWNER_EMAIL=Alonee-code@users.noreply.github.com"
-    set "OWNER_ROLE=Alonee-code - 2.5D Graphics Engineer"
-)
-if /i "%CUR_BRANCH%"=="Hoang" (
-    set "OWNER_NAME=Huy Hoang"
-    set "OWNER_EMAIL=HHoang2903@users.noreply.github.com"
-    set "OWNER_ROLE=HHoang2903 - Mobs & QA Engineer"
-)
-
 echo ===============================================================================
 echo          HE THONG QUAN LY DO AN OOP - 2D ACTION RPG ARENA (NHOM 5)
-echo          Nhanh Git hien tai: [%CUR_BRANCH%] - %OWNER_NAME% (%OWNER_ROLE%)
+echo          Thanh vien : %MY_NAME% (%MY_ROLE%)
+echo          Nhanh Git  : [%MY_BRANCH%] (Khong gian lam viec rieng cua %MY_NAME%)
 echo ===============================================================================
 echo   [1] Chay game tren PC (Bien dich va khoi dong ngay)
 echo   [2] Bien dich lai ban Android (Build file APK cai vao dien thoai)
-echo   [3] Day nhanh [%CUR_BRANCH%] tu may local len GitHub cua ban
-echo   [4] Dong bo code moi nhat tu main ve may tinh (va day len GitHub [%CUR_BRANCH%])
-echo   [5] Chuyen sang nhanh thanh vien khac (Kien, Huy, Anh, Hoang, main)
+echo   [3] Day code local len nhanh [%MY_BRANCH%] tren GitHub
+echo   [4] Dong bo code moi nhat tu [main] ve may (va cap nhat len [Hoang])
 echo   [0] Thoat
 echo ===============================================================================
 set "CHOICE="
-set /p "CHOICE=Nhap lua chon cua ban (0-5): "
+set /p "CHOICE=Nhap lua chon cua ban (0-4): "
 if not defined CHOICE exit /b 0
 set "CHOICE=%CHOICE: =%"
 
@@ -54,7 +29,6 @@ if "%CHOICE%"=="1" goto RUN_PC
 if "%CHOICE%"=="2" goto BUILD_APK
 if "%CHOICE%"=="3" goto PUSH_BRANCH
 if "%CHOICE%"=="4" goto SYNC_FROM_MAIN
-if "%CHOICE%"=="5" goto SWITCH_BRANCH
 if "%CHOICE%"=="0" exit /b 0
 goto MENU
 
@@ -88,30 +62,30 @@ goto MENU
 :PUSH_BRANCH
 echo.
 echo ===============================================================================
-echo   DAY CODE TU MAY LOCAL LEN NHANH [%CUR_BRANCH%] TREN GITHUB
-echo   Thanh vien: %OWNER_NAME% ^<%OWNER_EMAIL%^>
+echo   DAY CODE TU MAY LOCAL LEN NHANH [%MY_BRANCH%] TREN GITHUB
+echo   Tac gia: %MY_NAME% ^<%MY_EMAIL%^>
 echo ===============================================================================
-git config user.name "%OWNER_NAME%"
-git config user.email "%OWNER_EMAIL%"
+git config user.name "%MY_NAME%"
+git config user.email "%MY_EMAIL%"
 echo.
 set "COMMIT_MSG="
 set /p "COMMIT_MSG=Nhap mo ta noi dung vua sua (Enter de dung mac dinh): "
-if "%COMMIT_MSG%"=="" set "COMMIT_MSG=update(%CUR_BRANCH%): cap nhat ma nguon va tai lieu boi %OWNER_NAME%"
+if "%COMMIT_MSG%"=="" set "COMMIT_MSG=update(%MY_BRANCH%): cap nhat ma nguon va tai lieu boi %MY_NAME%"
 
 echo.
 echo [1/3] Dang kiem tra va gom tap tin thay doi (git add)...
 git add -A
 echo [2/3] Dang dong goi commit...
 git commit -m "%COMMIT_MSG%"
-echo [3/3] Dang day len GitHub nhanh [%CUR_BRANCH%] (git push)...
-git push -u origin %CUR_BRANCH%
+echo [3/3] Dang day len GitHub nhanh [%MY_BRANCH%] (git push)...
+git push -u origin %MY_BRANCH%
 if errorlevel 1 (
     echo.
     echo [CANH BAO] Day len GitHub that bai! Co the can chay [4] de dong bo code truoc.
 ) else (
     echo.
     echo [THANH CONG] Code da duoc day len GitHub cua ban:
-    echo   https://github.com/Tran1209/UML-Patterns-Mastery/tree/%CUR_BRANCH%
+    echo   https://github.com/Tran1209/UML-Patterns-Mastery/tree/%MY_BRANCH%
 )
 pause
 goto MENU
@@ -119,25 +93,28 @@ goto MENU
 :SYNC_FROM_MAIN
 echo.
 echo ===============================================================================
-echo   DONG BO CODE MOI NHAT TU [main] VE MAY CUA BAN VA DAY LEN GITHUB [%CUR_BRANCH%]
+echo   DONG BO CODE MOI NHAT CHO NHANH [%MY_BRANCH%]
 echo ===============================================================================
-echo Quy trinh an toan:
-echo   1. Tu dong commit luu giu toan bo code ban dang lam o local (tranh mat code)
-echo   2. Lay code chuan moi nhat tu origin/main ve may
-echo   3. Gop (merge) vao nhanh [%CUR_BRANCH%] tai may cua ban
-echo   4. Tu dong day code da gop len GitHub nhanh [%CUR_BRANCH%]
+echo Quy trinh dong bo an toan:
+echo   1. Sao luu file QuanLy_DuAn.bat cua rieng ban
+echo   2. Tu dong commit luu giu toan bo code ban dang lam do o local (tranh mat code)
+echo   3. Lay code chuan moi nhat tu origin/main ve may
+echo   4. Gop (merge) vao nhanh [Hoang] tai may cua ban
+echo   5. Tu dong day code da gop len GitHub nhanh [Hoang]
 echo ===============================================================================
 echo.
 set /p "CONFIRM=Ban co muon tien hanh dong bo khong? (Y/N): "
 if /i not "%CONFIRM%"=="Y" goto MENU
 
 echo.
-git config user.name "%OWNER_NAME%"
-git config user.email "%OWNER_EMAIL%"
+git config user.name "Huy Hoang"
+git config user.email "HHoang2903@users.noreply.github.com"
+
+copy /y "%~f0" "%TEMP%\QuanLy_DuAn_Hoang.bat" >nul
 
 echo [1/4] Luu an toan cac thay doi dang lam do o local...
 git add -A
-git commit -m "wip(%CUR_BRANCH%): luu tam thay doi cuc bo truoc khi dong bo tu main" 2>nul
+git commit -m "wip(Hoang): luu tam thay doi cuc bo truoc khi dong bo tu main" 2>nul
 
 echo [2/4] Dang tai code moi nhat tu origin/main...
 git fetch origin main
@@ -147,63 +124,27 @@ if errorlevel 1 (
     goto MENU
 )
 
-echo [3/4] Dang gop code tu main vao nhanh [%CUR_BRANCH%] tren may ban...
-if /i "%CUR_BRANCH%"=="main" (
-    git pull origin main --no-edit
-) else (
-    git merge origin/main --no-edit -m "merge(main): dong bo code moi nhat tu main vao %CUR_BRANCH%"
+echo [3/4] Dang gop code tu main vao nhanh [Hoang] tren may ban...
+git merge origin/main --no-edit -m "merge(main): dong bo code moi nhat tu main vao Hoang"
+if exist "%TEMP%\QuanLy_DuAn_Hoang.bat" (
+    copy /y "%TEMP%\QuanLy_DuAn_Hoang.bat" "%~f0" >nul
+    git add "%~f0"
+    git commit --amend --no-edit 2>nul
 )
 
 if errorlevel 1 (
     echo.
-    echo [XUNG DOT MERGE DETECTED!] Co file bi conflict voi code tu main.
+    echo [XUNG DOT MERGE DETECTED!] Co file ma nguon bi conflict voi code tu main.
     echo Hay mo VSCode hoac nho Lead Architect de chon giu code phu hop.
     pause
     goto MENU
 )
 
-echo [4/4] Dang day code da dong bo len GitHub nhanh [%CUR_BRANCH%] cua ban...
-git push origin %CUR_BRANCH%
+echo [4/4] Dang day code da dong bo len GitHub nhanh [Hoang] cua ban...
+git push origin Hoang
 echo.
 echo ===============================================================================
 echo [HOAN TAT] May tinh cua ban va GitHub deu da co code moi nhat tu [main]!
 echo ===============================================================================
-pause
-goto MENU
-
-:SWITCH_BRANCH
-cls
-echo ===============================================================================
-echo   CHUYEN DOI NHANH LAM VIEC CHO TUNG THANH VIEN
-echo   Nhanh hien tai: [%CUR_BRANCH%]
-echo ===============================================================================
-echo   [1] Nhom truong Trung Kien  (Nhanh [Kien])
-echo   [2] Lead Architect Duy Nam  (Nhanh [main])
-echo   [3] Network Huy             (Nhanh [Huy])
-echo   [4] 2.5D Graphics Duc Anh   (Nhanh [Anh])
-echo   [5] Mobs & QA Huy Hoang     (Nhanh [Hoang])
-echo   [0] Quay lai Menu chinh
-echo ===============================================================================
-set "SW_CHOICE="
-set /p "SW_CHOICE=Chon nhanh can chuyen (0-5): "
-set "TARGET_BR="
-if "%SW_CHOICE%"=="1" set "TARGET_BR=Kien"
-if "%SW_CHOICE%"=="2" set "TARGET_BR=main"
-if "%SW_CHOICE%"=="3" set "TARGET_BR=Huy"
-if "%SW_CHOICE%"=="4" set "TARGET_BR=Anh"
-if "%SW_CHOICE%"=="5" set "TARGET_BR=Hoang"
-if "%SW_CHOICE%"=="0" goto MENU
-if not defined TARGET_BR goto MENU
-
-echo.
-echo Dang chuyen sang nhanh [%TARGET_BR%]...
-git fetch --all
-git checkout %TARGET_BR% 2>nul
-if errorlevel 1 git checkout -b %TARGET_BR% origin/%TARGET_BR%
-if errorlevel 1 (
-    echo [THAT BAI] Khong the chuyen sang nhanh [%TARGET_BR%]! Kiem tra lai git status.
-) else (
-    echo [THANH CONG] Da chuyen sang nhanh [%TARGET_BR%]!
-)
 pause
 goto MENU
