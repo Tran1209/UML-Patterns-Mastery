@@ -1,189 +1,189 @@
-﻿# ≡ƒù║∩╕Å Kß║╛ HOß║áCH 4 NG├ÇY (01/11 ΓÇô 04/11/2026): KHO KIß║╛N THß╗¿C ΓåÆ B├üO C├üO S├üCH ΓåÆ Bß╗ÿ KHUNG AI ΓåÆ THIß║╛T Kß║╛ OOA/OOD
+# 🗺️ KẾ HOẠCH 4 NGÀY (01/11 – 04/11/2026): KHO KIẾN THỨC → BÁO CÁO SÁCH → BỘ KHUNG AI → THIẾT KẾ OOA/OOD
 
-> **Quyß║┐t ─æß╗ïnh ng├áy 31/10/2026**: Tr╞░ß╗¢c khi code tiß║┐p 8 hß║íng mß╗Ñc mß╗ƒ rß╗Öng, nh├│m d├ánh **4 ng├áy** (01/11 ΓåÆ 04/11) ─æß╗â dß╗▒ng nß╗ün tri thß╗⌐c v├á thiß║┐t kß║┐. Tß╗½ **05/11** mß╗¢i quay lß║íi code, v├á **code theo ─æ├║ng thiß║┐t kß║┐ ─æ├ú chß╗æt** (kh├┤ng code theo cß║úm t├¡nh nß╗»a).
+> **Quyết định ngày 31/10/2026**: Trước khi code tiếp 8 hạng mục mở rộng, nhóm dành **4 ngày** (01/11 → 04/11) để dựng nền tri thức và thiết kế. Từ **05/11** mới quay lại code, và **code theo đúng thiết kế đã chốt** (không code theo cảm tính nữa).
 >
-> **Nguy├¬n tß║»c cß╗æt l├╡i**: Khß╗æi l╞░ß╗úng n├áy l├á **h├áng chß╗Ñc prompt**, kh├┤ng thß╗â l├ám trong 1 lß║ºn. Mß╗ùi prompt chß╗ë l├ám **1 viß╗çc nhß╗Å ΓåÆ ra 1 file ΓåÆ ─æ╞░ß╗úc ng╞░ß╗¥i phß╗Ñ tr├ích duyß╗çt ΓåÆ commit**, rß╗ôi mß╗¢i sang prompt kß║┐ tiß║┐p.
+> **Nguyên tắc cốt lõi**: Khối lượng này là **hàng chục prompt**, không thể làm trong 1 lần. Mỗi prompt chỉ làm **1 việc nhỏ → ra 1 file → được người phụ trách duyệt → commit**, rồi mới sang prompt kế tiếp.
 
 ---
 
-## 1. Bß╗¿C TRANH Tß╗öNG THß╗é
+## 1. BỨC TRANH TỔNG THỂ
 
 ```mermaid
 flowchart LR
-    D0["31/10<br>Chß╗æt kß║┐ hoß║ích"] --> D1["Ng├áy 1 ┬╖ 01/11<br>PHA A: Kho kiß║┐n thß╗⌐c<br>5 cuß╗æn s├ích"]
-    D1 --> D2["Ng├áy 2 ┬╖ 02/11<br>PHA B: 4 b├ío c├ío t├│m tß║»t"]
-    D2 --> D3["Ng├áy 3 ┬╖ 03/11<br>S├íng - PHA C: Bß╗Ö khung AI<br>Chiß╗üu - PHA D1: OOA"]
-    D3 --> D4["Ng├áy 4 ┬╖ 04/11<br>S├íng - PHA D2: OOD<br>Chiß╗üu - PHA D3: Design + chß╗æt v1.0"]
-    D4 --> D5["05/11 trß╗ƒ ─æi<br>Code 8 hß║íng mß╗Ñc<br>theo thiß║┐t kß║┐ ─æ├ú ─æ├│ng b─âng"]
+    D0["31/10<br>Chốt kế hoạch"] --> D1["Ngày 1 · 01/11<br>PHA A: Kho kiến thức<br>5 cuốn sách"]
+    D1 --> D2["Ngày 2 · 02/11<br>PHA B: 4 báo cáo tóm tắt"]
+    D2 --> D3["Ngày 3 · 03/11<br>Sáng - PHA C: Bộ khung AI<br>Chiều - PHA D1: OOA"]
+    D3 --> D4["Ngày 4 · 04/11<br>Sáng - PHA D2: OOD<br>Chiều - PHA D3: Design + chốt v1.0"]
+    D4 --> D5["05/11 trở đi<br>Code 8 hạng mục<br>theo thiết kế đã đóng băng"]
 ```
 
-| Pha | Ng├áy | Sß║ún phß║⌐m ─æß║ºu ra | Phß╗Ñ thuß╗Öc v├áo |
+| Pha | Ngày | Sản phẩm đầu ra | Phụ thuộc vào |
 | :-: | :-: | :--- | :--- |
-| **A** | 01/11 | **Kho kiß║┐n thß╗⌐c** r├ánh mß║ích cho cß║ú nh├│m (mß╗Ñc lß╗Ñc + thß║╗ kiß║┐n thß╗⌐c tß╗½ng ch╞░╞íng cß╗ºa 5 cuß╗æn) | ΓÇö |
-| **B** | 02/11 | **4 b├ío c├ío t├│m tß║»t** (Larman ┬╖ Nystrom ┬╖ Glazer & Madhav ┬╖ Fowler + Vernon) | Pha A |
-| **C** | 03/11 s├íng | **Bß╗Ö khung thß╗æng nhß║Ñt cho AI** (luß║¡t dß╗▒ ├ín, mß║½u prompt, mß║½u t├ái liß╗çu, quy ╞░ß╗¢c code/test) | Pha A, B |
-| **D1** | 03/11 chiß╗üu | **OOA**: danh mß╗Ñc chß╗⌐c n─âng, Use Case, Domain Model, SSD, Contract | Pha C |
-| **D2** | 04/11 s├íng | **OOD**: kiß║┐n tr├║c, Sequence, DCD, FSM, giao thß╗⌐c mß║íng, ├ính xß║í GRASP/GoF | D1 |
-| **D3** | 04/11 chiß╗üu | **Design chi tiß║┐t**: wireframe, bß║úng sß╗æ liß╗çu, kß║┐ hoß║ích test, ma trß║¡n truy vß║┐t, **─æ├│ng b─âng v1.0** | D2 |
+| **A** | 01/11 | **Kho kiến thức** rành mạch cho cả nhóm (mục lục + thẻ kiến thức từng chương của 5 cuốn) | — |
+| **B** | 02/11 | **4 báo cáo tóm tắt** (Larman · Nystrom · Glazer & Madhav · Fowler + Vernon) | Pha A |
+| **C** | 03/11 sáng | **Bộ khung thống nhất cho AI** (luật dự án, mẫu prompt, mẫu tài liệu, quy ước code/test) | Pha A, B |
+| **D1** | 03/11 chiều | **OOA**: danh mục chức năng, Use Case, Domain Model, SSD, Contract | Pha C |
+| **D2** | 04/11 sáng | **OOD**: kiến trúc, Sequence, DCD, FSM, giao thức mạng, ánh xạ GRASP/GoF | D1 |
+| **D3** | 04/11 chiều | **Design chi tiết**: wireframe, bảng số liệu, kế hoạch test, ma trận truy vết, **đóng băng v1.0** | D2 |
 
-> ≡ƒôÜ **5 cuß╗æn s├ích**: Larman (*Applying UML and Patterns*) ┬╖ Nystrom (*Game Programming Patterns*) ┬╖ Glazer & Madhav (*Multiplayer Game Programming*) ┬╖ Fowler (*PoEAA*) ┬╖ Vernon (*Implementing DDD*).
-> **4 b├ío c├ío** v├¼ Fowler + Vernon gß╗Öp chung 1 b├ío c├ío (c├╣ng chß╗º ─æß╗ü kiß║┐n tr├║c doanh nghiß╗çp / miß╗ün nghiß╗çp vß╗Ñ).
+> 📚 **5 cuốn sách**: Larman (*Applying UML and Patterns*) · Nystrom (*Game Programming Patterns*) · Glazer & Madhav (*Multiplayer Game Programming*) · Fowler (*PoEAA*) · Vernon (*Implementing DDD*).
+> **4 báo cáo** vì Fowler + Vernon gộp chung 1 báo cáo (cùng chủ đề kiến trúc doanh nghiệp / miền nghiệp vụ).
 
 ---
 
-## 2. QUY Tß║«C CHß║áY PROMPT (─Éß╗é KH├öNG Bß╗è LOß║áN)
+## 2. QUY TẮC CHẠY PROMPT (ĐỂ KHÔNG BỊ LOẠN)
 
-1. **1 prompt = 1 viß╗çc = 1 file ─æß║ºu ra.** Kh├┤ng gß╗Öp nhiß╗üu viß╗çc v├áo mß╗Öt prompt.
-2. **S├ích d├ái th├¼ chia nhß╗Å**: tß╗æi ─æa **~5 ch╞░╞íng/prompt** (╞░ß╗¢c t├¡nh: Larman 38 ch╞░╞íng Γëê 8 prompt, Nystrom 21 Γëê 5, Glazer & Madhav 14 Γëê 3, Fowler Γëê 6 theo nh├│m pattern, Vernon Γëê 3).
-3. **Mß╗ùi prompt ghi r├╡ 4 thß╗⌐**: ─Éß║ºu v├áo (─æß╗ìc file n├áo) ┬╖ ─Éß║ºu ra (ghi file n├áo) ┬╖ R├áng buß╗Öc ┬╖ Ti├¬u ch├¡ xong (DoD).
-4. **Cß╗òng chß║Ñt l╞░ß╗úng (Gate)**: ng╞░ß╗¥i phß╗Ñ tr├ích **─æß╗ìc lß║íi v├á duyß╗çt** ─æß║ºu ra tr╞░ß╗¢c khi chß║íy prompt kß║┐ tiß║┐p. AI sinh sai th├¼ sß╗¡a ngay, kh├┤ng dß╗ôn lß║íi.
-5. **Kh├┤ng bß╗ïa tr├¡ch dß║½n**: mß╗ìi nß╗Öi dung lß║Ñy tß╗½ s├ích phß║úi gß║»n **m├ú thß║╗ kiß║┐n thß╗⌐c** (vd `LAR-07-02`) hoß║╖c sß╗æ trang; kh├┤ng chß║»c th├¼ ghi `[Cß║ªN KIß╗éM TRA]`.
-6. **Commit sau mß╗ùi cß╗Ñm prompt**: `docs(<pha>): <M├â PROMPT> <nß╗Öi dung>` (vd `docs(kb): KT-04 nystrom chapters 1-5`).
-7. **Bß║ún quyß╗ün**: file PDF v├á bß║ún b├│c t├ích nguy├¬n v─ân nß║▒m trong `_Archive_CaNhan/` (─æ├ú `.gitignore`, **kh├┤ng ─æß║⌐y l├¬n GitHub**). Chß╗ë commit **thß║╗ kiß║┐n thß╗⌐c do nh├│m tß╗▒ t├│m tß║»t**, kh├┤ng d├ín nguy├¬n v─ân s├ích.
-8. **Chß║íy song song**: c├íc prompt cß╗ºa tß╗½ng ng╞░ß╗¥i (mß╗ùi ng╞░ß╗¥i mß╗Öt cuß╗æn / mß╗Öt cß╗Ñm UC) chß║íy song song ─æ╞░ß╗úc; c├íc prompt "chß╗æt" (KT-09, BC-08, AI-08, DES-05) chß╗ë chß║íy khi mß╗ìi phß║ºn tr╞░ß╗¢c ─æ├ú duyß╗çt.
+1. **1 prompt = 1 việc = 1 file đầu ra.** Không gộp nhiều việc vào một prompt.
+2. **Sách dài thì chia nhỏ**: tối đa **~5 chương/prompt** (ước tính: Larman 38 chương ≈ 8 prompt, Nystrom 21 ≈ 5, Glazer & Madhav 14 ≈ 3, Fowler ≈ 6 theo nhóm pattern, Vernon ≈ 3).
+3. **Mỗi prompt ghi rõ 4 thứ**: Đầu vào (đọc file nào) · Đầu ra (ghi file nào) · Ràng buộc · Tiêu chí xong (DoD).
+4. **Cổng chất lượng (Gate)**: người phụ trách **đọc lại và duyệt** đầu ra trước khi chạy prompt kế tiếp. AI sinh sai thì sửa ngay, không dồn lại.
+5. **Không bịa trích dẫn**: mọi nội dung lấy từ sách phải gắn **mã thẻ kiến thức** (vd `LAR-07-02`) hoặc số trang; không chắc thì ghi `[CẦN KIỂM TRA]`.
+6. **Commit sau mỗi cụm prompt**: `docs(<pha>): <MÃ PROMPT> <nội dung>` (vd `docs(kb): KT-04 nystrom chapters 1-5`).
+7. **Bản quyền**: file PDF và bản bóc tách nguyên văn nằm trong `_Archive_CaNhan/` (đã `.gitignore`, **không đẩy lên GitHub**). Chỉ commit **thẻ kiến thức do nhóm tự tóm tắt**, không dán nguyên văn sách.
+8. **Chạy song song**: các prompt của từng người (mỗi người một cuốn / một cụm UC) chạy song song được; các prompt "chốt" (KT-09, BC-08, AI-08, DES-05) chỉ chạy khi mọi phần trước đã duyệt.
 
-**Mß║½u prompt chuß║⌐n** (sß║╜ ─æ╞░ß╗úc chß╗æt ch├¡nh thß╗⌐c ß╗ƒ AI-03):
+**Mẫu prompt chuẩn** (sẽ được chốt chính thức ở AI-03):
 
 ```text
-VAI TR├Æ: <AI ─æ├│ng vai g├¼>
-Bß╗ÉI Cß║óNH: <─æß╗ìc .agent/rules/project-guide.md + file n├áo>
-NHIß╗åM Vß╗ñ: <─æ├║ng 1 viß╗çc>
-R├ÇNG BUß╗ÿC: <kh├┤ng bß╗ïa trang, theo template n├áo, kh├┤ng ─æß╗Ñng file n├áo>
-─Éß║ªU RA: <─æ╞░ß╗¥ng dß║½n file duy nhß║Ñt>
-TI├èU CH├ì XONG: <checklist kiß╗âm ─æ╞░ß╗úc>
+VAI TRÒ: <AI đóng vai gì>
+BỐI CẢNH: <đọc .agent/rules/project-guide.md + file nào>
+NHIỆM VỤ: <đúng 1 việc>
+RÀNG BUỘC: <không bịa trang, theo template nào, không đụng file nào>
+ĐẦU RA: <đường dẫn file duy nhất>
+TIÊU CHÍ XONG: <checklist kiểm được>
 ```
 
 ---
 
-## 3. NG├ÇY 1 (01/11) ΓÇö PHA A: KHO KIß║╛N THß╗¿C
+## 3. NGÀY 1 (01/11) — PHA A: KHO KIẾN THỨC
 
-**Mß╗Ñc ti├¬u**: Cß║ú nh├│m tra cß╗⌐u ─æ╞░ß╗úc "ch╞░╞íng n├áo n├│i g├¼, d├╣ng v├áo ─æ├óu" m├á kh├┤ng phß║úi mß╗ƒ lß║íi PDF.
-**Kho nguß╗ôn sß║╡n c├│ (cß╗Ñc bß╗Ö)**: `_Archive_CaNhan/00_Raw_PDF/_Knowledge_Base_{Larman, Nystrom, Glazer_Madhav, Fowler, Vernon}/`.
-**Kho ─æß║ºu ra (─æß║⌐y GitHub)**: `Docs_BaoCao/4_KhoKienThuc/<Sach>/` ΓÇö mß╗ùi ch╞░╞íng 1 file thß║╗ kiß║┐n thß╗⌐c.
+**Mục tiêu**: Cả nhóm tra cứu được "chương nào nói gì, dùng vào đâu" mà không phải mở lại PDF.
+**Kho nguồn sẵn có (cục bộ)**: `_Archive_CaNhan/00_Raw_PDF/_Knowledge_Base_{Larman, Nystrom, Glazer_Madhav, Fowler, Vernon}/`.
+**Kho đầu ra (đẩy GitHub)**: `Docs_BaoCao/4_KhoKienThuc/<Sach>/` — mỗi chương 1 file thẻ kiến thức.
 
-**Khu├┤n thß║╗ kiß║┐n thß╗⌐c** (mß╗ùi ch╞░╞íng): `M├ú thß║╗` ┬╖ `T├¬n ch╞░╞íng/trang` ┬╖ `├¥ ch├¡nh (Γëñ10 d├▓ng)` ┬╖ `Kh├íi niß╗çm/Pattern` ┬╖ `Khi n├áo d├╣ng` ┬╖ `Li├¬n hß╗ç vß╗¢i dß╗▒ ├ín game` ┬╖ `Thuß║¡t ngß╗»`.
+**Khuôn thẻ kiến thức** (mỗi chương): `Mã thẻ` · `Tên chương/trang` · `Ý chính (≤10 dòng)` · `Khái niệm/Pattern` · `Khi nào dùng` · `Liên hệ với dự án game` · `Thuật ngữ`.
 
-| M├ú | Viß╗çc cß║ºn l├ám (1 prompt = 1 d├▓ng) | ─Éß║ºu ra | Phß╗Ñ tr├ích |
+| Mã | Việc cần làm (1 prompt = 1 dòng) | Đầu ra | Phụ trách |
 | :-: | :--- | :--- | :-: |
-| **KT-01** | Chß╗æt cß║Ñu tr├║c kho, quy ╞░ß╗¢c m├ú thß║╗ (`LAR-07-02`), front-matter chuß║⌐n | `4_KhoKienThuc/README.md` | Nam |
-| **KT-02** | Kiß╗âm k├¬ phß║ºn ─æ├ú b├│c t├ích sß║╡n cß╗ºa 5 s├ích: ─æß╗º ch╞░╞íng ch╞░a, lß╗ùi font/dß║Ñu kh├┤ng ΓåÆ bß║úng ─æß╗Ö phß╗º | `4_KhoKienThuc/00_DoPhu.md` | Nam |
-| **KT-03aΓÇªh** | **Larman** (38 ch╞░╞íng, ~8 prompt): mß╗Ñc lß╗Ñc + thß║╗ tß╗½ng ch╞░╞íng. *╞»u ti├¬n tr╞░ß╗¢c*: UP, Use Case, Domain Model, SSD, Contract, GRASP, GoF | `4_KhoKienThuc/Larman/` | Ki├¬n |
-| **KT-04aΓÇªe** | **Nystrom** (21 ch╞░╞íng, ~5 prompt). *╞»u ti├¬n*: Game Loop, State, Command, Component, Observer, Spatial Partition, Double Buffer | `4_KhoKienThuc/Nystrom/` | Anh |
-| **KT-05aΓÇªc** | **Glazer & Madhav** (14 ch╞░╞íng, ~3 prompt). *╞»u ti├¬n*: kiß║┐n tr├║c client-server, snapshot, LERP, ─æß╗Ö trß╗à, ─æß╗ông bß╗Ö trß║íng th├íi | `4_KhoKienThuc/GlazerMadhav/` | Huy |
-| **KT-06aΓÇªf** | **Fowler PoEAA** (~6 prompt theo nh├│m pattern: Domain Logic, Data Source, OR, Presentation, DistributionΓÇª) | `4_KhoKienThuc/Fowler/` | Ho├áng |
-| **KT-07aΓÇªc** | **Vernon IDDD** (~3 prompt): Entity, Value Object, Aggregate, Repository, Domain Event | `4_KhoKienThuc/Vernon/` | Ho├áng (Nam duyß╗çt) |
-| **KT-08** | Tß╗½ ─æiß╗ân thuß║¡t ngß╗» + **bß║ún ─æß╗ô kh├íi niß╗çm ch├⌐o** (GRASP Γåö GoF Γåö PoEAA Γåö DDD Γåö game patterns) | `4_KhoKienThuc/99_TuDien_va_BanDoKhaiNiem.md` | Nam |
-| **KT-09** | Kiß╗âm tra ─æß╗Ö phß╗º (mß╗ìi ch╞░╞íng c├│ thß║╗, mß╗ìi thß║╗ c├│ m├ú) v├á **chß╗æt kho v1.0** | `4_KhoKienThuc/00_DoPhu.md` (cß║¡p nhß║¡t) | Cß║ú nh├│m |
+| **KT-01** | Chốt cấu trúc kho, quy ước mã thẻ (`LAR-07-02`), front-matter chuẩn | `4_KhoKienThuc/README.md` | Nam |
+| **KT-02** | Kiểm kê phần đã bóc tách sẵn của 5 sách: đủ chương chưa, lỗi font/dấu không → bảng độ phủ | `4_KhoKienThuc/00_DoPhu.md` | Nam |
+| **KT-03a…h** | **Larman** (38 chương, ~8 prompt): mục lục + thẻ từng chương. *Ưu tiên trước*: UP, Use Case, Domain Model, SSD, Contract, GRASP, GoF | `4_KhoKienThuc/Larman/` | Kiên |
+| **KT-04a…e** | **Nystrom** (21 chương, ~5 prompt). *Ưu tiên*: Game Loop, State, Command, Component, Observer, Spatial Partition, Double Buffer | `4_KhoKienThuc/Nystrom/` | Anh |
+| **KT-05a…c** | **Glazer & Madhav** (14 chương, ~3 prompt). *Ưu tiên*: kiến trúc client-server, snapshot, LERP, độ trễ, đồng bộ trạng thái | `4_KhoKienThuc/GlazerMadhav/` | Huy |
+| **KT-06a…f** | **Fowler PoEAA** (~6 prompt theo nhóm pattern: Domain Logic, Data Source, OR, Presentation, Distribution…) | `4_KhoKienThuc/Fowler/` | Hoàng |
+| **KT-07a…c** | **Vernon IDDD** (~3 prompt): Entity, Value Object, Aggregate, Repository, Domain Event | `4_KhoKienThuc/Vernon/` | Hoàng (Nam duyệt) |
+| **KT-08** | Từ điển thuật ngữ + **bản đồ khái niệm chéo** (GRASP ↔ GoF ↔ PoEAA ↔ DDD ↔ game patterns) | `4_KhoKienThuc/99_TuDien_va_BanDoKhaiNiem.md` | Nam |
+| **KT-09** | Kiểm tra độ phủ (mọi chương có thẻ, mọi thẻ có mã) và **chốt kho v1.0** | `4_KhoKienThuc/00_DoPhu.md` (cập nhật) | Cả nhóm |
 
-**Xong Ng├áy 1 khi**: `00_DoPhu.md` b├ío 5/5 s├ích ─æß╗º thß║╗; ├¡t nhß║Ñt c├íc ch╞░╞íng *╞»u ti├¬n* ─æ├ú c├│ thß║╗ ho├án chß╗ënh.
-**Nß║┐u trß╗à**: chß╗ë giß╗» c├íc ch╞░╞íng *╞»u ti├¬n*; ch╞░╞íng c├▓n lß║íi ─æß╗â dß║íng mß╗Ñc lß╗Ñc, bß╗ò sung sau ΓÇö **kh├┤ng** ─æß╗â chß║╖n Pha B.
+**Xong Ngày 1 khi**: `00_DoPhu.md` báo 5/5 sách đủ thẻ; ít nhất các chương *Ưu tiên* đã có thẻ hoàn chỉnh.
+**Nếu trễ**: chỉ giữ các chương *Ưu tiên*; chương còn lại để dạng mục lục, bổ sung sau — **không** để chặn Pha B.
 
 ---
 
-## 4. NG├ÇY 2 (02/11) ΓÇö PHA B: 4 B├üO C├üO T├ôM Tß║«T
+## 4. NGÀY 2 (02/11) — PHA B: 4 BÁO CÁO TÓM TẮT
 
-**Mß╗Ñc ti├¬u**: Mß╗ùi cuß╗æn mß╗Öt b├ío c├ío ngß║»n, ─æß╗ìc 10 ph├║t hiß╗âu ─æ╞░ß╗úc s├ích n├áy **gi├║p g├¼ cho dß╗▒ ├ín**.
-**─Éß║ºu v├áo**: Chß╗ë d├╣ng thß║╗ kiß║┐n thß╗⌐c ß╗ƒ Pha A (kh├┤ng ─æß╗ìc lß║íi PDF) ΓåÆ b├ío c├ío lu├┤n khß╗¢p kho.
+**Mục tiêu**: Mỗi cuốn một báo cáo ngắn, đọc 10 phút hiểu được sách này **giúp gì cho dự án**.
+**Đầu vào**: Chỉ dùng thẻ kiến thức ở Pha A (không đọc lại PDF) → báo cáo luôn khớp kho.
 
-| M├ú | Viß╗çc cß║ºn l├ám | ─Éß║ºu ra | Phß╗Ñ tr├ích |
+| Mã | Việc cần làm | Đầu ra | Phụ trách |
 | :-: | :--- | :--- | :-: |
-| **BC-01** | Template b├ío c├ío cß╗æ ─æß╗ïnh: *T├│m tß║»t 1 trang ┬╖ Kh├íi niß╗çm cß╗æt l├╡i ┬╖ Pattern/nguy├¬n l├╜ ┬╖ ├üp dß╗Ñng v├áo game ┬╖ Checklist khi code ┬╖ Tr├¡ch dß║½n (m├ú thß║╗)* | `4_KhoKienThuc/_Template_BaoCao.md` | Nam |
-| **BC-02a/b/c** | **B├ío c├ío Larman**: (a) UP & UML ┬╖ (b) OOA/OOD & GRASP ┬╖ (c) GoF & tiß║┐n h├│a thiß║┐t kß║┐ | `Docs_BaoCao/5_BaoCaoTomTat/01_Larman.md` | Ki├¬n |
-| **BC-03a/b** | **B├ío c├ío Nystrom**: (a) mß║½u thiß║┐t kß║┐ h├ánh vi/khß╗ƒi tß║ío ┬╖ (b) mß║½u tß╗æi ╞░u & v├▓ng lß║╖p | `5_BaoCaoTomTat/02_Nystrom.md` | Anh |
-| **BC-04a/b** | **B├ío c├ío Glazer & Madhav**: (a) kiß║┐n tr├║c mß║íng & giao thß╗⌐c ┬╖ (b) ─æß╗ông bß╗Ö, ─æß╗Ö trß╗à, chß╗æng gian lß║¡n | `5_BaoCaoTomTat/03_GlazerMadhav.md` | Huy |
-| **BC-05a/b** | **B├ío c├ío Fowler + Vernon** (gß╗Öp): (a) PoEAA ┬╖ (b) DDD, rß╗ôi ─æß╗æi chiß║┐u hai b├¬n | `5_BaoCaoTomTat/04_Fowler_Vernon.md` | Ho├áng |
-| **BC-06** | **Ma trß║¡n "S├ích ΓåÆ Hß║íng mß╗Ñc ΓåÆ Package"**: mß╗ùi hß║íng mß╗Ñc trong 9 hß║íng mß╗Ñc dß╗▒a v├áo ch╞░╞íng n├áo | `5_BaoCaoTomTat/05_MaTran_Sach_HangMuc.md` | Nam |
-| **BC-07** | **Review ch├⌐o**: mß╗ùi ng╞░ß╗¥i duyß╗çt 1 b├ío c├ío cß╗ºa ng╞░ß╗¥i kh├íc, kiß╗âm tra m├ú thß║╗/trang | ghi ch├║ review trong tß╗½ng file | Cß║ú nh├│m |
-| **BC-08** | Chß╗æt v1.0, gß║»n v├áo Ch╞░╞íng 7 b├ío c├ío ch├¡nh thß╗⌐c | cß║¡p nhß║¡t `Chuong_07_TaiLieuThamKhao.md` | Nam |
+| **BC-01** | Template báo cáo cố định: *Tóm tắt 1 trang · Khái niệm cốt lõi · Pattern/nguyên lý · Áp dụng vào game · Checklist khi code · Trích dẫn (mã thẻ)* | `4_KhoKienThuc/_Template_BaoCao.md` | Nam |
+| **BC-02a/b/c** | **Báo cáo Larman**: (a) UP & UML · (b) OOA/OOD & GRASP · (c) GoF & tiến hóa thiết kế | `Docs_BaoCao/5_BaoCaoTomTat/01_Larman.md` | Kiên |
+| **BC-03a/b** | **Báo cáo Nystrom**: (a) mẫu thiết kế hành vi/khởi tạo · (b) mẫu tối ưu & vòng lặp | `5_BaoCaoTomTat/02_Nystrom.md` | Anh |
+| **BC-04a/b** | **Báo cáo Glazer & Madhav**: (a) kiến trúc mạng & giao thức · (b) đồng bộ, độ trễ, chống gian lận | `5_BaoCaoTomTat/03_GlazerMadhav.md` | Huy |
+| **BC-05a/b** | **Báo cáo Fowler + Vernon** (gộp): (a) PoEAA · (b) DDD, rồi đối chiếu hai bên | `5_BaoCaoTomTat/04_Fowler_Vernon.md` | Hoàng |
+| **BC-06** | **Ma trận "Sách → Hạng mục → Package"**: mỗi hạng mục trong 9 hạng mục dựa vào chương nào | `5_BaoCaoTomTat/05_MaTran_Sach_HangMuc.md` | Nam |
+| **BC-07** | **Review chéo**: mỗi người duyệt 1 báo cáo của người khác, kiểm tra mã thẻ/trang | ghi chú review trong từng file | Cả nhóm |
+| **BC-08** | Chốt v1.0, gắn vào Chương 7 báo cáo chính thức | cập nhật `Chuong_07_TaiLieuThamKhao.md` | Nam |
 
-**Xong Ng├áy 2 khi**: 4 b├ío c├ío + ma trß║¡n c├│ mß║╖t, ─æ├ú qua review ch├⌐o, kh├┤ng c├▓n `[Cß║ªN KIß╗éM TRA]` ch╞░a xß╗¡ l├╜.
+**Xong Ngày 2 khi**: 4 báo cáo + ma trận có mặt, đã qua review chéo, không còn `[CẦN KIỂM TRA]` chưa xử lý.
 
 ---
 
-## 5. NG├ÇY 3 S├üNG (03/11) ΓÇö PHA C: Bß╗ÿ KHUNG THß╗ÉNG NHß║ñT CHO AI
+## 5. NGÀY 3 SÁNG (03/11) — PHA C: BỘ KHUNG THỐNG NHẤT CHO AI
 
-**Mß╗Ñc ti├¬u**: 5 ng╞░ß╗¥i d├╣ng AI theo **c├╣ng mß╗Öt luß║¡t** ΓåÆ thiß║┐t kß║┐/code cß╗ºa mß╗ìi ng╞░ß╗¥i gh├⌐p khß╗¢p, kh├┤ng mß╗ùi ng╞░ß╗¥i mß╗Öt kiß╗âu.
-**Nß╗ün c├│ sß║╡n**: `.agent/rules/project-guide.md` (kiß║┐n tr├║c, lß╗çnh build, quy ╞░ß╗¢c hiß╗çn tß║íi) ΓåÆ **mß╗ƒ rß╗Öng, kh├┤ng viß║┐t lß║íi tß╗½ ─æß║ºu**.
+**Mục tiêu**: 5 người dùng AI theo **cùng một luật** → thiết kế/code của mọi người ghép khớp, không mỗi người một kiểu.
+**Nền có sẵn**: `.agent/rules/project-guide.md` (kiến trúc, lệnh build, quy ước hiện tại) → **mở rộng, không viết lại từ đầu**.
 
-| M├ú | Viß╗çc cß║ºn l├ám | ─Éß║ºu ra | Phß╗Ñ tr├ích |
+| Mã | Việc cần làm | Đầu ra | Phụ trách |
 | :-: | :--- | :--- | :-: |
-| **AI-01** | **Hiß║┐n ch╞░╞íng dß╗▒ ├ín**: kiß║┐n tr├║c ph├ón tß║ºng, thuß║¡t ngß╗» thß╗æng nhß║Ñt, ─æiß╗üu cß║Ñm (vd: kh├┤ng `import java.awt.*` v├áo `core/combat/network/server/persistence`), ng├┤n ngß╗» trß║ú lß╗¥i | `.agent/rules/project-guide.md` (mß╗ƒ rß╗Öng) | Nam |
-| **AI-02** | **Luß║¡t truy xuß║Ñt kiß║┐n thß╗⌐c**: AI phß║úi tr├¡ch m├ú thß║╗, kh├┤ng bß╗ïa trang; c├ích trß╗Å v├áo `4_KhoKienThuc/` | `.agent/rules/knowledge-rules.md` | Nam |
-| **AI-03** | **Mß║½u prompt chuß║⌐n + Th╞░ viß╗çn prompt** theo loß║íi: OOA ┬╖ OOD ┬╖ code ┬╖ test ┬╖ b├ío c├ío | `Docs_BaoCao/6_BoKhungAI/01_ThuVienPrompt.md` | Nam + Ki├¬n |
-| **AI-04** | **Bß╗Ö template t├ái liß╗çu thiß║┐t kß║┐**: Use Case fully dressed, SSD, Operation Contract, DCD, Sequence (Mermaid), State Machine | `6_BoKhungAI/templates/` | Ki├¬n |
-| **AI-05** | **Quy ╞░ß╗¢c code & test**: ─æß║╖t t├¬n, package, c├ích th├¬m test cho mß╗ùi hß║íng mß╗Ñc (nß╗æi tiß║┐p bß╗Ö 15/15 hiß╗çn c├│) | `6_BoKhungAI/02_QuyUoc_Code_Test.md` | Ho├áng |
-| **AI-06** | **Quy tr├¼nh Git + AI**: nh├ính theo ng╞░ß╗¥i, commit message, checklist tr╞░ß╗¢c khi gß╗Öp `main` (nß╗æi vß╗¢i `03_HuongDan_Git_Nhom.md`) | `6_BoKhungAI/03_QuyTrinh_Git_AI.md` | Nam |
-| **AI-07** | **Chß║íy thß╗¡ (pilot)** bß╗Ö khung tr├¬n **1 chß╗⌐c n─âng nhß╗Å** (─æß╗ü xuß║Ñt: *Sß║únh chß╗¥*) tß╗½ Use Case ─æß║┐n DCD, ghi lß║íi chß╗ù khung bß╗ï thiß║┐u/m├óu thuß║½n | `6_BoKhungAI/04_KetQua_Pilot.md` | Huy |
-| **AI-08** | Sß╗¡a bß╗Ö khung theo kß║┐t quß║ú pilot v├á **chß╗æt v1.0** | cß║¡p nhß║¡t c├íc file AI-01ΓÇª06 | Nam |
+| **AI-01** | **Hiến chương dự án**: kiến trúc phân tầng, thuật ngữ thống nhất, điều cấm (vd: không `import java.awt.*` vào `core/combat/network/server/persistence`), ngôn ngữ trả lời | `.agent/rules/project-guide.md` (mở rộng) | Nam |
+| **AI-02** | **Luật truy xuất kiến thức**: AI phải trích mã thẻ, không bịa trang; cách trỏ vào `4_KhoKienThuc/` | `.agent/rules/knowledge-rules.md` | Nam |
+| **AI-03** | **Mẫu prompt chuẩn + Thư viện prompt** theo loại: OOA · OOD · code · test · báo cáo | `Docs_BaoCao/6_BoKhungAI/01_ThuVienPrompt.md` | Nam + Kiên |
+| **AI-04** | **Bộ template tài liệu thiết kế**: Use Case fully dressed, SSD, Operation Contract, DCD, Sequence (Mermaid), State Machine | `6_BoKhungAI/templates/` | Kiên |
+| **AI-05** | **Quy ước code & test**: đặt tên, package, cách thêm test cho mỗi hạng mục (nối tiếp bộ 15/15 hiện có) | `6_BoKhungAI/02_QuyUoc_Code_Test.md` | Hoàng |
+| **AI-06** | **Quy trình Git + AI**: nhánh theo người, commit message, checklist trước khi gộp `main` (nối với `03_HuongDan_Git_Nhom.md`) | `6_BoKhungAI/03_QuyTrinh_Git_AI.md` | Nam |
+| **AI-07** | **Chạy thử (pilot)** bộ khung trên **1 chức năng nhỏ** (đề xuất: *Sảnh chờ*) từ Use Case đến DCD, ghi lại chỗ khung bị thiếu/mâu thuẫn | `6_BoKhungAI/04_KetQua_Pilot.md` | Huy |
+| **AI-08** | Sửa bộ khung theo kết quả pilot và **chốt v1.0** | cập nhật các file AI-01…06 | Nam |
 
-**Xong buß╗òi s├íng khi**: pilot chß║íy tr╞ín tß╗½ UC ΓåÆ DCD m├á kh├┤ng phß║úi "giß║úi th├¡ch th├¬m bß║▒ng miß╗çng".
-
----
-
-## 6. NG├ÇY 3 CHIß╗ÇU ΓåÆ NG├ÇY 4 (03/11 ΓÇô 04/11) ΓÇö PHA D: THIß║╛T Kß║╛ OOA ΓåÆ OOD ΓåÆ DESIGN
-
-**Mß╗Ñc ti├¬u**: Thiß║┐t kß║┐ **gß║ºn nh╞░ to├án bß╗Ö chß╗⌐c n─âng** cß╗ºa dß╗▒ ├ín (phß║ºn ─æ├ú c├│ + 9 hß║íng mß╗Ñc mß╗ƒ rß╗Öng) ─æß╗â tß╗½ 05/11 code l├á "dß╗ïch thiß║┐t kß║┐ ra Java".
-**Th╞░ mß╗Ñc ─æß║ºu ra**: `Docs_BaoCao/7_ThietKe/{OOA, OOD, Design}/`. Mß╗ìi t├ái liß╗çu d├╣ng template ß╗ƒ AI-04 v├á tr├¡ch thß║╗ kiß║┐n thß╗⌐c.
-
-### 6.1. D1 ΓÇö OOA (03/11 chiß╗üu)
-
-| M├ú | Viß╗çc cß║ºn l├ám | Phß╗Ñ tr├ích |
-| :-: | :--- | :-: |
-| **OOA-01** | **Kiß╗âm k├¬ chß╗⌐c n─âng**: c├íi ─æ├ú c├│ + 9 hß║íng mß╗Ñc; g├ín ─æß╗Ö ╞░u ti├¬n **P1/P2/P3** v├á quan hß╗ç phß╗Ñ thuß╗Öc | Nam + Ki├¬n |
-| **OOA-02** | S╞í ─æß╗ô Use Case tß╗òng + **Use Case brief** cho to├án bß╗Ö chß╗⌐c n─âng | Ki├¬n |
-| **OOA-03** | **Fully dressed** cho UC ╞░u ti├¬n, mß╗ùi ng╞░ß╗¥i mß╗Öt cß╗Ñm: Sß║únh chß╗¥ & V├▓ng bo (Huy) ┬╖ Map & Mobs (Ho├áng) ┬╖ Hß╗ç nh├ón vß║¡t & Bot (Ki├¬n) ┬╖ ─Éß╗ô hß╗ìa 2.5D (Anh) ┬╖ Core/─Éiß╗üu khiß╗ân (Nam) | Tß╗½ng ng╞░ß╗¥i |
-| **OOA-04** | **Domain Model v2** (kh├íi niß╗çm thß║┐ giß╗¢i thß║¡t, ch╞░a c├│ method) | Nam |
-| **OOA-05** | **SSD + Operation Contract** cho c├íc thao t├íc hß╗ç thß╗æng ch├¡nh | Huy (lobby/mß║íng) ┬╖ Ki├¬n (chiß║┐n ─æß║Ñu) |
-| **OOA-06** | **Supplementary Spec (FURPS+)**: 60 FPS, server 20 Hz, ─æß╗Ö trß╗à, sß╗æ ng╞░ß╗¥i, bß║ún ─æß╗ô 66.000 px | Ho├áng |
-
-### 6.2. D2 ΓÇö OOD (04/11 s├íng)
-
-| M├ú | Viß╗çc cß║ºn l├ám | Phß╗Ñ tr├ích |
-| :-: | :--- | :-: |
-| **OOD-01** | **Kiß║┐n tr├║c logic & bß║ún ─æß╗ô package v2** (lß╗¢p n├áo thuß╗Öc tß║ºng n├áo) | Nam |
-| **OOD-02** | **S╞í ─æß╗ô t╞░╞íng t├íc (Sequence)** cho tß╗½ng UC, chß╗ë r├╡ GRASP (Controller, Expert, CreatorΓÇª) | Tß╗½ng ng╞░ß╗¥i |
-| **OOD-03** | **DCD v2** tß╗½ng cß╗Ñm, sau ─æ├│ Nam hß╗úp nhß║Ñt ─æß╗â kh├┤ng tr├╣ng/lß╗çch t├¬n lß╗¢p | Tß╗½ng ng╞░ß╗¥i ΓåÆ Nam |
-| **OOD-04** | **State Machine**: FSM nh├ón vß║¡t, luß╗ông Sß║únh chß╗¥ ΓåÆ Trß║¡n ΓåÆ Kß║┐t th├║c, trß║íng th├íi V├▓ng bo | Nam ┬╖ Huy |
-| **OOD-05** | **Thiß║┐t kß║┐ giao thß╗⌐c mß║íng**: g├│i tin, snapshot, ─æß╗ông bß╗Ö Mobs/Bot, relay 4G | Huy |
-| **OOD-06** | **Thiß║┐t kß║┐ dß╗» liß╗çu & cß║Ñu h├¼nh** (6 Mobs, 4 hß╗ç nh├ón vß║¡t, v├▓ng bo) theo Fowler/DDD | Ho├áng |
-| **OOD-07** | **Bß║úng ├ính xß║í GoF/GRASP ΓåÆ lß╗¢p** (mß║½u ─æ├ú chß╗ìn + l├╜ do + s├ích n├áo) | Ki├¬n |
-| **OOD-08** | **Thiß║┐t kß║┐ pipeline render 2.5D**: Z-Sorting, culling, sprite/mobs | Anh |
-
-### 6.3. D3 ΓÇö DESIGN CHI TIß║╛T & CHß╗ÉT (04/11 chiß╗üu)
-
-| M├ú | Viß╗çc cß║ºn l├ám | Phß╗Ñ tr├ích |
-| :-: | :--- | :-: |
-| **DES-01** | **Luß╗ông m├án h├¼nh & wireframe**: Sß║únh chß╗¥, chß╗ìn T╞░ß╗¢ng/Team/Bot, HUD, minimap, v├▓ng bo | Anh + Huy |
-| **DES-02** | **Bß║úng sß╗æ liß╗çu thiß║┐t kß║┐**: chß╗ë sß╗æ 4 hß╗ç nh├ón vß║¡t, 6 Mobs, th├┤ng sß╗æ v├▓ng bo | Ki├¬n + Ho├áng |
-| **DES-03** | **Kß║┐ hoß║ích test & ti├¬u ch├¡ nghiß╗çm thu** cho tß╗½ng hß║íng mß╗Ñc | Ho├áng |
-| **DES-04** | **Ma trß║¡n truy vß║┐t**: Y├¬u cß║ºu ΓåÆ UC ΓåÆ Lß╗¢p ΓåÆ Test | Nam |
-| **DES-05** | **Review to├án bß╗Ö, ─æ├│ng b─âng thiß║┐t kß║┐ v1.0**, chia task code cho tß╗½ng ng╞░ß╗¥i tß╗½ 05/11 | Cß║ú nh├│m |
-
-**Xong Ng├áy 4 khi**: mß╗ùi hß║íng mß╗Ñc c├│ ─æß╗º chuß╗ùi `UC ΓåÆ Sequence ΓåÆ DCD ΓåÆ Test nghiß╗çm thu`; DES-05 ─æ├ú k├╜ duyß╗çt.
+**Xong buổi sáng khi**: pilot chạy trơn từ UC → DCD mà không phải "giải thích thêm bằng miệng".
 
 ---
 
-## 7. Rß╗ªI RO & PH╞»╞áNG ├üN Dß╗░ PH├ÆNG
+## 6. NGÀY 3 CHIỀU → NGÀY 4 (03/11 – 04/11) — PHA D: THIẾT KẾ OOA → OOD → DESIGN
 
-| Rß╗ºi ro | Dß║Ñu hiß╗çu | C├ích xß╗¡ l├╜ |
+**Mục tiêu**: Thiết kế **gần như toàn bộ chức năng** của dự án (phần đã có + 9 hạng mục mở rộng) để từ 05/11 code là "dịch thiết kế ra Java".
+**Thư mục đầu ra**: `Docs_BaoCao/7_ThietKe/{OOA, OOD, Design}/`. Mọi tài liệu dùng template ở AI-04 và trích thẻ kiến thức.
+
+### 6.1. D1 — OOA (03/11 chiều)
+
+| Mã | Việc cần làm | Phụ trách |
+| :-: | :--- | :-: |
+| **OOA-01** | **Kiểm kê chức năng**: cái đã có + 9 hạng mục; gán độ ưu tiên **P1/P2/P3** và quan hệ phụ thuộc | Nam + Kiên |
+| **OOA-02** | Sơ đồ Use Case tổng + **Use Case brief** cho toàn bộ chức năng | Kiên |
+| **OOA-03** | **Fully dressed** cho UC ưu tiên, mỗi người một cụm: Sảnh chờ & Vòng bo (Huy) · Map & Mobs (Hoàng) · Hệ nhân vật & Bot (Kiên) · Đồ họa 2.5D (Anh) · Core/Điều khiển (Nam) | Từng người |
+| **OOA-04** | **Domain Model v2** (khái niệm thế giới thật, chưa có method) | Nam |
+| **OOA-05** | **SSD + Operation Contract** cho các thao tác hệ thống chính | Huy (lobby/mạng) · Kiên (chiến đấu) |
+| **OOA-06** | **Supplementary Spec (FURPS+)**: 60 FPS, server 20 Hz, độ trễ, số người, bản đồ 66.000 px | Hoàng |
+
+### 6.2. D2 — OOD (04/11 sáng)
+
+| Mã | Việc cần làm | Phụ trách |
+| :-: | :--- | :-: |
+| **OOD-01** | **Kiến trúc logic & bản đồ package v2** (lớp nào thuộc tầng nào) | Nam |
+| **OOD-02** | **Sơ đồ tương tác (Sequence)** cho từng UC, chỉ rõ GRASP (Controller, Expert, Creator…) | Từng người |
+| **OOD-03** | **DCD v2** từng cụm, sau đó Nam hợp nhất để không trùng/lệch tên lớp | Từng người → Nam |
+| **OOD-04** | **State Machine**: FSM nhân vật, luồng Sảnh chờ → Trận → Kết thúc, trạng thái Vòng bo | Nam · Huy |
+| **OOD-05** | **Thiết kế giao thức mạng**: gói tin, snapshot, đồng bộ Mobs/Bot, relay 4G | Huy |
+| **OOD-06** | **Thiết kế dữ liệu & cấu hình** (6 Mobs, 4 hệ nhân vật, vòng bo) theo Fowler/DDD | Hoàng |
+| **OOD-07** | **Bảng ánh xạ GoF/GRASP → lớp** (mẫu đã chọn + lý do + sách nào) | Kiên |
+| **OOD-08** | **Thiết kế pipeline render 2.5D**: Z-Sorting, culling, sprite/mobs | Anh |
+
+### 6.3. D3 — DESIGN CHI TIẾT & CHỐT (04/11 chiều)
+
+| Mã | Việc cần làm | Phụ trách |
+| :-: | :--- | :-: |
+| **DES-01** | **Luồng màn hình & wireframe**: Sảnh chờ, chọn Tướng/Team/Bot, HUD, minimap, vòng bo | Anh + Huy |
+| **DES-02** | **Bảng số liệu thiết kế**: chỉ số 4 hệ nhân vật, 6 Mobs, thông số vòng bo | Kiên + Hoàng |
+| **DES-03** | **Kế hoạch test & tiêu chí nghiệm thu** cho từng hạng mục | Hoàng |
+| **DES-04** | **Ma trận truy vết**: Yêu cầu → UC → Lớp → Test | Nam |
+| **DES-05** | **Review toàn bộ, đóng băng thiết kế v1.0**, chia task code cho từng người từ 05/11 | Cả nhóm |
+
+**Xong Ngày 4 khi**: mỗi hạng mục có đủ chuỗi `UC → Sequence → DCD → Test nghiệm thu`; DES-05 đã ký duyệt.
+
+---
+
+## 7. RỦI RO & PHƯƠNG ÁN DỰ PHÒNG
+
+| Rủi ro | Dấu hiệu | Cách xử lý |
 | :--- | :--- | :--- |
-| Pha A k├⌐o d├ái v├¼ s├ích qu├í d├ái | 18h ng├áy 01/11 vß║½n ch╞░a xong | Chß╗ë giß╗» c├íc ch╞░╞íng *╞»u ti├¬n*, phß║ºn c├▓n lß║íi ─æß╗â mß╗Ñc lß╗Ñc, **kh├┤ng chß║╖n** Pha B |
-| AI t├│m tß║»t sai/bß╗ïa trang | B├ío c├ío c├│ trang kh├┤ng tß╗ôn tß║íi | Luß║¡t AI-02 + review ch├⌐o BC-07; ghi `[Cß║ªN KIß╗éM TRA]` |
-| Mß╗ùi ng╞░ß╗¥i thiß║┐t kß║┐ mß╗Öt kiß╗âu | DCD t├¬n lß╗¢p lß╗çch nhau | D├╣ng template AI-04 + Nam hß╗úp nhß║Ñt ß╗ƒ OOD-03 |
-| Pha D qu├í nhiß╗üu so vß╗¢i 1,5 ng├áy | Hß║┐t 04/11 ch╞░a kß╗ïp Design | **L├ám theo thß╗⌐ tß╗▒ ╞░u ti├¬n P1 ΓåÆ P2 ΓåÆ P3**; hß║íng mß╗Ñc P3 ─æß╗â dß║íng Use Case brief, bß╗ò sung sau, **kh├┤ng** tß╗Ñt tiß║┐n ─æß╗Ö code P1 |
-| Pilot AI-07 lß╗Ö lß╗ùi lß╗¢n cß╗ºa bß╗Ö khung | Pilot phß║úi giß║úi th├¡ch th├¬m bß║▒ng miß╗çng | D├ánh ─æß╗º AI-08 ─æß╗â sß╗¡a; ch╞░a chß╗æt khung th├¼ ch╞░a v├áo Pha D |
+| Pha A kéo dài vì sách quá dài | 18h ngày 01/11 vẫn chưa xong | Chỉ giữ các chương *Ưu tiên*, phần còn lại để mục lục, **không chặn** Pha B |
+| AI tóm tắt sai/bịa trang | Báo cáo có trang không tồn tại | Luật AI-02 + review chéo BC-07; ghi `[CẦN KIỂM TRA]` |
+| Mỗi người thiết kế một kiểu | DCD tên lớp lệch nhau | Dùng template AI-04 + Nam hợp nhất ở OOD-03 |
+| Pha D quá nhiều so với 1,5 ngày | Hết 04/11 chưa kịp Design | **Làm theo thứ tự ưu tiên P1 → P2 → P3**; hạng mục P3 để dạng Use Case brief, bổ sung sau, **không** tụt tiến độ code P1 |
+| Pilot AI-07 lộ lỗi lớn của bộ khung | Pilot phải giải thích thêm bằng miệng | Dành đủ AI-08 để sửa; chưa chốt khung thì chưa vào Pha D |
 
 ---
 
-## 8. THEO D├òI TIß║╛N ─Éß╗ÿ
+## 8. THEO DÕI TIẾN ĐỘ
 
-─É├ính dß║Ñu khi **─æ├ú duyß╗çt + commit** (kh├┤ng phß║úi khi AI vß╗½a sinh xong):
+Đánh dấu khi **đã duyệt + commit** (không phải khi AI vừa sinh xong):
 
-* **Pha A**: ΓÿÉ KT-01 ΓÿÉ KT-02 ΓÿÉ KT-03 ΓÿÉ KT-04 ΓÿÉ KT-05 ΓÿÉ KT-06 ΓÿÉ KT-07 ΓÿÉ KT-08 ΓÿÉ KT-09
-* **Pha B**: ΓÿÉ BC-01 ΓÿÉ BC-02 ΓÿÉ BC-03 ΓÿÉ BC-04 ΓÿÉ BC-05 ΓÿÉ BC-06 ΓÿÉ BC-07 ΓÿÉ BC-08
-* **Pha C**: ΓÿÉ AI-01 ΓÿÉ AI-02 ΓÿÉ AI-03 ΓÿÉ AI-04 ΓÿÉ AI-05 ΓÿÉ AI-06 ΓÿÉ AI-07 ΓÿÉ AI-08
-* **Pha D1 (OOA)**: ΓÿÉ OOA-01 ΓÿÉ OOA-02 ΓÿÉ OOA-03 ΓÿÉ OOA-04 ΓÿÉ OOA-05 ΓÿÉ OOA-06
-* **Pha D2 (OOD)**: ΓÿÉ OOD-01 ΓÿÉ OOD-02 ΓÿÉ OOD-03 ΓÿÉ OOD-04 ΓÿÉ OOD-05 ΓÿÉ OOD-06 ΓÿÉ OOD-07 ΓÿÉ OOD-08
-* **Pha D3 (Design)**: ΓÿÉ DES-01 ΓÿÉ DES-02 ΓÿÉ DES-03 ΓÿÉ DES-04 ΓÿÉ DES-05
+* **Pha A**: ☐ KT-01 ☐ KT-02 ☐ KT-03 ☐ KT-04 ☐ KT-05 ☐ KT-06 ☐ KT-07 ☐ KT-08 ☐ KT-09
+* **Pha B**: ☐ BC-01 ☐ BC-02 ☐ BC-03 ☐ BC-04 ☐ BC-05 ☐ BC-06 ☐ BC-07 ☐ BC-08
+* **Pha C**: ☐ AI-01 ☐ AI-02 ☐ AI-03 ☐ AI-04 ☐ AI-05 ☐ AI-06 ☐ AI-07 ☐ AI-08
+* **Pha D1 (OOA)**: ☐ OOA-01 ☐ OOA-02 ☐ OOA-03 ☐ OOA-04 ☐ OOA-05 ☐ OOA-06
+* **Pha D2 (OOD)**: ☐ OOD-01 ☐ OOD-02 ☐ OOD-03 ☐ OOD-04 ☐ OOD-05 ☐ OOD-06 ☐ OOD-07 ☐ OOD-08
+* **Pha D3 (Design)**: ☐ DES-01 ☐ DES-02 ☐ DES-03 ☐ DES-04 ☐ DES-05
 
-> Ph├ón c├┤ng tr├¬n l├á **─æß╗ü xuß║Ñt** theo s├ích/ph├ón hß╗ç mß╗ùi ng╞░ß╗¥i ─æang phß╗Ñ tr├ích (Ki├¬nΓÇôLarman & Combat, AnhΓÇôNystrom & Render, HuyΓÇôGlazer & Mß║íng, Ho├ángΓÇôFowler/Vernon & Dß╗» liß╗çu/Test, NamΓÇôKiß║┐n tr├║c & tß╗òng hß╗úp). Nh├│m c├│ thß╗â ─æß╗òi ng╞░ß╗¥i cho c├ón tß║úi.
+> Phân công trên là **đề xuất** theo sách/phân hệ mỗi người đang phụ trách (Kiên–Larman & Combat, Anh–Nystrom & Render, Huy–Glazer & Mạng, Hoàng–Fowler/Vernon & Dữ liệu/Test, Nam–Kiến trúc & tổng hợp). Nhóm có thể đổi người cho cân tải.
