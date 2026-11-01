@@ -1,4 +1,4 @@
-# 🌌 BẢN ĐỒ TOÀN CẢNH ĐỒ ÁN OOP NHÓM 5 (OBSIDIAN DASHBOARD)
+# 🌌 BẢN ĐỒ TOÀN CẢNH ĐỒ ÁN OOP NHÓM 1 (OBSIDIAN DASHBOARD)
 > **Đề tài**: Hệ thống Trò chơi Đấu trường Hành động 3D Phối cảnh Đa nền tảng (PC & Android Multiplayer Action RPG)  
 > **Nhóm trưởng**: **Trung Kiên (`KienEsto`)** | **Kiến trúc sư**: **Duy Nam (`Tran1209`)** | **Kỹ sư Mạng**: **Đức Huy (`duchuy462007`)**  
 > **Kho lưu trữ GitHub**: [`https://github.com/Tran1209/UML-Patterns-Mastery`](https://github.com/Tran1209/UML-Patterns-Mastery)
