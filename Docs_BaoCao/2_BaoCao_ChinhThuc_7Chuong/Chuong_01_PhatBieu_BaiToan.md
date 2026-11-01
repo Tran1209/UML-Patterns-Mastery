@@ -2,8 +2,8 @@
 
 > **Môn học**: Lập trình Hướng đối tượng (OOP)
 > **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin
-> **Nhóm thực hiện**: Duy Nam ·Trung Kiên · Đức Anh · Đức Huy · Huy Hoàng
-> **Ngôn ngữ cài đặt**: Java 2d A
+> **Nhóm thực hiện**: Nhóm 1 (Trung Kiên · Duy Nam · Nguyễn Đức Huy · Đức Anh · Huy Hoàng)
+> **Ngôn ngữ cài đặt**: Java (Pure Java SE 21+ / Clean Architecture / 2.5D Dimetric)
 
 ---
 

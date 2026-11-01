@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * Bộ kiểm thử tự động toàn diện (Automated Unit & Netcode Test Suite).
- * Phụ trách: Bùi Minh Hoàng (QA/QC Test Engineer) & Trần Trung Kiên.
+ * Phụ trách: Huy Hoàng (Mobs & QA Engineer) & Trung Kiên (Team Leader).
  */
 public class GameUnitTestSuite {
 

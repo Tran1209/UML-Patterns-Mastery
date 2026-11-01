@@ -2,7 +2,7 @@
 
 > **Môn học**: Lập trình Hướng đối tượng (OOP)  
 > **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin  
-> **Nhóm sinh viên thực hiện**: Nam · Kiên · Anh · Huy · Hoàng  
+> **Nhóm sinh viên thực hiện**: Nhóm 1 (Trung Kiên · Duy Nam · Nguyễn Đức Huy · Đức Anh · Huy Hoàng)  
 > **Chuẩn trích dẫn**: IEEE / APA Academic Citation Standard  
 > **Kho dữ liệu số**: Đã bóc tách toàn văn các chương trong `00_Raw_PDF/chapters_md/`
 
