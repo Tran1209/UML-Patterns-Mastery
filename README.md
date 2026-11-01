@@ -4,7 +4,7 @@
 
 ---
 
-## 👥 Thành Viên Nhóm 5
+## 👥 Thành Viên Nhóm 1
 
 | STT | Họ và Tên | GitHub | Vai Trò & Phân hệ Phụ Trách |
 | :-: | :--- | :--- | :--- |

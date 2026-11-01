@@ -1,6 +1,6 @@
 @echo off
 cd /d "%~dp0"
-title QUAN LY DU AN - TRUNG KIEN (TEAM LEADER) - NHOM 5
+title QUAN LY DU AN - TRUNG KIEN (TEAM LEADER) - NHOM 1
 
 set "MY_BRANCH=Kien"
 set "MY_NAME=Trung Kien"
@@ -10,7 +10,7 @@ set "MY_ROLE=KienEsto - Team Leader / Combat"
 :MENU
 cls
 echo ===============================================================================
-echo          HE THONG QUAN LY DO AN OOP - 2D ACTION RPG ARENA (NHOM 5)
+echo          HE THONG QUAN LY DO AN OOP - 2D ACTION RPG ARENA (NHOM 1)
 echo          Thanh vien : %MY_NAME% (%MY_ROLE%)
 echo          Nhanh Git  : [%MY_BRANCH%] (Khong gian lam viec rieng cua %MY_NAME%)
 echo ===============================================================================
