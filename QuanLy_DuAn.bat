@@ -4,8 +4,10 @@ title QUAN LY DU AN NHOM 5 - 2D ACTION RPG ARENA (HUCE OOP 2026)
 
 :MENU
 cls
-set "CUR_BRANCH=main"
-for /f "tokens=*" %%b in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CUR_BRANCH=%%b"
+set "CUR_BRANCH="
+for /f "tokens=*" %%b in ('git branch --show-current 2^>nul') do set "CUR_BRANCH=%%b"
+if "%CUR_BRANCH%"=="" for /f "tokens=*" %%b in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CUR_BRANCH=%%b"
+if "%CUR_BRANCH%"=="" set "CUR_BRANCH=main"
 
 echo ===============================================================================
 echo          HE THONG QUAN LY DO AN OOP - 2D ACTION RPG ARENA (NHOM 5)
@@ -157,7 +159,8 @@ goto MENU
 
 :BR_KIEN
 git fetch --all
-git checkout Kien 2>nul || git checkout -b Kien origin/Kien
+git checkout Kien || git checkout -b Kien origin/Kien
+if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Kien]! & pause & goto MENU)
 git pull origin Kien --no-edit
 echo [THANH CONG] Da chuyen sang nhanh [Kien]!
 pause
@@ -165,7 +168,8 @@ goto MENU
 
 :BR_HUY
 git fetch --all
-git checkout Huy 2>nul || git checkout -b Huy origin/Huy
+git checkout Huy || git checkout -b Huy origin/Huy
+if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Huy]! & pause & goto MENU)
 git pull origin Huy --no-edit
 echo [THANH CONG] Da chuyen sang nhanh [Huy]!
 pause
@@ -173,7 +177,8 @@ goto MENU
 
 :BR_ANH
 git fetch --all
-git checkout Anh 2>nul || git checkout -b Anh origin/Anh
+git checkout Anh || git checkout -b Anh origin/Anh
+if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Anh]! & pause & goto MENU)
 git pull origin Anh --no-edit
 echo [THANH CONG] Da chuyen sang nhanh [Anh]!
 pause
@@ -181,7 +186,8 @@ goto MENU
 
 :BR_HOANG
 git fetch --all
-git checkout Hoang 2>nul || git checkout -b Hoang origin/Hoang
+git checkout Hoang || git checkout -b Hoang origin/Hoang
+if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Hoang]! & pause & goto MENU)
 git pull origin Hoang --no-edit
 echo [THANH CONG] Da chuyen sang nhanh [Hoang]!
 pause
@@ -203,6 +209,7 @@ git pull origin main --no-edit
 git merge origin/Kien -m "merge: gop nhanh Kien vao main"
 git push origin main
 echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Kien] vao [main]!
+git checkout Kien
 pause
 goto MENU
 
@@ -214,6 +221,7 @@ git pull origin main --no-edit
 git merge origin/Huy -m "merge: gop nhanh Huy vao main"
 git push origin main
 echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Huy] vao [main]!
+git checkout Huy
 pause
 goto MENU
 
@@ -225,6 +233,7 @@ git pull origin main --no-edit
 git merge origin/Anh -m "merge: gop nhanh Anh vao main"
 git push origin main
 echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Anh] vao [main]!
+git checkout Anh
 pause
 goto MENU
 
@@ -236,13 +245,15 @@ git pull origin main --no-edit
 git merge origin/Hoang -m "merge: gop nhanh Hoang vao main"
 git push origin main
 echo [THANH CONG] Da gop toan bo thay doi cua nhanh [Hoang] vao [main]!
+git checkout Hoang
 pause
 goto MENU
 
 :BR_SYNC_KIEN
 echo Dang dong bo code moi nhat tu [main] sang [Kien]...
 git fetch --all
-git checkout Kien 2>nul || git checkout -b Kien origin/Kien
+git checkout Kien || git checkout -b Kien origin/Kien
+if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Kien]! & pause & goto MENU)
 git merge origin/main -m "merge: cap nhat main vao nhanh Kien"
 git push origin Kien
 echo [THANH CONG] Nhanh [Kien] da co code moi nhat tu [main]!
@@ -252,7 +263,8 @@ goto MENU
 :BR_SYNC_HUY
 echo Dang dong bo code moi nhat tu [main] sang [Huy]...
 git fetch --all
-git checkout Huy 2>nul || git checkout -b Huy origin/Huy
+git checkout Huy || git checkout -b Huy origin/Huy
+if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Huy]! & pause & goto MENU)
 git merge origin/main -m "merge: cap nhat main vao nhanh Huy"
 git push origin Huy
 echo [THANH CONG] Nhanh [Huy] da co code moi nhat tu [main]!
@@ -262,7 +274,8 @@ goto MENU
 :BR_SYNC_ANH
 echo Dang dong bo code moi nhat tu [main] sang [Anh]...
 git fetch --all
-git checkout Anh 2>nul || git checkout -b Anh origin/Anh
+git checkout Anh || git checkout -b Anh origin/Anh
+if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Anh]! & pause & goto MENU)
 git merge origin/main -m "merge: cap nhat main vao nhanh Anh"
 git push origin Anh
 echo [THANH CONG] Nhanh [Anh] da co code moi nhat tu [main]!
@@ -272,7 +285,8 @@ goto MENU
 :BR_SYNC_HOANG
 echo Dang dong bo code moi nhat tu [main] sang [Hoang]...
 git fetch --all
-git checkout Hoang 2>nul || git checkout -b Hoang origin/Hoang
+git checkout Hoang || git checkout -b Hoang origin/Hoang
+if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Hoang]! & pause & goto MENU)
 git merge origin/main -m "merge: cap nhat main vao nhanh Hoang"
 git push origin Hoang
 echo [THANH CONG] Nhanh [Hoang] da co code moi nhat tu [main]!
