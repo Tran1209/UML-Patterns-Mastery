@@ -2,12 +2,12 @@
 
 > **Môn học**: Lập trình Hướng đối tượng (OOP)  
 > **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin  
-> **Nhóm sinh viên thực hiện**:  
-> 1. **Nguyễn Hoài Nam** (Trưởng nhóm / Lead Architect) — *Phụ trách Core Architecture & FSM*  
-> 2. **Trần Trung Kiên** — *Phụ trách Dedicated Server & Real-Time Netcode*  
-> 3. **Phạm Quang Anh** — *Phụ trách Combat Engine, Physics & Collision*  
-> 4. **Vũ Quang Huy** — *Phụ trách Client Rendering 60 FPS, HUD & Observer*  
-> 5. **Bùi Minh Hoàng** — *Phụ trách Persistence, Data Mapper & QA/Benchmarking*  
+> **Nhóm sinh viên thực hiện (Nhóm 1)**:  
+> 1. **Trung Kiên** (Trưởng nhóm / Team Leader) — *Phụ trách Combat Engine, Kỹ năng AOV & Điều khiển WASD/Chuột*  
+> 2. **Duy Nam** (Kiến trúc sư trưởng / Lead Architect) — *Phụ trách Core Domain Architecture, State Machine & Tích hợp*  
+> 3. **Nguyễn Đức Huy** (Kỹ sư Mạng / Network Engineer) — *Phụ trách Dedicated Server 20Hz, Mạng Hybrid LAN & Sảnh Chờ*  
+> 4. **Đức Anh** (Kỹ sư Đồ họa / 2.5D Graphics Engineer) — *Phụ trách Đồ họa 2.5D, LPC Sprite, Z-Sorting & Camera2D*  
+> 5. **Huy Hoàng** (Kỹ sư Quái vật & QA / Mobs & QA Engineer) — *Phụ trách Quái vật Mobs AI, Lưu trữ JSON & 15/15 Unit Tests*  
 > **Tư tưởng chủ đạo**: Đánh giá khách quan, tôn vinh nền tảng kinh điển nhưng phản biện sắc bén bằng tư duy kỹ nghệ năm 2026.
 
 ---
@@ -83,11 +83,11 @@ flowchart TD
 
 | Thành viên                     | Trọng tâm phụ trách   | Bài học Kỹ nghệ Đắt giá Nhất Rút ra từ Đồ án                                                                                                                                                       |
 | :----------------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Nguyễn Hoài Nam** *(Leader)* | Core Loop & FSM       | Hiểu sâu sắc sự khác biệt sống còn giữa **Domain Model (OOA)** và **DCD (OOD)**; kinh nghiệm phân chia kiến trúc thành các Bounded Context độc lập để 5 người code cùng lúc không bị xung đột Git. |
-| **Trần Trung Kiên**            | Network Server & LERP | Thấm thía định luật Murphy trong lập trình mạng: *"Mọi thứ đều có thể trễ và mất mát"*. Khắc phục triệt để tư duy Client-Authoritative; làm chủ giải thuật toán học LERP nội suy tọa độ.           |
-| **Phạm Quang Anh**             | Combat & Physics      | Nắm vững kỹ thuật phân vùng không gian (Spatial Partition) — hiểu vì sao một lập trình viên giỏi không bao giờ dùng thuật toán $O(N^2)$ trong vòng lặp game 60 FPS.                                |
-| **Vũ Quang Huy**               | Client UI & Observer  | Làm chủ nguyên lý Model-View Separation: Nhận ra vẻ đẹp của Observer Pattern khi toàn bộ mã nguồn đồ họa Canvas không hề vướng bận một dòng code tính toán sát thương nào.                         |
-| **Bùi Minh Hoàng**             | Persistence & QA Test | Tầm quan trọng của Unit Test tự động: Một hệ thống có bộ test tốt cho phép nhóm tự tin tái cấu trúc (Refactoring) code lớn mà không sợ làm vỡ tính năng cũ; áp dụng Data Mapper tách rời tệp JSON. |
+| **Trung Kiên** *(Nhóm trưởng)*  | Combat Engine & Kỹ năng AOV | Nắm vững kiến trúc Strategy & Command Pattern cho chiêu thức định hướng; tối ưu phím bấm WASD + Q/E/R và xử lý va chạm Hitbox chuẩn xác trong không gian 2.5D. |
+| **Duy Nam** *(Lead Architect)*  | Core Domain, FSM & Clean Arch | Hiểu sâu sắc sự khác biệt sống còn giữa **Domain Model (OOA)** và **DCD (OOD)**; kinh nghiệm phân chia kiến trúc thành các Bounded Context độc lập để 5 người code cùng lúc không bị xung đột Git. |
+| **Nguyễn Đức Huy**              | Network Server 20Hz & Sảnh Chờ | Thấm thía định luật Murphy trong lập trình mạng: *"Mọi thứ đều có thể trễ và mất mát"*. Khắc phục triệt để tư duy Client-Authoritative; làm chủ giải thuật toán học LERP nội suy tọa độ và Relay 4G. |
+| **Đức Anh**                     | Đồ họa 2.5D, LPC Sprite & Z-Sorting | Làm chủ nguyên lý Model-View Separation: Xây dựng hệ thống Render 2.5D Dimetric tách rời hoàn toàn khỏi Core; áp dụng Flyweight và Z-Sorting sắp xếp chiều sâu không giật lag ở 60 FPS. |
+| **Huy Hoàng**                   | Mobs AI, JSON Data & QA Unit Tests | Tầm quan trọng của Unit Test tự động: Một hệ thống có bộ test tốt cho phép nhóm tự tin tái cấu trúc code mà không sợ vỡ tính năng cũ; thiết kế Mobs AI đa dạng và đồng bộ lưu trữ JSON. |
 
 ---
 

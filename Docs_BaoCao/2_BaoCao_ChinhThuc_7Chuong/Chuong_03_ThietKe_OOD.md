@@ -2,12 +2,12 @@
 
 > **Môn học**: Lập trình Hướng đối tượng (OOP)  
 > **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin  
-> **Nhóm sinh viên thực hiện**:  
-> 1. **Nguyễn Hoài Nam** (Trưởng nhóm / Lead Architect) — *Phụ trách Core Architecture & FSM*  
-> 2. **Trần Trung Kiên** — *Phụ trách Dedicated Server & Real-Time Netcode*  
-> 3. **Phạm Quang Anh** — *Phụ trách Combat Engine, Physics & Collision*  
-> 4. **Vũ Quang Huy** — *Phụ trách Client Rendering 60 FPS, HUD & Observer*  
-> 5. **Bùi Minh Hoàng** — *Phụ trách Persistence, Data Mapper & QA/Benchmarking*  
+> **Nhóm sinh viên thực hiện (Nhóm 1)**:  
+> 1. **Trung Kiên** (Trưởng nhóm / Team Leader) — *Phụ trách Combat Engine, Kỹ năng AOV & Điều khiển WASD/Chuột*  
+> 2. **Duy Nam** (Kiến trúc sư trưởng / Lead Architect) — *Phụ trách Core Domain Architecture, State Machine & Tích hợp*  
+> 3. **Nguyễn Đức Huy** (Kỹ sư Mạng / Network Engineer) — *Phụ trách Dedicated Server 20Hz, Mạng Hybrid LAN & Sảnh Chờ*  
+> 4. **Đức Anh** (Kỹ sư Đồ họa / 2.5D Graphics Engineer) — *Phụ trách Đồ họa 2.5D, LPC Sprite, Z-Sorting & Camera2D*  
+> 5. **Huy Hoàng** (Kỹ sư Quái vật & QA / Mobs & QA Engineer) — *Phụ trách Quái vật Mobs AI, Lưu trữ JSON & 15/15 Unit Tests*  
 > **Giáo trình tham chiếu chính**: Craig Larman, *Applying UML and Patterns*, 3rd Edition (Chương 16, 17, 25, 26)  
 > **Mẫu thiết kế kinh điển**: Erich Gamma et al. (GoF), *Design Patterns: Elements of Reusable Object-Oriented Software*  
 > **Mẫu thiết kế game**: Robert Nystrom, *Game Programming Patterns*
@@ -555,16 +555,16 @@ Biểu đồ Thành phần phân chia toàn bộ giải pháp phần mềm thàn
 ```mermaid
 flowchart TD
     subgraph CLIENT_APP["ỨNG DỤNG MÁY KHÁCH (CLIENT APPLICATION)"]
-        UI_COMP["🎨 Module UI & Render<br/>(Huy — feature/client-ui)<br/>CanvasRenderer, HUD, InputAdapter"]
+        UI_COMP["🎨 Module UI & Render 2.5D<br/>(Đức Anh — nhánh Anh)<br/>CanvasRenderer, HUD, Z-Sorting, LPC"]
         INTERP_COMP["🔄 Module LERP Interpolator<br/>SnapshotInterpolator, LERP Buffer"]
         NET_CLIENT["📡 Module Client Socket<br/>TCP Client, Packet Serializer"]
     end
 
     subgraph SERVER_APP["ỨNG DỤNG MÁY CHỦ (DEDICATED SERVER)"]
-        NET_SERVER["🌐 Module Network Server<br/>(Kiên — feature/network-server)<br/>SocketListener, SessionManager"]
-        CORE_COMP["⚙️ Module Core Loop & Room<br/>(Nam — feature/core-loop)<br/>GameEngineLoop, Player FSM, Room"]
-        COMBAT_COMP["⚔️ Module Combat & Physics<br/>(Anh — feature/combat-system)<br/>Hitbox AABB, SpatialGrid, DamageStrategy"]
-        DATA_COMP["💾 Module Persistence & QA<br/>(Hoàng — feature/data-testing)<br/>JsonDataMapper, JUnit Test Suite"]
+        NET_SERVER["🌐 Module Network Server<br/>(Đức Huy — nhánh Huy)<br/>SocketListener, SessionManager, 20Hz LAN"]
+        CORE_COMP["⚙️ Module Core Loop & Room<br/>(Duy Nam — nhánh main)<br/>GameEngineLoop, Player FSM, Clean Arch"]
+        COMBAT_COMP["⚔️ Module Combat & Skills<br/>(Trung Kiên — nhánh Kien)<br/>Hitbox AABB, CombatEngine, 3 Kỹ Năng AOV"]
+        DATA_COMP["💾 Module Persistence & QA<br/>(Huy Hoàng — nhánh Hoang)<br/>JsonDataMapper, Mobs AI, 15 Unit Tests"]
     end
 
     UI_COMP --> INTERP_COMP

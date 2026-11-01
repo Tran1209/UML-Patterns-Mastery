@@ -2,12 +2,12 @@
 
 > **Môn học**: Lập trình Hướng đối tượng (OOP)  
 > **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin  
-> **Nhóm sinh viên thực hiện**:  
-> 1. **Nguyễn Hoài Nam** (Trưởng nhóm / Lead Architect) — *Phụ trách Core Architecture & FSM*  
-> 2. **Trần Trung Kiên** — *Phụ trách Dedicated Server & Real-Time Netcode*  
-> 3. **Phạm Quang Anh** — *Phụ trách Combat Engine, Physics & Collision*  
-> 4. **Vũ Quang Huy** — *Phụ trách Client Rendering 60 FPS, HUD & Observer*  
-> 5. **Bùi Minh Hoàng** — *Phụ trách Persistence, Data Mapper & QA/Benchmarking*  
+> **Nhóm sinh viên thực hiện (Nhóm 1)**:  
+> 1. **Trung Kiên** (Trưởng nhóm / Team Leader) — *Phụ trách Combat Engine, Kỹ năng AOV & Điều khiển WASD/Chuột*  
+> 2. **Duy Nam** (Kiến trúc sư trưởng / Lead Architect) — *Phụ trách Core Domain Architecture, State Machine & Tích hợp*  
+> 3. **Nguyễn Đức Huy** (Kỹ sư Mạng / Network Engineer) — *Phụ trách Dedicated Server 20Hz, Mạng Hybrid LAN & Sảnh Chờ*  
+> 4. **Đức Anh** (Kỹ sư Đồ họa / 2.5D Graphics Engineer) — *Phụ trách Đồ họa 2.5D, LPC Sprite, Z-Sorting & Camera2D*  
+> 5. **Huy Hoàng** (Kỹ sư Quái vật & QA / Mobs & QA Engineer) — *Phụ trách Quái vật Mobs AI, Lưu trữ JSON & 15/15 Unit Tests*  
 > **Môi trường thử nghiệm**: Mạng LAN Phòng máy Đại học Xây dựng Hà Nội (HUCE), 4 máy trạm Intel Core i5/i7, Java 17/21.
 
 ---
@@ -50,7 +50,7 @@ Mã nguồn bộ kiểm thử được cài đặt tập trung tại tệp [`Tes
 
 ## 5.3. THỰC NGHIỆM ĐO ĐẠC NETCODE: TRIỆT TIÊU LỖI GIẬT HÌNH (MICRO-STUTTER / JITTER)
 
-*(Thành viên phụ trách: **Trần Trung Kiên** & **Bùi Minh Hoàng**)*
+*(Thành viên phụ trách: **Huy Hoàng** & **Nguyễn Đức Huy**)*
 
 ### 5.3.1. Thiết lập Bài toán Thực nghiệm
 * **Nguyên nhân gốc rễ**: Server phát sóng ảnh chụp thế giới `WorldSnapshotPacket` ở tần số **20Hz** (tức cứ mỗi $50$ms mới có $1$ gói tin mới). Trong khi đó, màn hình máy khách vẽ đồ họa ở tốc độ **60 FPS** (cứ mỗi $16.6$ms vẽ $1$ khung hình).

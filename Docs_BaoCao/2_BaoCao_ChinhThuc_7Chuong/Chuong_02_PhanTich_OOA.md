@@ -2,12 +2,12 @@
 
 > **Môn học**: Lập trình Hướng đối tượng (OOP)  
 > **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin  
-> **Nhóm sinh viên thực hiện**:  
-> 1. **Nguyễn Hoài Nam** (Trưởng nhóm / Lead Architect) — *Phụ trách Core Architecture & Tổng hợp*  
-> 2. **Trần Trung Kiên** — *Phụ trách Dedicated Server & Real-Time Netcode*  
-> 3. **Phạm Quang Anh** — *Phụ trách Combat Engine, Physics & Collision*  
-> 4. **Vũ Quang Huy** — *Phụ trách Client Rendering 60 FPS, HUD & Observer*  
-> 5. **Bùi Minh Hoàng** — *Phụ trách Persistence, Data Mapper & QA/Benchmarking*  
+> **Nhóm sinh viên thực hiện (Nhóm 1)**:  
+> 1. **Trung Kiên** (Trưởng nhóm / Team Leader) — *Phụ trách Combat Engine, Kỹ năng AOV & Điều khiển WASD/Chuột*  
+> 2. **Duy Nam** (Kiến trúc sư trưởng / Lead Architect) — *Phụ trách Core Domain Architecture, State Machine & Tích hợp*  
+> 3. **Nguyễn Đức Huy** (Kỹ sư Mạng / Network Engineer) — *Phụ trách Dedicated Server 20Hz, Mạng Hybrid LAN & Sảnh Chờ*  
+> 4. **Đức Anh** (Kỹ sư Đồ họa / 2.5D Graphics Engineer) — *Phụ trách Đồ họa 2.5D, LPC Sprite, Z-Sorting & Camera2D*  
+> 5. **Huy Hoàng** (Kỹ sư Quái vật & QA / Mobs & QA Engineer) — *Phụ trách Quái vật Mobs AI, Lưu trữ JSON & 15/15 Unit Tests*  
 > **Giáo trình tham chiếu chính**: Craig Larman, *Applying UML and Patterns*, 3rd Edition (Chương 6, 9, 10, 11)  
 > **Mở rộng kỹ nghệ hiện đại**: Vaughn Vernon, *Implementing Domain-Driven Design* (Chương 10: Aggregates)
 
