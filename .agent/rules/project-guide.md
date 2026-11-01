@@ -2,7 +2,7 @@
 description: Quy chuẩn kiến trúc, lệnh biên dịch và quy trình làm việc nhóm cho dự án 2D Action RPG Arena (HUCE OOP 2026)
 ---
 
-# Bối cảnh Dự án Nhóm 5 — 2D Action RPG Arena (HUCE OOP 2026)
+# Bối cảnh Dự án Nhóm 1 — 2D Action RPG Arena (HUCE OOP 2026)
 
 1. **Thông tin Nhóm & Kho chứa**:
    - Repository: `https://github.com/Tran1209/UML-Patterns-Mastery.git`

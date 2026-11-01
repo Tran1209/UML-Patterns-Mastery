@@ -14,7 +14,7 @@
 
 ## 6.1. TỔNG KẾT KẾT QUẢ ĐẠT ĐƯỢC CỦA ĐỒ ÁN
 
-Sau 7 tuần nghiên cứu và thực hiện theo tiến trình lặp Unified Process (UP), nhóm 5 sinh viên đã hoàn thành xuất sắc đồ án môn Lập trình Hướng đối tượng với các kết quả cụ thể:
+Sau 7 tuần nghiên cứu và thực hiện theo tiến trình lặp Unified Process (UP), Nhóm 1 (gồm 5 sinh viên) đã hoàn thành xuất sắc đồ án môn Lập trình Hướng đối tượng với các kết quả cụ thể:
 
 1. **Về mặt Học thuật & Phương pháp luận**:
    * Hoàn thành trọn vẹn tập tài liệu báo cáo kỹ thuật 7 chương bám sát 100% barem chấm điểm của Khoa CNTT - Trường ĐH Xây dựng Hà Nội (HUCE).
