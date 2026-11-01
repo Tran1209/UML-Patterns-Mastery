@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ Đồ Quy Trình Git 5 Thành Viên - 2D Action RPG Arena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+    .glow-purple { box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.4); }
+    .glow-green { box-shadow: 0 0 25px -5px rgba(34, 197, 94, 0.4); }
+    .glow-blue { box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.4); }
+    .glow-amber { box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.4); }
+    .glow-rose { box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.4); }
+    .flow-line { stroke-dasharray: 6; animation: dash 1.5s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -12; } }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
+
+  <!-- Header Banner -->
+  <div class="max-w-7xl mx-auto mb-8 text-center">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-950/70 border border-violet-500/30 text-violet-300 text-xs font-semibold uppercase tracking-wider mb-3">
+      <i class="fa-solid fa-code-branch text-violet-400"></i> HUCE OOP 2026 · Nhóm 5 · Clean Architecture
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
+      Sơ Đồ Phân Quyền & Quy Trình 5 Thành Viên
+    </h1>
+    <p class="text-slate-400 mt-2 max-w-2xl mx-auto text-sm md:text-base">
+      Mỗi thành viên độc lập hoàn toàn trên máy tính cá nhân qua <b>Antigravity</b> và file <b>QuanLy_DuAn.bat riêng biệt</b>, không bao giờ lo lẫn lộn hay đè code của nhau.
+    </p>
+  </div>
+
+  <!-- Main Canvas Diagram Container -->
+  <div class="max-w-7xl mx-auto space-y-8">
+
+    <!-- LEVEL 1: GITHUB CLOUD (CENTRAL REPO) -->
+    <div class="relative bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 backdrop-blur shadow-2xl">
+      <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-600/20 border border-violet-500/40 flex items-center justify-center text-violet-400 text-xl">
+            <i class="fa-brands fa-github"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              GitHub Cloud Remote 
+              <span class="text-xs px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-400 font-mono">Tran1209/UML-Patterns-Mastery</span>
+            </h2>
+            <p class="text-xs text-slate-400">Máy chủ trung tâm lưu trữ các nhánh làm việc</p>
+          </div>
+        </div>
+        <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-400 font-medium bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> origin 5 branches synced
+        </span>
+      </div>
+
+      <!-- Cloud Branches Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6">
+        
+        <!-- origin/main -->
+        <div class="p-4 rounded-2xl bg-gradient-to-b from-violet-950/50 to-slate-900 border-2 border-violet-500/50 glow-purple relative group">
+          <div class="absolute -top-3 left-4 px-2 py-0.5 bg-violet-600 text-white text-[10px] font-bold rounded uppercase tracking-wider">
+            TRỤC CHÍNH (MASTER)
+          </div>
+          <div class="flex items-center gap-2 text-violet-300 font-bold text-base mt-1">
+            <i class="fa-solid fa-code-commit text-violet-400"></i> origin/main
+          </div>
+          <p class="text-xs text-slate-300 font-medium mt-1">Duy Nam (Lead Architect)</p>
+          <div class="mt-3 text-[11px] text-slate-400 space-y-1">
+            <div class="flex items-center gap-1.5"><i class="fa-solid fa-check text-violet-400 text-[10px]"></i> Bản chuẩn dự án</div>
+            <div class="flex items-center gap-1.5"><i class="fa-solid fa-shield text-violet-400 text-[10px]"></i> Đóng băng mã nguồn</div>
+          </div>
+        </div>
+
+        <!-- origin/Kien -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/40 glow-green">
+          <div class="flex items-center gap-2 text-emerald-300 font-bold text-base">
+            <i class="fa-solid fa-code-branch text-emerald-400"></i> origin/Kien
+          </div>
+          <p class="text-xs text-slate-300 font-medium mt-1">Trung Kiên (Team Leader)</p>
+          <div class="mt-3 text-[11px] text-slate-400 space-y-1">
+            <div>⚔️ Hệ thống Combat & Kỹ năng</div>
+            <div>🎯 WASD, Phím tắt & Chuột</div>
+          </div>
+        </div>
+
+        <!-- origin/Huy -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-sky-500/40 glow-blue">
+          <div class="flex items-center gap-2 text-sky-300 font-bold text-base">
+            <i class="fa-solid fa-code-branch text-sky-400"></i> origin/Huy
+          </div>
+          <p class="text-xs text-slate-300 font-medium mt-1">Đức Huy (Network Eng.)</p>
+          <div class="mt-3 text-[11px] text-slate-400 space-y-1">
+            <div>🌐 Mạng Multiplayer 20Hz LAN</div>
+            <div>☁️ MQTT Relay & Sảnh chờ</div>
+          </div>
+        </div>
+
+        <!-- origin/Anh -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-amber-500/40 glow-amber">
+          <div class="flex items-center gap-2 text-amber-300 font-bold text-base">
+            <i class="fa-solid fa-code-branch text-amber-400"></i> origin/Anh
+          </div>
+          <p class="text-xs text-slate-300 font-medium mt-1">Đức Anh (Graphics Eng.)</p>
+          <div class="mt-3 text-[11px] text-slate-400 space-y-1">
+            <div>🎨 Đồ họa 2.5D Isometric</div>
+            <div>👤 LPC Sprite & Z-Sorting</div>
+          </div>
+        </div>
+
+        <!-- origin/Hoang -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-rose-500/40 glow-rose">
+          <div class="flex items-center gap-2 text-rose-300 font-bold text-base">
+            <i class="fa-solid fa-code-branch text-rose-400"></i> origin/Hoang
+          </div>
+          <p class="text-xs text-slate-300 font-medium mt-1">Huy Hoàng (QA Eng.)</p>
+          <div class="mt-3 text-[11px] text-slate-400 space-y-1">
+            <div>👾 Quái vật Mobs AI</div>
+            <div>🧪 15/15 Unit Tests & JSON</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PIPELINE BRIDGE: ACTIONS [3] AND [4] -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Action 3 Card -->
+      <div class="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/30 rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-xl shrink-0">
+          [3]
+        </div>
+        <div>
+          <h3 class="text-emerald-300 font-bold text-sm md:text-base flex items-center gap-2">
+            ĐẨY CODE LOCAL LÊN GITHUB CỦA MÌNH
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 border border-emerald-700/50">git push</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Khi thành viên viết xong tính năng trên máy, bấm <b>[3]</b>: Tự động cấu hình chuẩn Email/Tên tác giả, đóng gói commit và đẩy thẳng lên đúng nhánh cá nhân trên GitHub.
+          </p>
+        </div>
+      </div>
+
+      <!-- Action 4 Card -->
+      <div class="bg-gradient-to-r from-sky-950/40 via-slate-900 to-slate-900 border border-sky-500/30 rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 font-black text-xl shrink-0">
+          [4]
+        </div>
+        <div>
+          <h3 class="text-sky-300 font-bold text-sm md:text-base flex items-center gap-2">
+            ĐỒNG BỘ TỪ MAIN VỀ MÁY & CẬP NHẬT GITHUB
+            <span class="text-xs px-2 py-0.5 rounded bg-sky-900/60 text-sky-300 border border-sky-700/50">Safe Merge</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Tự động sao lưu code local $\rightarrow$ Kéo bản mới nhất từ <b>origin/main</b> về máy $\rightarrow$ Gộp mượt mà $\rightarrow$ Giữ nguyên file quản lý riêng $\rightarrow$ Đẩy lên nhánh GitHub của mình.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEVEL 2: 5 INDEPENDENT MEMBER WORKSPACES (LOCAL) -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 backdrop-blur shadow-2xl">
+      <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-600/20 border border-sky-500/40 flex items-center justify-center text-sky-400 text-xl">
+            <i class="fa-solid fa-laptop-code"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white">5 Máy Tính Cá Nhân (Local Workspaces)</h2>
+            <p class="text-xs text-slate-400">Mỗi máy mở Antigravity riêng, chạy file QuanLy_DuAn.bat riêng biệt</p>
+          </div>
+        </div>
+        <span class="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full font-mono">100% Isolated Local Environment</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6">
+
+        <!-- PC 1: Nam -->
+        <div class="bg-slate-950/80 rounded-2xl border border-violet-500/40 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-violet-400 bg-violet-950 px-2 py-0.5 rounded border border-violet-800">MÁY 1</span>
+              <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
+            </div>
+            <h4 class="font-bold text-white text-base mt-2">Duy Nam</h4>
+            <p class="text-[11px] text-violet-300">Lead Architect</p>
+            <div class="mt-3 space-y-1.5 text-[11px] text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-folder text-slate-500"></i> Nhánh: <b class="text-white font-mono">main</b>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-robot text-violet-400"></i> Antigravity local
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800/80">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">QuanLy_DuAn.bat</div>
+            <div class="bg-slate-900 rounded p-2 text-[10px] font-mono text-violet-300">
+              Nhanh: [main]<br>
+              [3] Day len main<br>
+              [4] Keo tu main ve
+            </div>
+          </div>
+        </div>
+
+        <!-- PC 2: Kien -->
+        <div class="bg-slate-950/80 rounded-2xl border border-emerald-500/40 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">MÁY 2</span>
+              <i class="fa-solid fa-user-ninja text-emerald-400 text-xs"></i>
+            </div>
+            <h4 class="font-bold text-white text-base mt-2">Trung Kiên</h4>
+            <p class="text-[11px] text-emerald-300">Team Leader / Combat</p>
+            <div class="mt-3 space-y-1.5 text-[11px] text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-folder text-slate-500"></i> Nhánh: <b class="text-white font-mono">Kien</b>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-robot text-emerald-400"></i> Antigravity local
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800/80">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">QuanLy_DuAn.bat</div>
+            <div class="bg-slate-900 rounded p-2 text-[10px] font-mono text-emerald-300">
+              Nhanh: [Kien]<br>
+              [3] Day len Kien<br>
+              [4] Dong bo tu main
+            </div>
+          </div>
+        </div>
+
+        <!-- PC 3: Huy -->
+        <div class="bg-slate-950/80 rounded-2xl border border-sky-500/40 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-sky-400 bg-sky-950 px-2 py-0.5 rounded border border-sky-800">MÁY 3</span>
+              <i class="fa-solid fa-network-wired text-sky-400 text-xs"></i>
+            </div>
+            <h4 class="font-bold text-white text-base mt-2">Nguyễn Đức Huy</h4>
+            <p class="text-[11px] text-sky-300">Network Engineer</p>
+            <div class="mt-3 space-y-1.5 text-[11px] text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-folder text-slate-500"></i> Nhánh: <b class="text-white font-mono">Huy</b>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-robot text-sky-400"></i> Antigravity local
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800/80">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">QuanLy_DuAn.bat</div>
+            <div class="bg-slate-900 rounded p-2 text-[10px] font-mono text-sky-300">
+              Nhanh: [Huy]<br>
+              [3] Day len Huy<br>
+              [4] Dong bo tu main
+            </div>
+          </div>
+        </div>
+
+        <!-- PC 4: Anh -->
+        <div class="bg-slate-950/80 rounded-2xl border border-amber-500/40 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">MÁY 4</span>
+              <i class="fa-solid fa-palette text-amber-400 text-xs"></i>
+            </div>
+            <h4 class="font-bold text-white text-base mt-2">Đức Anh</h4>
+            <p class="text-[11px] text-amber-300">2.5D Graphics Eng.</p>
+            <div class="mt-3 space-y-1.5 text-[11px] text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-folder text-slate-500"></i> Nhánh: <b class="text-white font-mono">Anh</b>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-robot text-amber-400"></i> Antigravity local
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800/80">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">QuanLy_DuAn.bat</div>
+            <div class="bg-slate-900 rounded p-2 text-[10px] font-mono text-amber-300">
+              Nhanh: [Anh]<br>
+              [3] Day len Anh<br>
+              [4] Dong bo tu main
+            </div>
+          </div>
+        </div>
+
+        <!-- PC 5: Hoang -->
+        <div class="bg-slate-950/80 rounded-2xl border border-rose-500/40 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">MÁY 5</span>
+              <i class="fa-solid fa-bug text-rose-400 text-xs"></i>
+            </div>
+            <h4 class="font-bold text-white text-base mt-2">Huy Hoàng</h4>
+            <p class="text-[11px] text-rose-300">Mobs & QA Engineer</p>
+            <div class="mt-3 space-y-1.5 text-[11px] text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-folder text-slate-500"></i> Nhánh: <b class="text-white font-mono">Hoang</b>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-robot text-rose-400"></i> Antigravity local
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800/80">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">QuanLy_DuAn.bat</div>
+            <div class="bg-slate-900 rounded p-2 text-[10px] font-mono text-rose-300">
+              Nhanh: [Hoang]<br>
+              [3] Day len Hoang<br>
+              [4] Dong bo tu main
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4 GOLDEN RULES OF COLLABORATION -->
+    <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 md:p-8">
+      <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i> 4 Nguyên Tắc Vàng Khi Làm Việc Cùng Antigravity
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="font-bold text-violet-400 mb-1">1. Antigravity là Local</div>
+          <p class="text-slate-400">AI chỉ đọc và viết file trong máy tính của bạn. Không bao giờ tự ý đẩy lên GitHub nếu bạn chưa bấm lệnh.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="font-bold text-emerald-400 mb-1">2. Test trước khi Push</div>
+          <p class="text-slate-400">Viết xong code bằng AI, luôn bấm phím <b>[1]</b> để game tự biên dịch và chạy thử xem có lỗi hay không.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="font-bold text-sky-400 mb-1">3. Phím [3] là Lưu Trữ</div>
+          <p class="text-slate-400">Hết buổi làm việc hoặc xong một tính năng, bấm <b>[3]</b> để gửi code lên nhánh cá nhân làm mốc an toàn.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="font-bold text-amber-400 mb-1">4. Phím [4] khi cần code mới</div>
+          <p class="text-slate-400">Khi Lead Architect thông báo đã gộp tính năng mới vào <b>main</b>, các bạn bấm <b>[4]</b> để máy mình lập tức có code mới nhất.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
