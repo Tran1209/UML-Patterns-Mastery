@@ -2,12 +2,12 @@
 
 > **Môn học**: Lập trình Hướng đối tượng (OOP)  
 > **Trường**: Đại học Xây dựng Hà Nội (HUCE) — Khoa Công nghệ Thông tin  
-> **Nhóm sinh viên thực hiện**:  
-> 1. **Nguyễn Hoài Nam** (Trưởng nhóm / Lead Architect) — *Phụ trách Core Architecture & FSM*  
-> 2. **Trần Trung Kiên** — *Phụ trách Dedicated Server & Real-Time Netcode*  
-> 3. **Phạm Quang Anh** — *Phụ trách Combat Engine, Physics & Collision*  
-> 4. **Vũ Quang Huy** — *Phụ trách Client Rendering 60 FPS, HUD & Observer*  
-> 5. **Bùi Minh Hoàng** — *Phụ trách Persistence, Data Mapper & QA/Benchmarking*  
+> **Nhóm sinh viên thực hiện (Nhóm 1)**:  
+> 1. **Trung Kiên** (Trưởng nhóm / Team Leader) — *Phụ trách Combat Engine, Kỹ năng AOV & Điều khiển WASD/Chuột*  
+> 2. **Duy Nam** (Kiến trúc sư trưởng / Lead Architect) — *Phụ trách Core Domain Architecture, State Machine & Tích hợp*  
+> 3. **Nguyễn Đức Huy** (Kỹ sư Mạng / Network Engineer) — *Phụ trách Dedicated Server 20Hz, Mạng Hybrid LAN & Sảnh Chờ*  
+> 4. **Đức Anh** (Kỹ sư Đồ họa / 2.5D Graphics Engineer) — *Phụ trách Đồ họa 2.5D, LPC Sprite, Z-Sorting & Camera2D*  
+> 5. **Huy Hoàng** (Kỹ sư Quái vật & QA / Mobs & QA Engineer) — *Phụ trách Quái vật Mobs AI, Lưu trữ JSON & 15/15 Unit Tests*  
 > **Môi trường cài đặt**: Java SE Development Kit 17/21 (LTS), Pure Socket TCP API, Không sử dụng thư viện/Game Engine ngoài.
 
 ---
@@ -20,11 +20,11 @@ Toàn bộ mã nguồn Java của trò chơi được đặt tại thư mục [`
 
 ```
 Src_Game/
-├── Core/           (Nam   - feature/core-loop)      : Vector2D, LivingEntity, Player, GameEngineLoop, IPlayerState
-├── Combat/         (Anh   - feature/combat-system)  : Hitbox, IDamageStrategy, PhysicalDamageStrategy, SpatialGridAoI
-├── Network/        (Kiên  - feature/network-server) : SnapshotInterpolator, Protocol Packets, Socket Handler
-├── UI/             (Huy   - feature/client-ui)       : IEntityEventListener, HudObserver, CanvasRenderer
-└── Persistence/    (Hoàng - feature/data-testing)    : MatchSummary, IMatchRepository, JsonFileMatchRepository
+├── Core/           (Duy Nam    - nhánh main)   : Vector2D, LivingEntity, Player, GameEngineLoop, IPlayerState
+├── Combat/         (Trung Kiên - nhánh Kien)   : Hitbox, IDamageStrategy, CombatEngine, 3 Kỹ Năng AOV
+├── Network/        (Đức Huy    - nhánh Huy)    : Dedicated Server 20Hz, Socket UDP/TCP, Cloud MQTT Relay
+├── Render/         (Đức Anh    - nhánh Anh)    : LPC Animated Sprite, Camera2D, 2.5D Dimetric Z-Sorting
+└── Persistence/    (Huy Hoàng  - nhánh Hoang)  : MatchSummary, JSON Data, Mobs AI, 15/15 Unit Tests
 ```
 
 ### 4.1.2. Môi trường Thực thi và Ràng buộc Kỹ thuật
@@ -35,7 +35,7 @@ Src_Game/
 
 ## 4.2. CÀI ĐẶT MODULE CORE (VÒNG LẶP THẾ GIỚI & MÁY TRẠNG THÁI)
 
-*(Thành viên phụ trách: **Nguyễn Hoài Nam** — Nhánh `feature/core-loop`)*
+*(Thành viên phụ trách: **Duy Nam** — Nhánh `main`)*
 
 Module Core là trái tim của hệ thống, quản lý sự sống của các thực thể và nhịp đập thời gian của thế giới game.
 
@@ -144,7 +144,7 @@ public abstract class GameEngineLoop implements Runnable {
 
 ## 4.3. CÀI ĐẶT MODULE COMBAT & PHYSICS (VA CHẠM & CHIẾN LƯỢC SÁT THƯƠNG)
 
-*(Thành viên phụ trách: **Phạm Quang Anh** — Nhánh `feature/combat-system`)*
+*(Thành viên phụ trách: **Trung Kiên** — Nhánh `Kien`)*
 
 ### 4.3.1. Hitbox — Kiểm tra Va chạm Hộp bao AABB
 Lớp [`Hitbox`](file:///E:/UML-Patterns-Mastery/Src_Game/Combat/Hitbox.java) tự kiểm tra va chạm với các hộp bao khác mà không cần đối tượng trung gian:
@@ -211,7 +211,7 @@ public class SpatialGridAoI {
 
 ## 4.4. CÀI ĐẶT MODULE NETWORK & DEDICATED SERVER (REAL-TIME NETCODE)
 
-*(Thành viên phụ trách: **Trần Trung Kiên** — Nhánh `feature/network-server`)*
+*(Thành viên phụ trách: **Nguyễn Đức Huy** — Nhánh `Huy`)*
 
 ### 4.4.1. Kiến trúc Dedicated Authoritative Server
 Máy chủ Socket TCP lắng nghe kết nối của các Client trên cổng 8080. Client chỉ có quyền gửi gói tin ý định di chuyển (`InputCommandPacket`). Server là nguồn sự thật duy nhất (Single Source of Truth), tự kiểm tra va chạm và phát sóng ảnh chụp thế giới (`WorldSnapshotPacket`) định kỳ ở chu kỳ 20Hz (50ms một lần).
@@ -253,7 +253,7 @@ public class SnapshotInterpolator {
 
 ## 4.5. CÀI ĐẶT MODULE UI & PERSISTENCE (QUAN SÁT VIÊN & LƯU TRỮ DỮ LIỆU)
 
-*(Thành viên phụ trách: **Vũ Quang Huy** — Nhánh `feature/client-ui` & **Bùi Minh Hoàng** — Nhánh `feature/data-testing`)*
+*(Thành viên phụ trách: **Đức Anh** — Nhánh `Anh` & **Huy Hoàng** — Nhánh `Hoang`)*
 
 ### 4.5.1. HudObserver — Áp dụng Mẫu Observer Pattern
 Lớp [`HudObserver`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/HudObserver.java) hiện thực giao diện [`IEntityEventListener`](file:///E:/UML-Patterns-Mastery/Src_Game/UI/IEntityEventListener.java), giúp giao diện thanh máu và thông báo trận đấu lắng nghe các sự kiện tử vong và sát thương mà không phụ thuộc vào lớp `LivingEntity`.
