@@ -1,6 +1,6 @@
 # 🗺️ SƠ ĐỒ & QUY TRÌNH LÀM VIỆC GIT 5 THÀNH VIÊN VỚI ANTIGRAVITY
 
-> **Dành riêng cho Đồ án Game OOP Nhóm 5 (HUCE 2026)**  
+> **Dành riêng cho Đồ án Game OOP Nhóm 1 (HUCE 2026)**  
 > **Repository**: [https://github.com/Tran1209/UML-Patterns-Mastery](https://github.com/Tran1209/UML-Patterns-Mastery)  
 > *Tất cả thành viên làm việc độc lập trên máy tính cá nhân qua AI Antigravity và file `QuanLy_DuAn.bat` riêng của nhánh mình.*
 
