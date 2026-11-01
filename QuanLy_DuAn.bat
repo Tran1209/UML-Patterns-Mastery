@@ -11,7 +11,13 @@ if "%CUR_BRANCH%"=="" set "CUR_BRANCH=main"
 
 echo ===============================================================================
 echo          HE THONG QUAN LY DO AN OOP - 2D ACTION RPG ARENA (NHOM 5)
-echo          Nhanh Git hien tai: [%CUR_BRANCH%]
+set "OWNER_TAG=Duy Nam (Tran1209 - Lead Architect)"
+if /i "%CUR_BRANCH%"=="Kien" set "OWNER_TAG=Trung Kien (KienEsto - Team Leader / Combat)"
+if /i "%CUR_BRANCH%"=="Huy" set "OWNER_TAG=Nguyen Duc Huy (duchuy462007 - Network / Server)"
+if /i "%CUR_BRANCH%"=="Anh" set "OWNER_TAG=Duc Anh (Alonee-code - Client UI / Graphics 2.5D)"
+if /i "%CUR_BRANCH%"=="Hoang" set "OWNER_TAG=Huy Hoang (HHoang2903 - Persistence / QA Test)"
+if /i "%CUR_BRANCH%"=="main" set "OWNER_TAG=Duy Nam (Tran1209 - Lead Architect / Core)"
+echo          Nhanh Git: [%CUR_BRANCH%] - %OWNER_TAG%
 echo ===============================================================================
 echo   [1] Chay Game tren PC (Menu Sanh Cho / Choi Don / Tao Phong / Vao Phong)
 echo   [2] Demo Nhanh Multiplayer tren PC (Tu mo 1 Server + 2 Client Kien va Nam)
@@ -162,7 +168,9 @@ git fetch --all
 git checkout Kien || git checkout -b Kien origin/Kien
 if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Kien]! & pause & goto MENU)
 git pull origin Kien --no-edit
-echo [THANH CONG] Da chuyen sang nhanh [Kien]!
+git config user.name "Trung Kien"
+git config user.email "kienesto@huce.edu.vn"
+echo [THANH CONG] Da chuyen sang nhanh [Kien] (Tac gia: Trung Kien - KienEsto)!
 pause
 goto MENU
 
@@ -171,7 +179,9 @@ git fetch --all
 git checkout Huy || git checkout -b Huy origin/Huy
 if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Huy]! & pause & goto MENU)
 git pull origin Huy --no-edit
-echo [THANH CONG] Da chuyen sang nhanh [Huy]!
+git config user.name "Nguyen Duc Huy"
+git config user.email "nguyenduchuy20070406-oss@users.noreply.github.com"
+echo [THANH CONG] Da chuyen sang nhanh [Huy] (Tac gia: Nguyen Duc Huy)!
 pause
 goto MENU
 
@@ -180,7 +190,9 @@ git fetch --all
 git checkout Anh || git checkout -b Anh origin/Anh
 if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Anh]! & pause & goto MENU)
 git pull origin Anh --no-edit
-echo [THANH CONG] Da chuyen sang nhanh [Anh]!
+git config user.name "Duc Anh"
+git config user.email "Alonee-code@users.noreply.github.com"
+echo [THANH CONG] Da chuyen sang nhanh [Anh] (Tac gia: Duc Anh)!
 pause
 goto MENU
 
@@ -189,7 +201,9 @@ git fetch --all
 git checkout Hoang || git checkout -b Hoang origin/Hoang
 if errorlevel 1 (echo [THAT BAI] Khong the chuyen sang nhanh [Hoang]! & pause & goto MENU)
 git pull origin Hoang --no-edit
-echo [THANH CONG] Da chuyen sang nhanh [Hoang]!
+git config user.name "Huy Hoang"
+git config user.email "HHoang2903@users.noreply.github.com"
+echo [THANH CONG] Da chuyen sang nhanh [Hoang] (Tac gia: Huy Hoang)!
 pause
 goto MENU
 
@@ -197,7 +211,9 @@ goto MENU
 git fetch --all
 git checkout main
 git pull origin main --no-edit
-echo [THANH CONG] Da chuyen ve nhanh chinh [main]!
+git config user.name "Tran1209"
+git config user.email "oknha278@gmail.com"
+echo [THANH CONG] Da chuyen ve nhanh chinh [main] (Tac gia: Duy Nam - Tran1209)!
 pause
 goto MENU
 
