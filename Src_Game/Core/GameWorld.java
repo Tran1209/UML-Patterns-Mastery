@@ -4,7 +4,6 @@ import combat.CombatEngine;
 import render.CompositeCharacterVisual;
 import render.LpcCharacterBuilder;
 import render.CharacterRenderer;
-import ui.HudObserver;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,12 +21,8 @@ public class GameWorld {
     private final List<Monster> monsters = new CopyOnWriteArrayList<>();
     private final List<Player> remotePlayers = new CopyOnWriteArrayList<>();
     private final CombatEngine combatEngine;
-    private final HudObserver hudObserver;
+    private final WaveManager waveManager;
 
-    private int currentWave = 1;
-    private int score = 0;
-    private double waveSpawnTimer = 0.0;
-    private boolean waveInProgress = false;
     private double matchTimeSeconds = 0.0;
 
     public GameWorld(String playerName) {
@@ -42,8 +37,7 @@ public class GameWorld {
         this.playerRenderer = new CharacterRenderer(visual);
 
         this.combatEngine = new CombatEngine(128); // Ô lưới 128x128 cho Spatial Grid
-        this.hudObserver = new HudObserver();
-        this.combatEngine.addEventListener(hudObserver);
+        this.waveManager = new WaveManager();
 
         startWave(1);
     }
@@ -68,16 +62,22 @@ public class GameWorld {
         return combatEngine;
     }
 
-    public HudObserver getHudObserver() {
-        return hudObserver;
+    public void addEventListener(IEntityEventListener listener) {
+        if (listener != null) {
+            combatEngine.addEventListener(listener);
+        }
+    }
+
+    public WaveManager getWaveManager() {
+        return waveManager;
     }
 
     public int getCurrentWave() {
-        return currentWave;
+        return waveManager.getCurrentWave();
     }
 
     public int getScore() {
-        return score;
+        return waveManager.getScore();
     }
 
     public double getMatchTimeSeconds() {
@@ -85,35 +85,7 @@ public class GameWorld {
     }
 
     public void startWave(int waveNumber) {
-        this.currentWave = waveNumber;
-        this.waveInProgress = true;
-        this.monsters.clear();
-
-        int goblinCount = 3 + waveNumber * 2;
-        int slimeCount = 2 + waveNumber;
-        int orcCount = Math.max(0, waveNumber - 1);
-
-        Random rnd = new Random();
-        for (int i = 0; i < goblinCount; i++) {
-            Vector2D spawn = getRandSpawnAround(player.getPosition(), 350, 600, rnd);
-            monsters.add(new Monster("goblin_" + waveNumber + "_" + i, Monster.MonsterType.GOBLIN, spawn));
-        }
-        for (int i = 0; i < slimeCount; i++) {
-            Vector2D spawn = getRandSpawnAround(player.getPosition(), 300, 550, rnd);
-            monsters.add(new Monster("slime_" + waveNumber + "_" + i, Monster.MonsterType.SLIME, spawn));
-        }
-        for (int i = 0; i < orcCount; i++) {
-            Vector2D spawn = getRandSpawnAround(player.getPosition(), 400, 700, rnd);
-            monsters.add(new Monster("orc_" + waveNumber + "_" + i, Monster.MonsterType.ORC_WARRIOR, spawn));
-        }
-    }
-
-    private Vector2D getRandSpawnAround(Vector2D center, double minR, double maxR, Random rnd) {
-        double angle = rnd.nextDouble() * Math.PI * 2;
-        double r = minR + rnd.nextDouble() * (maxR - minR);
-        double sx = Math.max(64, Math.min(WORLD_WIDTH - 64, center.getX() + Math.cos(angle) * r));
-        double sy = Math.max(64, Math.min(WORLD_HEIGHT - 64, center.getY() + Math.sin(angle) * r));
-        return new Vector2D(sx, sy);
+        waveManager.startWave(waveNumber, player.getPosition(), WORLD_WIDTH, WORLD_HEIGHT, monsters);
     }
 
     /**
@@ -122,7 +94,8 @@ public class GameWorld {
     public void update(double dt) {
         matchTimeSeconds += dt;
 
-        // 1. Cập nhật Player
+        // 1. Cập nhật Player (Điều hướng di chuyển tự động & Vật lý)
+        player.updateNavigation(dt);
         player.updatePhysics(dt);
         clampWithinBounds(player);
         playerRenderer.syncFromPlayer(player, dt);
@@ -147,27 +120,8 @@ public class GameWorld {
         // 5. Cập nhật các hiệu ứng hạt, số sát thương
         combatEngine.updateEffects(dt);
 
-        // 6. Dọn dẹp quái vật đã tử vong và cộng điểm (Thread-Safe với CopyOnWriteArrayList)
-        monsters.removeIf(m -> {
-            if (!m.isAlive()) {
-                score += m.getType().hp * 2;
-                return true;
-            }
-            return false;
-        });
-
-        // 7. Kiểm tra hoàn thành đợt quái (Wave Clear)
-        if (monsters.isEmpty() && waveInProgress) {
-            waveInProgress = false;
-            waveSpawnTimer = 3.0; // 3 giây chuẩn bị đợt mới
-        }
-
-        if (!waveInProgress) {
-            waveSpawnTimer -= dt;
-            if (waveSpawnTimer <= 0) {
-                startWave(currentWave + 1);
-            }
-        }
+        // 6. Cập nhật tiến độ đợt quái & điểm số (Ủy quyền cho WaveManager)
+        waveManager.update(dt, monsters, player.getPosition(), WORLD_WIDTH, WORLD_HEIGHT);
     }
 
     public void handlePlayerAttack() {
@@ -190,8 +144,8 @@ public class GameWorld {
 
     public void restartGame() {
         player.respawn(new Vector2D(WORLD_WIDTH / 2.0, WORLD_HEIGHT / 2.0));
-        score = 0;
         matchTimeSeconds = 0.0;
+        waveManager.reset();
         startWave(1);
     }
 

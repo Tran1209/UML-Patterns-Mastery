@@ -5,8 +5,10 @@ import combat.IDamageStrategy;
 import combat.PhysicalDamageStrategy;
 import combat.SpatialGridAoI;
 import core.LivingEntity;
+import core.Monster;
 import core.Player;
 import core.Vector2D;
+import core.WaveManager;
 import network.SnapshotInterpolator;
 import persistence.JsonFileMatchRepository;
 import persistence.MatchSummary;
@@ -14,6 +16,7 @@ import render.*;
 
 import java.awt.Rectangle;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +45,8 @@ public class GameUnitTestSuite {
         testCompositeLayerZOrdering();
         testLpcCharacterBuilderValidation();
         testCharacterRendererFsmSync();
+        testPlayerNavigationInformationExpert();
+        testWaveManagerCreatorPattern();
 
         System.out.println("==================================================");
         System.out.printf("📊 KẾT QUẢ KIỂM THỬ: %d/%d TEST CASES PASSED (%.1f%%)%n",
@@ -225,5 +230,48 @@ public class GameUnitTestSuite {
 
         assertTrue("CharacterRenderer đồng bộ mượt mà State Pattern FSM sang hoạt họa LPC",
                 idleOk && moveOk && attackOk && deadOk);
+    }
+
+    private static void testPlayerNavigationInformationExpert() {
+        Player player = new Player("p_nav", "Ezreal", new Vector2D(100, 100));
+        assertTrue("Player khởi tạo chưa có điểm đích điều hướng", !player.hasMoveTarget());
+
+        // Ra lệnh di chuyển sang phải (300, 100)
+        player.moveTo(new Vector2D(300, 100));
+        assertTrue("Player ghi nhận đích đến di chuyển hợp lệ", player.hasMoveTarget());
+
+        // Cập nhật điều hướng
+        player.updateNavigation(0.05);
+        boolean isMoving = "MOVING".equals(player.getCurrentState().getStateName());
+        boolean velocityRight = player.getVelocity().getX() > 0 && Math.abs(player.getVelocity().getY()) < 1e-3;
+        boolean facingRight = player.getFacingDirection() == Direction.RIGHT;
+
+        // Ra lệnh Stop
+        player.stopMoving();
+        boolean stopped = !player.hasMoveTarget() && player.getVelocity().length() < 1e-3
+                && "IDLE".equals(player.getCurrentState().getStateName());
+
+        assertTrue("Player Information Expert quản lý lộ trình di chuyển và dừng chuẩn MOBA",
+                isMoving && velocityRight && facingRight && stopped);
+    }
+
+    private static void testWaveManagerCreatorPattern() {
+        WaveManager waveManager = new WaveManager();
+        List<Monster> monsters = new ArrayList<>();
+        Vector2D heroPos = new Vector2D(800, 600);
+
+        waveManager.startWave(1, heroPos, 1600, 1200, monsters);
+        // Đợt 1: goblin = 3 + 1*2 = 5; slime = 2 + 1 = 3; orc = 0 => Tổng 8 quái
+        boolean countOk = monsters.size() == 8 && waveManager.isWaveInProgress();
+
+        // Tiêu diệt 1 quái vật và cập nhật tiến độ
+        Monster target = monsters.get(0);
+        target.takeDamage(999);
+        waveManager.update(0.016, monsters, heroPos, 1600, 1200);
+
+        boolean cleanedAndScored = monsters.size() == 7 && waveManager.getScore() > 0;
+
+        assertTrue("WaveManager Creator Pattern sinh quái chuẩn xác và quản lý vòng lặp đợt quái",
+                countOk && cleanedAndScored);
     }
 }

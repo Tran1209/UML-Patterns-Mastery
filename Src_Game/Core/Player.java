@@ -23,6 +23,11 @@ public class Player extends LivingEntity {
     private int deathCount;
     private final Hitbox hitbox;
 
+    // Trạng thái điều hướng di chuyển chuẩn MOBA (LOL Locomotion)
+    private Vector2D moveTarget = null;
+    private Monster targetMonster = null;
+    private final double arriveThreshold = 6.0;
+
     public Player(String id, String playerName, Vector2D spawnPosition) {
         super(id, spawnPosition, 100, 25, 10, 220.0);
         this.playerName = playerName;
@@ -63,6 +68,112 @@ public class Player extends LivingEntity {
         return new Hitbox(attackX, attackY, 65, 65);
     }
 
+    /**
+     * Ra lệnh cho nhân vật di chuyển tới tọa độ đích (Point Click Navigation).
+     * Áp dụng nguyên lý Information Expert: Player tự quản lý đích đến và lộ trình.
+     */
+    public void moveTo(Vector2D destination) {
+        if (!isAlive()) return;
+        this.targetMonster = null;
+        this.moveTarget = destination;
+    }
+
+    /**
+     * Khóa mục tiêu quái vật để truy đuổi và tấn công (Auto-Attack Target).
+     */
+    public void targetEnemy(Monster monster) {
+        if (!isAlive()) return;
+        this.targetMonster = monster;
+        if (monster != null && monster.isAlive()) {
+            this.moveTarget = monster.getPosition();
+        } else {
+            this.moveTarget = null;
+        }
+    }
+
+    /**
+     * Dừng toàn bộ lệnh di chuyển ngay lập tức (Stop Command chuẩn LOL).
+     */
+    public void stopMoving() {
+        this.moveTarget = null;
+        this.targetMonster = null;
+        this.velocity = new Vector2D(0, 0);
+        if (currentState instanceof MovingState) {
+            changeState(new IdleState());
+        }
+    }
+
+    public Vector2D getMoveTarget() {
+        return moveTarget;
+    }
+
+    public Monster getTargetMonster() {
+        return targetMonster;
+    }
+
+    public boolean hasMoveTarget() {
+        return moveTarget != null;
+    }
+
+    /**
+     * Cập nhật điều hướng di chuyển (Locomotion & Pathing) theo nguyên lý Information Expert.
+     * Tự động phán đoán khoảng cách, hướng quay mặt và chuyển đổi FSM State.
+     */
+    public void updateNavigation(double deltaTime) {
+        if (!isAlive()) {
+            stopMoving();
+            return;
+        }
+
+        if (!currentState.canMove()) {
+            this.velocity = new Vector2D(0, 0);
+            return;
+        }
+
+        if (targetMonster != null) {
+            if (!targetMonster.isAlive()) {
+                targetMonster = null;
+                moveTarget = null;
+            } else {
+                moveTarget = targetMonster.getPosition();
+                double distToMonster = position.distanceTo(targetMonster.getPosition());
+                if (distToMonster <= 65.0) {
+                    Vector2D diff = targetMonster.getPosition().subtract(position);
+                    this.facingDirection = Direction.fromVelocity(diff.getX(), diff.getY(), this.facingDirection);
+                    this.velocity = new Vector2D(0, 0);
+                    this.moveTarget = null;
+                    if (currentState instanceof MovingState) {
+                        changeState(new IdleState());
+                    }
+                    return;
+                }
+            }
+        }
+
+        if (moveTarget != null) {
+            Vector2D diff = moveTarget.subtract(position);
+            double dist = diff.length();
+
+            if (dist > arriveThreshold) {
+                Vector2D dir = diff.normalize();
+                this.velocity = dir.multiply(this.moveSpeed);
+                this.facingDirection = Direction.fromVelocity(velocity.getX(), velocity.getY(), this.facingDirection);
+                if (currentState instanceof IdleState) {
+                    changeState(new MovingState());
+                }
+            } else {
+                stopMoving();
+            }
+        } else {
+            if (this.velocity.length() > 0 && !(currentState instanceof AttackingState)) {
+                this.velocity = new Vector2D(0, 0);
+                if (currentState instanceof MovingState) {
+                    changeState(new IdleState());
+                }
+            }
+        }
+    }
+
     public void respawn(Vector2D spawnPosition) {
         this.position = spawnPosition;
         this.velocity = new Vector2D(0, 0);
@@ -72,7 +183,7 @@ public class Player extends LivingEntity {
         this.skill1Timer = 0.0;
         this.skill2Timer = 0.0;
         this.skill3Timer = 0.0;
-        changeState(new IdleState());
+        stopMoving();
     }
 
     public void heal(int amount) {
@@ -179,6 +290,7 @@ public class Player extends LivingEntity {
     @Override
     protected void onDeath() {
         this.deathCount++;
+        stopMoving();
         changeState(new DeadState());
     }
 

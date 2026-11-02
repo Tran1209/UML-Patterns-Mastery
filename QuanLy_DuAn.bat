@@ -46,7 +46,7 @@ if errorlevel 1 (
 )
 echo Main-Class: Main> build\manifest.txt
 jar cfm build\UmlPatternsMasteryGame.jar build\manifest.txt -C build\classes .
-start "" javaw -jar build\UmlPatternsMasteryGame.jar
+start "" javaw -Dsun.java2d.d3d=true -Dsun.java2d.transaccel=true -Dsun.java2d.ddforcevram=true -jar build\UmlPatternsMasteryGame.jar
 goto MENU
 
 :BUILD_APK

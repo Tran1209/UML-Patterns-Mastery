@@ -4,7 +4,7 @@ import core.LivingEntity;
 import core.Monster;
 import core.Player;
 import render.Direction;
-import ui.IEntityEventListener;
+import core.IEntityEventListener;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

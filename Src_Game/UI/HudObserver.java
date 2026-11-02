@@ -1,5 +1,7 @@
 package ui;
 
+import core.IEntityEventListener;
+
 /**
  * Lớp quan sát viên giao diện người dùng (HUD).
  * Hiển thị thanh máu, thông báo hạ gục mà không phụ thuộc trực tiếp vào logic chiến đấu.

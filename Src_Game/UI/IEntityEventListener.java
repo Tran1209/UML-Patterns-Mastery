@@ -1,10 +1,9 @@
 package ui;
 
 /**
- * Giao diện quan sát viên nhận thông báo sự kiện từ Domain sang UI.
- * Mẫu thiết kế Observer Pattern (GoF) đảm bảo Model-View Separation của Craig Larman.
+ * Giao diện quan sát viên tương thích ngược.
+ * @deprecated Sử dụng {@link core.IEntityEventListener} thuộc tầng Domain.
  */
-public interface IEntityEventListener {
-    void onHealthChanged(String entityId, int currentHp, int maxHp);
-    void onEntityDied(String victimId, String killerId);
+@Deprecated
+public interface IEntityEventListener extends core.IEntityEventListener {
 }

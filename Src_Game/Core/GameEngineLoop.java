@@ -36,6 +36,7 @@ public abstract class GameEngineLoop implements Runnable {
     public void run() {
         long previousTime = System.nanoTime();
         double accumulator = 0.0;
+        final long targetFrameNanos = (long) (timeStepSeconds * 1_000_000_000L);
 
         while (isRunning) {
             long currentTime = System.nanoTime();
@@ -59,12 +60,21 @@ public abstract class GameEngineLoop implements Runnable {
             float alpha = (float) (accumulator / timeStepSeconds);
             render(alpha);
 
-            // Nghỉ nhẹ 1ms để nhường CPU cho các luồng mạng
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+            // Nhịp khung hình mượt mà (Smooth Frame Pacing & High-Precision Sleep)
+            // Khắc phục hiện tượng trễ đồng hồ 15ms mặc định trên hệ điều hành Windows
+            long frameEndTime = System.nanoTime();
+            long frameDurationNanos = frameEndTime - currentTime;
+            long remainingNanos = targetFrameNanos - frameDurationNanos;
+
+            if (remainingNanos > 3_000_000L) {
+                try {
+                    Thread.sleep((remainingNanos - 2_000_000L) / 1_000_000L);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            } else if (remainingNanos > 0) {
+                Thread.yield();
             }
         }
     }

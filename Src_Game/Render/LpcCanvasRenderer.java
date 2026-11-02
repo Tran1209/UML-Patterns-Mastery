@@ -3,6 +3,7 @@ package render;
 import core.LivingEntity;
 import core.Monster;
 import core.Player;
+import network.WorldSnapshotPayload;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -29,6 +30,7 @@ public class LpcCanvasRenderer {
 
     private static final Map<String, BufferedImage> TEXTURE_CACHE = new HashMap<>();
     public static final double PROJECTION_RATIO_25D = 0.58; // Tỷ lệ nén trục Y trong phối cảnh 2.5D
+    private static final Font FONT_OVERHEAD = new Font("Segoe UI", Font.BOLD, 10);
 
     public static BufferedImage getTextureImage(LpcSpriteSheet sheet) {
         if (sheet == null || sheet.getAssetPath() == null || sheet.getAssetPath().isEmpty()) return null;
@@ -384,7 +386,7 @@ public class LpcCanvasRenderer {
         int barY = (int) y - 32;
 
         // Vẽ tên
-        g2d.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        g2d.setFont(FONT_OVERHEAD);
         FontMetrics fm = g2d.getFontMetrics();
         int nameW = fm.stringWidth(nameTag);
 
@@ -409,5 +411,42 @@ public class LpcCanvasRenderer {
         // Gờ sáng trên cùng thanh máu
         g2d.setColor(new Color(255, 255, 255, 90));
         g2d.drawLine(barX, barY, barX + (int) (barW * pct) - 1, barY);
+    }
+
+    /**
+     * Dựng hình quái vật nội suy mạng (Multiplayer Interpolated Monster) với thanh máu và bóng đổ 2.5D.
+     */
+    public static void renderInterpolatedMonster(Graphics2D g2d, WorldSnapshotPayload.EntityState state, double sx, double sy) {
+        g2d.setColor(new Color(0, 0, 0, 60));
+        g2d.fillOval((int) sx - 14, (int) sy + 14, 28, 8);
+
+        int px = (int) sx;
+        int py = (int) sy;
+
+        // Vẽ quái vật
+        g2d.setColor(new Color(85, 150, 65));
+        g2d.fillOval(px - 10, py - 18, 20, 16);
+        g2d.setColor(Color.YELLOW);
+        g2d.fillRect(px - 6, py - 12, 3, 3);
+        g2d.fillRect(px + 3, py - 12, 3, 3);
+        g2d.setColor(new Color(110, 70, 40));
+        g2d.fillRoundRect(px - 8, py - 2, 16, 14, 4, 4);
+
+        // Thanh máu và tên quái
+        int barW = 36;
+        int barH = 5;
+        int barX = px - barW / 2;
+        int barY = py - 30;
+
+        g2d.setFont(FONT_OVERHEAD);
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(state.name, px - g2d.getFontMetrics().stringWidth(state.name) / 2, barY - 4);
+
+        g2d.setColor(new Color(20, 20, 20, 200));
+        g2d.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
+
+        float pct = Math.max(0f, Math.min(1f, (float) state.hp / state.maxHp));
+        g2d.setColor(pct > 0.5f ? new Color(50, 205, 50) : Color.RED);
+        g2d.fillRect(barX, barY, (int) (barW * pct), barH);
     }
 }
