@@ -122,18 +122,31 @@ public final class CombatVisualRenderer {
             g2d.setStroke(new BasicStroke(1));
         }
 
-        // 3. Vệt chém kiếm 2.5D (Perspective Curved Slash Arcs)
+        // 3. Sóng năng lượng ma thuật 2.5D từ Gậy Phép (Arcane Magic Crescent Waves)
         for (CombatEffects.SlashEffect slash : ce.getSlashEffects()) {
             double sx = camera.worldToScreenX(slash.x);
-            double sy = camera.worldToScreenY(slash.y);
+            double sy = camera.worldToScreenY(slash.y) - 15;
             float alpha = (float) Math.max(0f, slash.lifeTime / slash.maxLifeTime);
 
-            g2d.setColor(new Color(1f, 0.92f, 0.5f, alpha * 0.9f));
-            g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             int arcAngle = slash.direction.getRowOffset() * 90;
-            g2d.drawArc((int) sx - 28, (int) (sy - 28 * ratio), 56, (int) (56 * ratio), -arcAngle - 45, 90);
+            int arcRadius = 42;
+            int arcRadiusY = (int) (arcRadius * ratio);
+
+            // Lớp quầng sáng ma pháp tỏa rộng (Outer Arcane Glow)
+            g2d.setColor(new Color(0, 229, 255, (int) (alpha * 120)));
+            g2d.setStroke(new BasicStroke(10f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2d.drawArc((int) sx - arcRadius, (int) sy - arcRadiusY, arcRadius * 2, arcRadiusY * 2, -arcAngle - 45, 90);
+
+            // Lõi sóng năng lượng trắng - lam phát quang (Inner Radiant Core)
+            g2d.setColor(new Color(230, 255, 255, (int) (alpha * 240)));
+            g2d.setStroke(new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2d.drawArc((int) sx - arcRadius, (int) sy - arcRadiusY, arcRadius * 2, arcRadiusY * 2, -arcAngle - 45, 90);
+
             g2d.setStroke(new BasicStroke(1));
         }
+
+        // 3.5. Tia sét ma thuật 2.5D theo hướng đánh (Arcane Lightning Bolts)
+        renderLightningBolts(g2d, ce, camera, ratio);
 
         // 4. Hạt tia lửa va chạm 2.5D (Particles with Bounce Trajectory)
         for (CombatEffects.HitParticle p : ce.getParticles()) {
@@ -279,5 +292,93 @@ public final class CombatVisualRenderer {
             g2d.drawLine(targetX, targetY - 10, targetX, targetY + 10);
             g2d.setStroke(new BasicStroke(1f));
         }
+    }
+
+    private static void renderLightningBolts(Graphics2D g2d, CombatEngine ce, Camera2D camera, double ratio) {
+        for (CombatEffects.LightningBoltEffect bolt : ce.getLightningBolts()) {
+            drawSingleLightningBolt(g2d, bolt, camera, ratio);
+        }
+    }
+
+    private static void drawSingleLightningBolt(Graphics2D g2d, CombatEffects.LightningBoltEffect bolt,
+                                                Camera2D camera, double ratio) {
+        float alpha = (float) Math.max(0f, bolt.lifeTime / bolt.maxLifeTime);
+        // Tọa độ đầu phát: Viên ngọc ma pháp trên đỉnh gậy phép (Staff Orb Tip 2.5D)
+        double sx1 = camera.worldToScreenX(bolt.startX);
+        double sy1 = camera.worldToScreenY(bolt.startY) - 22;
+        // Tọa độ điểm đích: Tâm thân mục tiêu quái vật (Target Torso 2.5D)
+        double sx2 = camera.worldToScreenX(bolt.targetX);
+        double sy2 = camera.worldToScreenY(bolt.targetY) - 12;
+
+        double dx = sx2 - sx1;
+        double dy = sy2 - sy1;
+        double len = Math.hypot(dx, dy);
+        if (len < 1.0) return;
+
+        double ux = dx / len;
+        double uy = dy / len;
+        double px = -uy;
+        double py = ux;
+
+        int segments = bolt.segmentsOffset.length;
+        double segLen = len / (segments + 1);
+
+        Path2D.Double boltPath = new Path2D.Double();
+        boltPath.moveTo(sx1, sy1);
+        double midX = sx1, midY = sy1;
+
+        for (int i = 0; i < segments; i++) {
+            double t = (i + 1) * segLen;
+            double offset = bolt.segmentsOffset[i] * (alpha * 0.7f + 0.3f);
+            double nx = sx1 + ux * t + px * offset;
+            double ny = sy1 + uy * t + py * offset;
+            boltPath.lineTo(nx, ny);
+            if (i == segments / 2) {
+                midX = nx;
+                midY = ny;
+            }
+        }
+        boltPath.lineTo(sx2, sy2);
+
+        // Nhánh sét phụ rẽ nhánh
+        double bx = ux * Math.cos(bolt.branchAngle) - uy * Math.sin(bolt.branchAngle);
+        double by = ux * Math.sin(bolt.branchAngle) + uy * Math.cos(bolt.branchAngle);
+        Path2D.Double branch = new Path2D.Double();
+        branch.moveTo(midX, midY);
+        branch.lineTo(midX + bx * (segLen * 1.5) + px * 10, midY + by * (segLen * 1.5) + py * 10);
+
+        // Điểm phát sét rực rỡ tại đầu gậy phép (Staff Orb Muzzle Flash)
+        int muzzleR = (int) (14 * (alpha * 0.7f + 0.3f));
+        g2d.setColor(new Color(0, 245, 255, (int) (alpha * 190)));
+        g2d.fillOval((int) sx1 - muzzleR, (int) sy1 - muzzleR, muzzleR * 2, muzzleR * 2);
+        g2d.setColor(new Color(255, 255, 255, (int) (alpha * 245)));
+        g2d.fillOval((int) sx1 - muzzleR / 2, (int) sy1 - muzzleR / 2, muzzleR, muzzleR);
+
+        // Lớp 1: Hào quang Plasma xanh lam rực rỡ
+        g2d.setColor(new Color(0, 229, 255, (int) (alpha * 140)));
+        g2d.setStroke(new BasicStroke(12f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2d.draw(boltPath);
+        g2d.draw(branch);
+
+        // Lớp 2: Thân tia sét lam điện
+        g2d.setColor(new Color(64, 210, 255, (int) (alpha * 220)));
+        g2d.setStroke(new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2d.draw(boltPath);
+        g2d.draw(branch);
+
+        // Lớp 3: Lõi sét trắng siêu nóng
+        g2d.setColor(new Color(255, 255, 255, (int) (alpha * 255)));
+        g2d.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2d.draw(boltPath);
+        g2d.draw(branch);
+
+        // Lớp 4: Điểm nổ điện tại mục tiêu
+        int impactR = (int) (16 * alpha);
+        g2d.setColor(new Color(0, 240, 255, (int) (alpha * 180)));
+        g2d.fillOval((int) sx2 - impactR, (int) sy2 - impactR, impactR * 2, impactR * 2);
+        g2d.setColor(new Color(255, 255, 255, (int) (alpha * 245)));
+        g2d.fillOval((int) sx2 - impactR / 2, (int) sy2 - impactR / 2, impactR, impactR);
+
+        g2d.setStroke(new BasicStroke(1));
     }
 }

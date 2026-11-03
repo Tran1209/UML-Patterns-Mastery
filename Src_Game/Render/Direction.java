@@ -54,4 +54,16 @@ public enum Direction {
             return vy > 0 ? DOWN : UP;
         }
     }
+
+    /**
+     * Chuyển đổi an toàn từ tên chuỗi sang Enum Direction.
+     */
+    public static Direction fromName(String name) {
+        if (name == null || name.trim().isEmpty()) return DOWN;
+        try {
+            return Direction.valueOf(name.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return DOWN;
+        }
+    }
 }

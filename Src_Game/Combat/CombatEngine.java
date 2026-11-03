@@ -38,6 +38,7 @@ public class CombatEngine {
     private final List<CombatEffects.HitParticle> particles = new CopyOnWriteArrayList<>();
     private final List<CombatEffects.SlashEffect> slashEffects = new CopyOnWriteArrayList<>();
     private final List<CombatEffects.SkillRingEffect> skillRings = new CopyOnWriteArrayList<>();
+    private final List<CombatEffects.LightningBoltEffect> lightningBolts = new CopyOnWriteArrayList<>();
     private final List<IEntityEventListener> eventListeners = new CopyOnWriteArrayList<>();
 
     public CombatEngine(int gridCellSize) {
@@ -82,6 +83,10 @@ public class CombatEngine {
         return skillRings;
     }
 
+    public List<CombatEffects.LightningBoltEffect> getLightningBolts() {
+        return lightningBolts;
+    }
+
     public void rebuildSpatialGrid(List<LivingEntity> allEntities) {
         spatialGrid.clear();
         for (LivingEntity e : allEntities) {
@@ -96,6 +101,17 @@ public class CombatEngine {
         particles.removeIf(p -> { p.update(dt); return p.isExpired(); });
         slashEffects.removeIf(s -> { s.update(dt); return s.isExpired(); });
         skillRings.removeIf(sr -> { sr.update(dt); return sr.isExpired(); });
+        lightningBolts.removeIf(lb -> { lb.update(dt); return lb.isExpired(); });
+    }
+
+    public void spawnAttackVisual(double startX, double startY, double targetX, double targetY, Direction dir) {
+        if (dir == null) dir = Direction.DOWN;
+        lightningBolts.add(new CombatEffects.LightningBoltEffect(startX, startY, targetX, targetY, dir, 0.30));
+        slashEffects.add(new CombatEffects.SlashEffect(
+                (startX + targetX) * 0.5, (startY + targetY) * 0.5, dir, 0.25
+        ));
+        spawnHitParticles(targetX, targetY, COLOR_CYAN, 8);
+        spawnHitParticles(startX, startY, 0xFFFFFFFF, 4);
     }
 
     public int executePlayerAttack(Player attacker, List<Monster> monsters) {
@@ -107,11 +123,39 @@ public class CombatEngine {
         Hitbox attackBox = attacker.getAttackArea();
         Direction dir = attacker.getFacingDirection();
 
-        slashEffects.add(new CombatEffects.SlashEffect(
-                attacker.getPosition().getX() + dir.getDirX() * 32,
-                attacker.getPosition().getY() + dir.getDirY() * 32,
-                dir, 0.20
-        ));
+        double startX = attacker.getPosition().getX() + dir.getDirX() * 22;
+        double startY = attacker.getPosition().getY() + dir.getDirY() * 22;
+
+        Monster target = attacker.getTargetMonster();
+        if (target == null || !target.isAlive() || attacker.getPosition().distanceTo(target.getPosition()) > Player.DEFAULT_ATTACK_RANGE + 35.0) {
+            target = null;
+            double bestDist = Player.DEFAULT_ATTACK_RANGE + 35.0;
+            List<LivingEntity> nearby = spatialGrid.queryNearby(attacker.getPosition());
+            for (LivingEntity entity : nearby) {
+                if (entity instanceof Monster && entity.isAlive()) {
+                    Monster m = (Monster) entity;
+                    if (attackBox.intersects(m.getHitbox())) {
+                        double d = attacker.getPosition().distanceTo(m.getPosition());
+                        if (d < bestDist) {
+                            bestDist = d;
+                            target = m;
+                        }
+                    }
+                }
+            }
+        }
+
+        double targetX;
+        double targetY;
+        if (target != null) {
+            targetX = target.getPosition().getX();
+            targetY = target.getPosition().getY();
+        } else {
+            targetX = attacker.getPosition().getX() + dir.getDirX() * Player.DEFAULT_ATTACK_RANGE;
+            targetY = attacker.getPosition().getY() + dir.getDirY() * Player.DEFAULT_ATTACK_RANGE;
+        }
+
+        spawnAttackVisual(startX, startY, targetX, targetY, dir);
 
         List<LivingEntity> nearby = spatialGrid.queryNearby(attacker.getPosition());
         int hitCount = 0;

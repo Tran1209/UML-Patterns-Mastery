@@ -11,6 +11,7 @@ public class Player extends LivingEntity {
     public static final double SKILL1_CD = 4.0;  // Chiêu 1: Xung Kích (Lướt)
     public static final double SKILL2_CD = 6.0;  // Chiêu 2: Vòng Xoáy Lửa (AoE + Hồi máu)
     public static final double SKILL3_CD = 10.0; // Chiêu 3: Thiên Phạt (Ultimate)
+    public static final double DEFAULT_ATTACK_RANGE = 150.0; // Tầm đánh xa của Gậy Phép Thuật (Magic Staff)
 
     private final String playerName;
     private IPlayerState currentState;
@@ -59,13 +60,20 @@ public class Player extends LivingEntity {
     }
 
     /**
-     * Tạo một Hitbox hình quạt/khu vực chém vũ khí trước mặt nhân vật theo hướng nhìn.
+     * Tạo một Hitbox chùm sóng năng lượng ma thuật phóng ra từ gậy phép theo hướng nhìn.
+     * Tầm đánh xa (DEFAULT_ATTACK_RANGE = 150px) bao phủ toàn bộ đường đạn trước mặt.
      */
     public Hitbox getAttackArea() {
-        double reach = 50.0;
-        double attackX = position.getX() + facingDirection.getDirX() * reach;
-        double attackY = position.getY() + facingDirection.getDirY() * reach;
-        return new Hitbox(attackX, attackY, 65, 65);
+        double centerReach = DEFAULT_ATTACK_RANGE * 0.55;
+        double attackX = position.getX() + facingDirection.getDirX() * centerReach;
+        double attackY = position.getY() + facingDirection.getDirY() * centerReach;
+
+        double boxW = (facingDirection == Direction.LEFT || facingDirection == Direction.RIGHT)
+                ? (DEFAULT_ATTACK_RANGE + 40.0) : 85.0;
+        double boxH = (facingDirection == Direction.UP || facingDirection == Direction.DOWN)
+                ? (DEFAULT_ATTACK_RANGE + 40.0) : 85.0;
+
+        return new Hitbox(attackX, attackY, boxW, boxH);
     }
 
     /**
@@ -80,12 +88,15 @@ public class Player extends LivingEntity {
 
     /**
      * Khóa mục tiêu quái vật để truy đuổi và tấn công (Auto-Attack Target).
+     * Tự động quay mặt chuẩn xác về phía mục tiêu.
      */
     public void targetEnemy(Monster monster) {
         if (!isAlive()) return;
         this.targetMonster = monster;
         if (monster != null && monster.isAlive()) {
             this.moveTarget = monster.getPosition();
+            Vector2D diff = monster.getPosition().subtract(position);
+            this.facingDirection = Direction.fromVelocity(diff.getX(), diff.getY(), this.facingDirection);
         } else {
             this.moveTarget = null;
         }
@@ -137,7 +148,7 @@ public class Player extends LivingEntity {
             } else {
                 moveTarget = targetMonster.getPosition();
                 double distToMonster = position.distanceTo(targetMonster.getPosition());
-                if (distToMonster <= 65.0) {
+                if (distToMonster <= DEFAULT_ATTACK_RANGE - 10.0) {
                     Vector2D diff = targetMonster.getPosition().subtract(position);
                     this.facingDirection = Direction.fromVelocity(diff.getX(), diff.getY(), this.facingDirection);
                     this.velocity = new Vector2D(0, 0);

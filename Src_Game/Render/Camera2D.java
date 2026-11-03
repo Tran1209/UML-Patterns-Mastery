@@ -16,8 +16,8 @@ public class Camera2D {
 
     private double x;
     private double y;
-    private final int viewWidth;
-    private final int viewHeight;
+    private int viewWidth;
+    private int viewHeight;
     private final double worldWidth;
     private final double worldHeight;
 
@@ -40,6 +40,17 @@ public class Camera2D {
         this.worldHeight = worldHeight;
         this.x = worldWidth / 2.0;
         this.y = worldHeight / 2.0;
+    }
+
+    /**
+     * Đồng bộ hóa kích thước khung nhìn thực tế của Canvas (Dynamic Viewport Resizing).
+     * Đảm bảo phép chiếu ngược con trỏ chuột sang tọa độ thế giới chính xác 100% từng pixel.
+     */
+    public void updateViewport(int viewWidth, int viewHeight) {
+        if (viewWidth > 0 && viewHeight > 0) {
+            this.viewWidth = viewWidth;
+            this.viewHeight = viewHeight;
+        }
     }
 
     public void update(Vector2D targetPos, double smoothFactor) {

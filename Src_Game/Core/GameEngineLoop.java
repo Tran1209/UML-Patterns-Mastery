@@ -66,9 +66,9 @@ public abstract class GameEngineLoop implements Runnable {
             long frameDurationNanos = frameEndTime - currentTime;
             long remainingNanos = targetFrameNanos - frameDurationNanos;
 
-            if (remainingNanos > 3_000_000L) {
+            if (remainingNanos > 2_000_000L) {
                 try {
-                    Thread.sleep((remainingNanos - 2_000_000L) / 1_000_000L);
+                    Thread.sleep(1);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;

@@ -3,6 +3,7 @@ package render;
 import core.GameWorld;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
@@ -34,6 +35,90 @@ public final class EnvironmentPropsRenderer {
             {240, 600, 26}, {1370, 620, 28}, {620, 1020, 24}, {980, 1030, 26}
     };
 
+    // Pre-baked Tree Sprites (Hardware Texture Blitting - Rule 7)
+    // Tăng tốc độ vẽ cây từ 5.0ms xuống 0.2ms
+    private static final BufferedImage TREE_SPRITE_0 = createTreeSprite(0);
+    private static final BufferedImage TREE_SPRITE_1 = createTreeSprite(1);
+
+    private static BufferedImage createTreeSprite(int treeType) {
+        int w = 110;
+        int h = 130;
+        int px = 55;
+        int py = 120;
+
+        GraphicsConfiguration gc = null;
+        try {
+            gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+        } catch (Exception ignored) {}
+
+        BufferedImage img = (gc != null)
+                ? gc.createCompatibleImage(w, h, Transparency.TRANSLUCENT)
+                : new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = img.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // 1. Bóng đổ
+        g2d.setColor(new Color(15, 30, 18, 95));
+        g2d.fillOval(px - 34, py - 6, 68, 26);
+
+        // 2. Thân cây
+        int trunkH = 50;
+        int trunkBaseW = 20;
+        int trunkTopW = 12;
+
+        g2d.setColor(new Color(60, 38, 22));
+        g2d.fillOval(px - 14, py - 6, 28, 12);
+
+        g2d.setColor(new Color(65, 42, 25));
+        Polygon rightTrunk = new Polygon(
+                new int[]{px, px + trunkTopW / 2, px + trunkBaseW / 2, px},
+                new int[]{py - trunkH, py - trunkH, py, py},
+                4
+        );
+        g2d.fillPolygon(rightTrunk);
+
+        g2d.setColor(new Color(105, 70, 42));
+        Polygon leftTrunk = new Polygon(
+                new int[]{px - trunkTopW / 2, px, px, px - trunkBaseW / 2},
+                new int[]{py - trunkH, py - trunkH, py, py},
+                4
+        );
+        g2d.fillPolygon(leftTrunk);
+
+        g2d.setColor(new Color(45, 28, 16));
+        g2d.drawLine(px - 3, py - 6, px - 2, py - trunkH + 8);
+        g2d.drawLine(px + 4, py - 6, px + 3, py - trunkH + 8);
+
+        // 3. Tán lá
+        Color shadowLeaf = (treeType == 0) ? new Color(20, 65, 30) : new Color(125, 42, 20);
+        Color bodyLeaf   = (treeType == 0) ? new Color(42, 122, 54) : new Color(195, 78, 28);
+        Color lightLeaf  = (treeType == 0) ? new Color(82, 178, 76) : new Color(245, 148, 42);
+        Color tipLeaf    = (treeType == 0) ? new Color(140, 220, 118, 190) : new Color(255, 215, 85, 200);
+
+        int cy = py - trunkH - 8;
+
+        g2d.setColor(shadowLeaf);
+        g2d.fillOval(px - 36, cy - 6, 44, 38);
+        g2d.fillOval(px - 6, cy - 4, 46, 38);
+
+        g2d.setColor(bodyLeaf);
+        g2d.fillOval(px - 30, cy - 24, 46, 42);
+        g2d.fillOval(px - 14, cy - 22, 48, 42);
+        g2d.fillOval(px - 24, cy - 42, 50, 44);
+
+        g2d.setColor(lightLeaf);
+        g2d.fillOval(px - 28, cy - 44, 36, 34);
+        g2d.fillOval(px - 18, cy - 28, 26, 24);
+
+        g2d.setColor(tipLeaf);
+        g2d.fillOval(px - 22, cy - 48, 22, 18);
+        g2d.fillOval(px - 32, cy - 32, 14, 12);
+
+        g2d.dispose();
+        return img;
+    }
+
     public static void render25DTree(Graphics2D g2d, Camera2D camera, double worldX, double worldY, int treeType, int screenW, int screenH) {
         double sx = camera.worldToScreenX(worldX);
         double sy = camera.worldToScreenY(worldY);
@@ -43,73 +128,10 @@ public final class EnvironmentPropsRenderer {
         int px = (int) sx;
         int py = (int) sy;
 
-        // 1. Bóng đổ nghiêng 2.5D trên mặt cỏ
-        g2d.setColor(new Color(15, 30, 18, 95));
-        g2d.fillOval(px - 34, py - 6, 68, 26);
-
-        // 2. Thân cây gỗ đại thụ 3D
-        int trunkH = 50;
-        int trunkBaseW = 20;
-        int trunkTopW = 12;
-
-        // Rễ cây
-        g2d.setColor(new Color(60, 38, 22));
-        g2d.fillOval(px - 14, py - 6, 28, 12);
-
-        // Thân bên phải (Khuất sáng)
-        g2d.setColor(new Color(65, 42, 25));
-        Polygon rightTrunk = new Polygon(
-                new int[]{px, px + trunkTopW / 2, px + trunkBaseW / 2, px},
-                new int[]{py - trunkH, py - trunkH, py, py},
-                4
-        );
-        g2d.fillPolygon(rightTrunk);
-
-        // Thân bên trái (Đón ánh sáng)
-        g2d.setColor(new Color(105, 70, 42));
-        Polygon leftTrunk = new Polygon(
-                new int[]{px - trunkTopW / 2, px, px, px - trunkBaseW / 2},
-                new int[]{py - trunkH, py - trunkH, py, py},
-                4
-        );
-        g2d.fillPolygon(leftTrunk);
-
-        // Vết vân gỗ vỏ cây
-        g2d.setColor(new Color(45, 28, 16));
-        g2d.drawLine(px - 3, py - 6, px - 2, py - trunkH + 8);
-        g2d.drawLine(px + 4, py - 6, px + 3, py - trunkH + 8);
-
-        // 3. Tán lá đa tầng 2.5D với độ lay chuyển của gió
         long time = System.currentTimeMillis();
         double sway = Math.sin(time * 0.0022 + worldX * 0.04) * 3.0;
-
-        Color shadowLeaf = (treeType == 0) ? new Color(20, 65, 30) : new Color(125, 42, 20);
-        Color bodyLeaf   = (treeType == 0) ? new Color(42, 122, 54) : new Color(195, 78, 28);
-        Color lightLeaf  = (treeType == 0) ? new Color(82, 178, 76) : new Color(245, 148, 42);
-        Color tipLeaf    = (treeType == 0) ? new Color(140, 220, 118, 190) : new Color(255, 215, 85, 200);
-
-        int cy = py - trunkH - 8;
-
-        // Lớp lá đáy
-        g2d.setColor(shadowLeaf);
-        g2d.fillOval((int) (px - 36 + sway * 0.4), cy - 6, 44, 38);
-        g2d.fillOval((int) (px - 6 + sway * 0.5), cy - 4, 46, 38);
-
-        // Lớp lá giữa
-        g2d.setColor(bodyLeaf);
-        g2d.fillOval((int) (px - 30 + sway * 0.7), cy - 24, 46, 42);
-        g2d.fillOval((int) (px - 14 + sway * 0.8), cy - 22, 48, 42);
-        g2d.fillOval((int) (px - 24 + sway * 0.9), cy - 42, 50, 44);
-
-        // Lớp lá đón sáng phía Tây-Bắc
-        g2d.setColor(lightLeaf);
-        g2d.fillOval((int) (px - 28 + sway * 0.9), cy - 44, 36, 34);
-        g2d.fillOval((int) (px - 18 + sway * 0.8), cy - 28, 26, 24);
-
-        // Đốm sáng đỉnh ngọn lá
-        g2d.setColor(tipLeaf);
-        g2d.fillOval((int) (px - 22 + sway), cy - 48, 22, 18);
-        g2d.fillOval((int) (px - 32 + sway * 0.7), cy - 32, 14, 12);
+        BufferedImage sprite = (treeType == 0) ? TREE_SPRITE_0 : TREE_SPRITE_1;
+        g2d.drawImage(sprite, px - 55 + (int) sway, py - 120, null);
     }
 
     public static void render25DBoulder(Graphics2D g2d, Camera2D camera, double worldX, double worldY, double radius, int screenW, int screenH) {

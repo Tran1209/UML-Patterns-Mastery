@@ -114,4 +114,42 @@ public final class CombatEffects {
             return lifeTime <= 0;
         }
     }
+
+    /**
+     * Hiệu ứng tia sét ma thuật phóng ra từ gậy phép (Arcane Lightning Bolt Effect).
+     * Bao gồm chuỗi điểm zíc-zắc ngẫu nhiên và nhánh sét phụ giật sang bên.
+     */
+    public static class LightningBoltEffect {
+        public final double startX, startY;
+        public final double targetX, targetY;
+        public final Direction direction;
+        public double lifeTime;
+        public final double maxLifeTime;
+        public final double[] segmentsOffset;
+        public final double branchAngle;
+
+        public LightningBoltEffect(double startX, double startY, double targetX, double targetY, Direction direction, double maxLifeTime) {
+            this.startX = startX;
+            this.startY = startY;
+            this.targetX = targetX;
+            this.targetY = targetY;
+            this.direction = direction;
+            this.lifeTime = maxLifeTime;
+            this.maxLifeTime = maxLifeTime;
+            this.segmentsOffset = new double[5];
+            java.util.Random rnd = new java.util.Random();
+            for (int i = 0; i < segmentsOffset.length; i++) {
+                this.segmentsOffset[i] = (rnd.nextDouble() - 0.5) * 26.0;
+            }
+            this.branchAngle = (rnd.nextDouble() - 0.5) * 0.75;
+        }
+
+        public void update(double dt) {
+            lifeTime -= dt;
+        }
+
+        public boolean isExpired() {
+            return lifeTime <= 0;
+        }
+    }
 }

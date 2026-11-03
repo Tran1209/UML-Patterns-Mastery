@@ -14,17 +14,19 @@ import javax.swing.*;
 import java.awt.Component;
 import java.awt.event.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
- * Bộ điều phối sự kiện nhập liệu bàn phím & chuột (Input Controller).
+ * Bộ điều phối sự kiện nhập liệu bàn phím & chuột (GameInputController).
  * Áp dụng nguyên lý Controller (GRASP) & Command Pattern (GoF):
- * Đóng gói toàn bộ cơ chế điều khiển chuẩn MOBA / Liên Minh / Liên Quân:
- * - Chuột phải: Di chuyển & Khóa mục tiêu quái vật (Targeting / Auto-attack).
- * - Phím [S]: Lệnh dừng di chuyển tức thời (Stop Command).
- * - Kỹ năng [Q], [W], [E], [R]: Định vị Smart Cast theo con trỏ chuột.
- * - Phím [Space] / [A]: Đánh thường.
- * Tách biệt hoàn toàn khỏi GameCanvas nhằm đảm bảo tính đơn trách nhiệm (SRP).
+ * Đóng gói cơ chế điều khiển tối ưu chuẩn Game Hành động / MOBA:
+ * - Chuột trái & Chuột phải: Di chuyển mặt đất & Khóa mục tiêu quái vật (Targeting / Auto-attack).
+ * - Bàn phím điều hướng (WASD & Mũi tên): Di chuyển 8 hướng mượt mà không xung đột.
+ * - Phím [S] / [H]: Lệnh dừng di chuyển tức thời (Stop Command).
+ * - Kỹ năng [Q]/[1], [E]/[2], [R]/[3]: Định vị Smart Cast theo con trỏ chuột.
+ * - Phím [Space] / [A]: Đánh thường cơ bản (phóng tia sét từ Gậy Phép).
+ * Đảm bảo tính đơn trách nhiệm (SRP), tách biệt hoàn toàn khỏi GameCanvas.
  */
 public class GameInputController {
     private final Component hostComponent;
@@ -41,7 +43,7 @@ public class GameInputController {
     private double skillAimRequestedX = 0.0;
     private double skillAimRequestedY = 0.0;
 
-    // Trạng thái giữ kéo chọn vùng kỹ năng chuẩn AOV trên PC
+    // Trạng thái giữ kéo chọn vùng kỹ năng chuẩn MOBA trên PC
     private int activeAimingSkill = 0;
     private double currentAimX = 0.0;
     private double currentAimY = 0.0;
@@ -50,7 +52,7 @@ public class GameInputController {
     private boolean draggingFromSkillBar = false;
     private int dragStartBoxCenterX = 0;
     private int dragStartBoxCenterY = 0;
-    private boolean isRightMouseDown = false;
+    private boolean isMouseNavigating = false;
 
     public GameInputController(Component hostComponent, GameWorld world, NetworkGameClient networkClient,
                                Camera2D camera, NavigationMarkerManager markerManager) {
@@ -99,29 +101,43 @@ public class GameInputController {
         });
     }
 
+    private void triggerAttack() {
+        Player player = world.getPlayer();
+        if (!player.isAlive()) {
+            if (networkClient == null) {
+                world.restartGame();
+            }
+            return;
+        }
+        if (player.getTargetMonster() == null && lastMouseX >= 0 && lastMouseY >= 0) {
+            double wx = camera.screenToWorldX(lastMouseX);
+            double wy = camera.screenToWorldY(lastMouseY);
+            double dx = wx - player.getPosition().getX();
+            double dy = wy - player.getPosition().getY();
+            player.setFacingDirection(Direction.fromVelocity(dx, dy, player.getFacingDirection()));
+        }
+        if (networkClient != null && networkClient.isConnected()) {
+            attackRequested = true;
+        } else {
+            world.handlePlayerAttack();
+        }
+    }
+
     private void handleKeyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         boolean isNewPress = pressedKeys.add(code);
 
-        // Đánh thường (Auto-attack): Phím Space hoặc A chuẩn MOBA/LOL
+        // Đánh thường (Auto-attack): Phím A hoặc Space
         if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_A) {
-            if (!world.getPlayer().isAlive()) {
-                if (networkClient == null) {
-                    world.restartGame();
-                }
-            } else if (networkClient != null && networkClient.isConnected()) {
-                attackRequested = true;
-            } else {
-                world.handlePlayerAttack();
-            }
-        // Kỹ năng Q: Chiêu 1 (Xung Kích)
+            triggerAttack();
+        // Kỹ năng 1: Phím Q hoặc Phím 1 (Xung Kích)
         } else if ((code == KeyEvent.VK_Q || code == KeyEvent.VK_1) && isNewPress) {
             startDesktopSkillAim(1);
-        // Kỹ năng W: Chiêu 2 (Xoáy Lửa)
-        } else if ((code == KeyEvent.VK_W || code == KeyEvent.VK_2) && isNewPress) {
+        // Kỹ năng 2: Phím E hoặc Phím 2 (Vòng Xoáy Lửa)
+        } else if ((code == KeyEvent.VK_E || code == KeyEvent.VK_2) && isNewPress) {
             startDesktopSkillAim(2);
-        // Kỹ năng E / R: Chiêu 3 (Thiên Phạt - Ultimate chuẩn LOL)
-        } else if ((code == KeyEvent.VK_E || code == KeyEvent.VK_R || code == KeyEvent.VK_3) && isNewPress) {
+        // Kỹ năng 3: Phím R hoặc Phím 3 (Thiên Phạt - Ultimate)
+        } else if ((code == KeyEvent.VK_R || code == KeyEvent.VK_3) && isNewPress) {
             if (!world.getPlayer().isAlive()) {
                 if (networkClient == null) {
                     world.restartGame();
@@ -129,8 +145,8 @@ public class GameInputController {
             } else {
                 startDesktopSkillAim(3);
             }
-        // Phím S: Lệnh dừng di chuyển ngay lập tức (Stop Command chuẩn LOL)
-        } else if (code == KeyEvent.VK_S) {
+        // Phím S: Lệnh dừng di chuyển tức thời khi đang chạy bằng chuột
+        } else if (code == KeyEvent.VK_S && world.getPlayer().hasMoveTarget()) {
             stopPlayerMovement();
         } else if (code == KeyEvent.VK_ESCAPE) {
             activeAimingSkill = 0;
@@ -148,10 +164,10 @@ public class GameInputController {
         if ((code == KeyEvent.VK_Q || code == KeyEvent.VK_1) && activeAimingSkill == 1 && !draggingFromSkillBar) {
             triggerDesktopSkill(1, currentAimX, currentAimY);
             activeAimingSkill = 0;
-        } else if ((code == KeyEvent.VK_W || code == KeyEvent.VK_2) && activeAimingSkill == 2 && !draggingFromSkillBar) {
+        } else if ((code == KeyEvent.VK_E || code == KeyEvent.VK_2) && activeAimingSkill == 2 && !draggingFromSkillBar) {
             triggerDesktopSkill(2, currentAimX, currentAimY);
             activeAimingSkill = 0;
-        } else if ((code == KeyEvent.VK_E || code == KeyEvent.VK_R || code == KeyEvent.VK_3) && activeAimingSkill == 3 && !draggingFromSkillBar) {
+        } else if ((code == KeyEvent.VK_R || code == KeyEvent.VK_3) && activeAimingSkill == 3 && !draggingFromSkillBar) {
             triggerDesktopSkill(3, currentAimX, currentAimY);
             activeAimingSkill = 0;
         }
@@ -162,14 +178,14 @@ public class GameInputController {
         lastMouseX = e.getX();
         lastMouseY = e.getY();
 
-        // Chuột phải chuẩn LOL: Di chuyển hoặc Tấn công mục tiêu
+        // 1. Nhấn chuột phải chuẩn MOBA/LOL: Di chuyển hoặc Tấn công mục tiêu
         if (SwingUtilities.isRightMouseButton(e)) {
-            isRightMouseDown = true;
-            handleRightClick(e.getX(), e.getY());
+            isMouseNavigating = true;
+            handleMovementOrTargetClick(e.getX(), e.getY(), true);
             return;
         }
 
-        // Nhấn chuột trực tiếp vào 1 trong 3 ô kỹ năng dưới màn hình để kéo thả
+        // 2. Nhấn chuột trực tiếp vào 1 trong 3 ô kỹ năng dưới màn hình để kéo thả
         int clickedBoxSkill = getHoveredSkillBox(e.getX(), e.getY());
         if (clickedBoxSkill >= 1 && clickedBoxSkill <= 3) {
             if (world.getPlayer().canCastSkill(clickedBoxSkill)) {
@@ -186,19 +202,24 @@ public class GameInputController {
             return;
         }
 
-        // Đang ngắm bằng phím và click chuột trái -> Tung chiêu ngay tại vị trí con trỏ
+        // 3. Đang ngắm bằng phím và click chuột trái -> Tung chiêu ngay tại vị trí con trỏ
         if (activeAimingSkill >= 1 && activeAimingSkill <= 3) {
             updateAimFromMouse(e.getX(), e.getY());
             triggerDesktopSkill(activeAimingSkill, currentAimX, currentAimY);
             activeAimingSkill = 0;
             draggingFromSkillBar = false;
+            return;
+        }
+
+        // 4. Chuột trái click trên mặt đất: Hỗ trợ di chuyển & tấn công mục tiêu trực quan
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            isMouseNavigating = true;
+            handleMovementOrTargetClick(e.getX(), e.getY(), true);
         }
     }
 
     private void handleMouseReleased(MouseEvent e) {
-        if (SwingUtilities.isRightMouseButton(e)) {
-            isRightMouseDown = false;
-        }
+        isMouseNavigating = false;
         if (draggingFromSkillBar && activeAimingSkill >= 1 && activeAimingSkill <= 3) {
             triggerDesktopSkill(activeAimingSkill, currentAimX, currentAimY);
             activeAimingSkill = 0;
@@ -218,13 +239,9 @@ public class GameInputController {
         lastMouseX = e.getX();
         lastMouseY = e.getY();
 
-        // Giữ chuột phải kéo để điều khiển nhân vật chạy theo con trỏ chuột liên tục
-        if (isRightMouseDown || SwingUtilities.isRightMouseButton(e)) {
-            double wx = camera.screenToWorldX(e.getX());
-            double wy = camera.screenToWorldY(e.getY());
-            wx = Math.max(40, Math.min(GameWorld.WORLD_WIDTH - 40, wx));
-            wy = Math.max(40, Math.min(GameWorld.WORLD_HEIGHT - 40, wy));
-            world.getPlayer().moveTo(new Vector2D(wx, wy));
+        // Kéo chuột liên tục trên mặt sân để nhân vật đuổi theo con trỏ chuột
+        if (isMouseNavigating && activeAimingSkill == 0) {
+            handleMovementOrTargetClick(e.getX(), e.getY(), false);
         }
 
         if (activeAimingSkill >= 1 && activeAimingSkill <= 3) {
@@ -308,7 +325,7 @@ public class GameInputController {
         Player player = world.getPlayer();
         if (!player.canCastSkill(skillId)) return;
 
-        // Dừng lệnh di chuyển cũ khi tung chiêu (chuẩn MOBA/LOL)
+        // Dừng lệnh di chuyển cũ khi tung chiêu (chuẩn MOBA)
         player.stopMoving();
 
         if (networkClient != null && networkClient.isConnected()) {
@@ -330,10 +347,13 @@ public class GameInputController {
         }
     }
 
-    private void handleRightClick(int screenX, int screenY) {
+    /**
+     * Xử lý lệnh nhấp chuột: Xác định di chuyển hay tấn công quái vật.
+     * Áp dụng nguyên lý Information Expert: Tọa độ được ánh xạ chính xác và giao cho Player.
+     */
+    private void handleMovementOrTargetClick(int screenX, int screenY, boolean showMarker) {
         lastMouseX = screenX;
         lastMouseY = screenY;
-
         activeAimingSkill = 0;
         draggingFromSkillBar = false;
 
@@ -347,32 +367,50 @@ public class GameInputController {
 
         Monster clickedMonster = null;
         double bestDist = 45.0; // Bán kính click trúng hitbox quái
-        for (Monster m : world.getMonsters()) {
-            if (m.isAlive()) {
-                double dist = m.getPosition().distanceTo(new Vector2D(wx, wy));
-                if (dist < bestDist) {
-                    bestDist = dist;
-                    clickedMonster = m;
+
+        if (networkClient != null && networkClient.isConnected()) {
+            Map<String, WorldSnapshotPayload.EntityState> states = networkClient.getLatestStates();
+            for (WorldSnapshotPayload.EntityState state : states.values()) {
+                if (state.isMonster && state.hp > 0) {
+                    double dist = Math.hypot(state.posX - wx, state.posY - wy);
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        clickedMonster = new Monster(state.id, Monster.MonsterType.GOBLIN, new Vector2D(state.posX, state.posY));
+                    }
+                }
+            }
+        } else {
+            for (Monster m : world.getMonsters()) {
+                if (m.isAlive()) {
+                    double dist = m.getPosition().distanceTo(new Vector2D(wx, wy));
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        clickedMonster = m;
+                    }
                 }
             }
         }
 
         if (clickedMonster != null) {
             player.targetEnemy(clickedMonster);
-            markerManager.addAttackMarker(clickedMonster.getPosition().getX(), clickedMonster.getPosition().getY());
+            if (showMarker) {
+                markerManager.addAttackMarker(clickedMonster.getPosition().getX(), clickedMonster.getPosition().getY());
+            }
         } else {
             player.moveTo(new Vector2D(wx, wy));
-            markerManager.addMoveMarker(wx, wy);
+            if (showMarker) {
+                markerManager.addMoveMarker(wx, wy);
+            }
         }
     }
 
     public void stopPlayerMovement() {
-        isRightMouseDown = false;
+        isMouseNavigating = false;
         world.getPlayer().stopMoving();
     }
 
     /**
-     * Thu thập điều khiển và đồng bộ gói tin mạng trong chu kỳ fixed timestep.
+     * Thu thập điều khiển và đồng bộ gói tin mạng trong chu kỳ fixed timestep 60Hz.
      */
     public void processInput() {
         Player player = world.getPlayer();
@@ -383,18 +421,41 @@ public class GameInputController {
             return;
         }
 
-        if (isRightMouseDown && lastMouseX >= 0 && lastMouseY >= 0) {
-            double wx = camera.screenToWorldX(lastMouseX);
-            double wy = camera.screenToWorldY(lastMouseY);
-            wx = Math.max(40, Math.min(GameWorld.WORLD_WIDTH - 40, wx));
-            wy = Math.max(40, Math.min(GameWorld.WORLD_HEIGHT - 40, wy));
-            player.moveTo(new Vector2D(wx, wy));
+        // 1. Hỗ trợ điều khiển bàn phím kết hợp song song với chuột (VK_LEFT / Right / Up / Down)
+        double keyVx = 0, keyVy = 0;
+        if (pressedKeys.contains(KeyEvent.VK_W) || pressedKeys.contains(KeyEvent.VK_UP)) keyVy -= 1.0;
+        if (pressedKeys.contains(KeyEvent.VK_S) || pressedKeys.contains(KeyEvent.VK_DOWN)) {
+            if (!player.hasMoveTarget() || pressedKeys.contains(KeyEvent.VK_W) || pressedKeys.contains(KeyEvent.VK_D)) {
+                keyVy += 1.0;
+            }
+        }
+        if (pressedKeys.contains(KeyEvent.VK_LEFT)) keyVx -= 1.0;
+        if (pressedKeys.contains(KeyEvent.VK_D) || pressedKeys.contains(KeyEvent.VK_RIGHT)) keyVx += 1.0;
+
+        if (keyVx != 0 || keyVy != 0) {
+            if (keyVx != 0 && keyVy != 0) {
+                keyVx *= 0.70710678;
+                keyVy *= 0.70710678;
+            }
+            double speed = player.getMoveSpeed();
+            player.stopMoving();
+            player.setVelocity(new Vector2D(keyVx * speed, keyVy * speed));
+            player.setFacingDirection(Direction.fromVelocity(keyVx, keyVy, player.getFacingDirection()));
+            if (player.getCurrentState() instanceof Player.IdleState) {
+                player.changeState(new Player.MovingState());
+            }
         }
 
+        // Tự động đánh thường liên tục khi giữ phím A hoặc Space
+        if ((pressedKeys.contains(KeyEvent.VK_A) || pressedKeys.contains(KeyEvent.VK_SPACE)) && player.canAttack()) {
+            triggerAttack();
+        }
+
+        // 2. Tự động tấn công khi mục tiêu quái vật đã nằm trong tầm đánh xa của gậy phép
         Monster target = player.getTargetMonster();
         if (target != null && target.isAlive()) {
             double dist = player.getPosition().distanceTo(target.getPosition());
-            if (dist <= 65.0 && player.canAttack()) {
+            if (dist <= Player.DEFAULT_ATTACK_RANGE + 15.0 && player.canAttack()) {
                 if (networkClient != null && networkClient.isConnected()) {
                     attackRequested = true;
                 } else {
@@ -403,6 +464,7 @@ public class GameInputController {
             }
         }
 
+        // 3. Đồng bộ gói tin mạng Client-Server (Fixed Timestep 60Hz)
         if (networkClient != null && networkClient.isConnected()) {
             player.updateNavigation(1.0 / 60.0);
             player.updatePhysics(1.0 / 60.0);
@@ -418,23 +480,9 @@ public class GameInputController {
         }
     }
 
-    public int getActiveAimingSkill() {
-        return activeAimingSkill;
-    }
-
-    public double getCurrentAimX() {
-        return currentAimX;
-    }
-
-    public double getCurrentAimY() {
-        return currentAimY;
-    }
-
-    public boolean isShowDebugOverlay() {
-        return showDebugOverlay;
-    }
-
-    public void toggleDebugOverlay() {
-        this.showDebugOverlay = !this.showDebugOverlay;
-    }
+    public int getActiveAimingSkill() { return activeAimingSkill; }
+    public double getCurrentAimX() { return currentAimX; }
+    public double getCurrentAimY() { return currentAimY; }
+    public boolean isShowDebugOverlay() { return showDebugOverlay; }
+    public void toggleDebugOverlay() { this.showDebugOverlay = !this.showDebugOverlay; }
 }

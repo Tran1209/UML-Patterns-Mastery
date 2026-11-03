@@ -13,6 +13,12 @@ import network.SnapshotInterpolator;
 import persistence.JsonFileMatchRepository;
 import persistence.MatchSummary;
 import render.*;
+import ui.GameInputController;
+import ui.NavigationMarkerManager;
+import core.GameWorld;
+import javax.swing.JPanel;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import java.awt.Rectangle;
 import java.io.File;
@@ -47,6 +53,7 @@ public class GameUnitTestSuite {
         testCharacterRendererFsmSync();
         testPlayerNavigationInformationExpert();
         testWaveManagerCreatorPattern();
+        testGameInputControllerMouseLocomotion();
 
         System.out.println("==================================================");
         System.out.printf("📊 KẾT QUẢ KIỂM THỬ: %d/%d TEST CASES PASSED (%.1f%%)%n",
@@ -273,5 +280,66 @@ public class GameUnitTestSuite {
 
         assertTrue("WaveManager Creator Pattern sinh quái chuẩn xác và quản lý vòng lặp đợt quái",
                 countOk && cleanedAndScored);
+    }
+
+    private static void testGameInputControllerMouseLocomotion() {
+        GameWorld world = new GameWorld("Tester");
+        JPanel panel = new JPanel();
+        panel.setSize(1152, 720);
+        Camera2D camera = new Camera2D(1152, 720, GameWorld.WORLD_WIDTH, GameWorld.WORLD_HEIGHT);
+        NavigationMarkerManager marker = new NavigationMarkerManager();
+        GameInputController controller = new GameInputController(panel, world, null, camera, marker);
+        controller.attachListeners();
+
+        Player player = world.getPlayer();
+
+        // 1. Click chuột phải di chuyển: không bị trôi điểm đích khi camera dịch chuyển
+        MouseEvent rightClick = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED, System.currentTimeMillis(),
+                0, 700, 450, 1, false, MouseEvent.BUTTON3);
+        panel.getMouseListeners()[0].mousePressed(rightClick);
+
+        Vector2D target1 = player.getMoveTarget();
+        boolean targetAcquired = target1 != null;
+
+        // Giả lập 5 khung hình: điểm đích không bị trôi dạt
+        for (int i = 0; i < 5; i++) {
+            controller.processInput();
+            world.update(1.0 / 60.0);
+            camera.update(player.getPosition(), 0.12);
+        }
+        boolean noDrift = target1.equals(player.getMoveTarget());
+
+        // 2. Click chuột nhắm quái vật: không bị hủy mục tiêu targetMonster khi processInput chạy
+        Monster goblin = new Monster("m_test", Monster.MonsterType.GOBLIN, new Vector2D(900, 600));
+        world.getMonsters().add(goblin);
+        int sx = (int) camera.worldToScreenX(900);
+        int sy = (int) camera.worldToScreenY(600);
+
+        MouseEvent clickMonster = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED, System.currentTimeMillis(),
+                0, sx, sy, 1, false, MouseEvent.BUTTON3);
+        panel.getMouseListeners()[0].mousePressed(clickMonster);
+        boolean targeted = player.getTargetMonster() == goblin;
+
+        controller.processInput();
+        boolean targetPreserved = player.getTargetMonster() == goblin;
+
+        // 3. Kiểm tra tầm đánh xa của Gậy Phép Thuật (Magic Staff) bao phủ quái vật từ xa
+        boolean magicStaffRange = Player.DEFAULT_ATTACK_RANGE >= 140.0;
+        Hitbox attackBox = player.getAttackArea();
+        boolean hitFarGoblin = attackBox.intersects(goblin.getHitbox());
+
+        // 4. Kiểm tra Animation Tia Sét (Lightning Bolt) đã được tự động phóng theo hướng quái
+        boolean lightningSpawned = world.getCombatEngine().getLightningBolts().size() > 0;
+
+        // 5. Kiểm tra phím [A] đánh thường trực tiếp và sinh Tia Sét từ Gậy Phép
+        player.changeState(new Player.IdleState());
+        player.triggerAttackCooldown(0); // Sẵn sàng đánh
+        int boltsBeforeKeyA = world.getCombatEngine().getLightningBolts().size();
+        KeyEvent keyAPress = new KeyEvent(panel, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_A, 'a');
+        panel.getKeyListeners()[0].keyPressed(keyAPress);
+        boolean keyASpawnedBolt = world.getCombatEngine().getLightningBolts().size() > boltsBeforeKeyA;
+
+        assertTrue("GameInputController điều phối chuột chuẩn MOBA, phím A đánh thường và Gậy Phép phóng Tia Sét tầm xa",
+                targetAcquired && noDrift && targeted && targetPreserved && magicStaffRange && hitFarGoblin && lightningSpawned && keyASpawnedBolt);
     }
 }

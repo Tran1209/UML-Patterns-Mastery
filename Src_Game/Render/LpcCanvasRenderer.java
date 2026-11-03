@@ -215,7 +215,7 @@ public class LpcCanvasRenderer {
             g2d.fillOval(px - 9, py - 22, 18, 14);
         }
 
-        // --- LAYER 6: Vũ khí 2.5D (Extruded 3D Weapon with Metallic Glint) ---
+        // --- LAYER 6: Vũ khí 2.5D: Gậy Phép Thuật Huyền Bí (Arcane Magic Staff 2.5D) ---
         AffineTransform oldTransform = g2d.getTransform();
         int weaponHandX = px + (dir == Direction.LEFT ? -12 : 12);
         int weaponHandY = py + 2;
@@ -224,33 +224,53 @@ public class LpcCanvasRenderer {
         if (anim == LpcAnimationType.SLASH) {
             g2d.rotate(swingAngle);
         } else {
-            g2d.rotate(dir.getRowOffset() * 0.4 - 0.6);
+            g2d.rotate(dir.getRowOffset() * 0.35 - 0.55);
         }
 
-        // Vẽ kiếm sắt thể tích 3D
-        // Bóng dưới chuôi kiếm
-        g2d.setColor(new Color(60, 40, 20));
-        g2d.fillRect(-1, 2, 4, 8);
-        // Chuôi kiếm gỗ phong
-        g2d.setColor(new Color(145, 95, 45));
-        g2d.fillRect(-2, 0, 4, 8);
-        // Chắn tay hoàng kim có gờ nổi 3D
-        g2d.setColor(new Color(180, 140, 30));
-        g2d.fillRect(-6, -1, 12, 3);
-        g2d.setColor(new Color(255, 220, 70));
-        g2d.fillRect(-6, -2, 11, 2);
-        // Lưỡi kiếm bạc vát 2 mặt (Dual-tone Beveled Blade)
-        g2d.setColor(new Color(185, 195, 210)); // Mặt khuất bóng
-        g2d.fillRect(0, -26, 3, 24);
-        g2d.setColor(new Color(240, 245, 255)); // Mặt đón sáng
-        g2d.fillRect(-3, -26, 3, 24);
-        // Sống kiếm phát sáng phản quang (Specular Core Line)
-        g2d.setColor(Color.WHITE);
-        g2d.drawLine(0, -26, 0, -2);
+        // 1. Thân gậy phép gỗ gụ bóng tối (Staff Shadow)
+        g2d.setColor(new Color(45, 25, 15));
+        g2d.fillRect(-1, -26, 4, 38);
 
-        // Mũi nhọn kiếm
+        // 2. Thân gậy phép gỗ mun cổ thụ (Arcane Wood Rod)
+        g2d.setColor(new Color(110, 65, 35));
+        g2d.fillRect(-2, -26, 3, 38);
+        // Gờ sáng thân gậy
+        g2d.setColor(new Color(165, 110, 60));
+        g2d.drawLine(-2, -26, -2, 11);
+
+        // 3. Các vòng đai vàng hoàng kim bọc thân gậy (Golden Binding Rings)
+        g2d.setColor(new Color(255, 215, 0));
+        g2d.fillRect(-3, 6, 5, 2);
+        g2d.fillRect(-3, -8, 5, 2);
+        g2d.fillRect(-3, -22, 5, 3);
+        g2d.setColor(new Color(180, 140, 20));
+        g2d.drawLine(-3, 8, 2, 8);
+        g2d.drawLine(-3, -6, 2, -6);
+
+        // 4. Vương miện chạc vàng ôm lấy viên ngọc trên đỉnh gậy (Golden Crescent Prongs)
+        g2d.setColor(new Color(255, 215, 0));
+        g2d.drawArc(-7, -35, 13, 13, 160, 220);
+        g2d.drawArc(-6, -34, 11, 11, 160, 220);
+
+        // 5. Quầng sáng ma pháp tỏa ra từ viên ngọc (Arcane Luminous Aura)
+        long staffTime = System.currentTimeMillis();
+        int pulseAlpha = 80 + (int) (Math.sin(staffTime * 0.006) * 35);
+        g2d.setColor(new Color(0, 229, 255, pulseAlpha));
+        g2d.fillOval(-8, -36, 15, 15);
+
+        // 6. Lõi ngọc ma pháp nguyên tố (Luminous Elemental Crystal Orb)
+        g2d.setColor(new Color(0, 245, 255));
+        g2d.fillOval(-5, -33, 9, 9);
+        // Điểm phản quang gương 3D (Specular Core Glint)
         g2d.setColor(Color.WHITE);
-        g2d.fillPolygon(new int[]{-3, 0, 3}, new int[]{-26, -30, -26}, 3);
+        g2d.fillOval(-4, -32, 4, 4);
+
+        // 7. Khi vung gậy thi triển phép: Tia hào quang ma thuật bùng phát rực rỡ
+        if (anim == LpcAnimationType.SLASH) {
+            g2d.setColor(new Color(255, 255, 255, 220));
+            g2d.drawLine(-9, -29, 8, -29);
+            g2d.drawLine(-1, -37, -1, -21);
+        }
 
         g2d.setTransform(oldTransform);
     }

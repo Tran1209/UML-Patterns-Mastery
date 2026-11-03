@@ -162,7 +162,6 @@ public class GameCanvas extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         if (networkClient != null && networkClient.isConnected()) {
@@ -179,9 +178,6 @@ public class GameCanvas extends JPanel {
             frameCounter = 0;
             lastFpsUpdateTime = now;
         }
-
-        // Đồng bộ buffer GPU phần cứng (Direct3D/OpenGL Hardware Sync)
-        Toolkit.getDefaultToolkit().sync();
     }
 
     // ==========================================
@@ -189,6 +185,7 @@ public class GameCanvas extends JPanel {
     // ==========================================
 
     private void renderOfflineWorld(Graphics2D g2d) {
+        camera.updateViewport(getWidth(), getHeight());
         camera.update(world.getPlayer().getPosition(), 0.12);
         Environment25DRenderer.renderArenaBackground(g2d, camera, getWidth(), getHeight());
         markerManager.render(g2d, camera);
@@ -245,11 +242,12 @@ public class GameCanvas extends JPanel {
     }
 
     private void renderMultiplayerWorld(Graphics2D g2d) {
+        camera.updateViewport(getWidth(), getHeight());
         long clientTime = System.currentTimeMillis();
         String myId = networkClient.getAssignedPlayerId();
         Map<String, WorldSnapshotPayload.EntityState> states = networkClient.getLatestStates();
 
-        // 1. Tìm vị trí nhân vật cục bộ để điều khiển Camera
+        // 1. Tìm vị trí nhân vật cục bộ để điều khiển Camera và đồng bộ Player
         Vector2D myInterpolatedPos = null;
         WorldSnapshotPayload.EntityState myState = null;
 
@@ -260,6 +258,7 @@ public class GameCanvas extends JPanel {
 
         if (myInterpolatedPos != null) {
             camera.update(myInterpolatedPos, 0.15);
+            world.getPlayer().setPosition(myInterpolatedPos);
         }
 
         // 2. Vẽ nền đấu trường 2.5D
@@ -275,14 +274,14 @@ public class GameCanvas extends JPanel {
         int screenH = getHeight();
 
         for (WorldSnapshotPayload.EntityState state : states.values()) {
+            if (state.hp <= 0 && state.isMonster) continue;
+
             Vector2D pos = networkClient.getInterpolatedPosition(state.id, clientTime);
-            if (pos == null) {
-                pos = new Vector2D(state.posX, state.posY);
-            }
+            if (pos == null) pos = new Vector2D(state.posX, state.posY);
+
             double sx = camera.worldToScreenX(pos.getX());
             double sy = camera.worldToScreenY(pos.getY());
 
-            // Frustum Culling
             if (sx < -64 || sx > screenW + 64 || sy < -64 || sy > screenH + 64) {
                 continue;
             }
@@ -295,59 +294,39 @@ public class GameCanvas extends JPanel {
             if (state.isMonster) {
                 item.setMonster(state, pos, camera);
             } else {
-                boolean isMe = state.id.equals(myId);
-                CharacterRenderer renderer = remoteRenderers.computeIfAbsent(state.id, k -> {
-                    CompositeCharacterVisual visual = new LpcCharacterBuilder()
-                            .withBody("body.png")
-                            .withShirt("shirt.png")
-                            .withArmor("armor.png")
-                            .withWeapon("weapon.png")
-                            .build();
-                    return new CharacterRenderer(visual);
-                });
-
-                Direction dir = Direction.valueOf(state.dirName != null ? state.dirName : "DOWN");
-                renderer.setDirection(dir);
-                if ("ATTACKING".equals(state.stateName)) {
-                    renderer.playAnimation(LpcAnimationType.SLASH);
-                } else if ("MOVING".equals(state.stateName)) {
-                    renderer.playAnimation(LpcAnimationType.WALK);
-                } else if ("DEAD".equals(state.stateName)) {
-                    renderer.playAnimation(LpcAnimationType.HURT);
-                } else {
-                    renderer.playAnimation(LpcAnimationType.WALK);
-                }
-
-                String displayTag = isMe ? ("⭐ " + state.name + " (BẠN)") : ("🌐 " + state.name);
-                item.setPlayer(state, pos, camera, renderer, displayTag);
+                CharacterRenderer renderer = remoteRenderers.computeIfAbsent(state.id, k ->
+                        new CharacterRenderer(new LpcCharacterBuilder().withBody("body.png").build())
+                );
+                renderer.setDirection(Direction.fromName(state.dirName));
+                item.setPlayer(state, pos, camera, renderer, state.name);
             }
             renderQueue.add(item);
         }
 
-        // Sắp xếp và vẽ theo chiều sâu Z/Y
         renderQueue.sort(DEPTH_COMPARATOR);
         for (int i = 0; i < renderQueue.size(); i++) {
             renderQueue.get(i).render(g2d);
         }
 
-        // 3.5. Vẽ hiệu ứng kỹ năng & chiến đấu 2.5D
         renderCombatEffects(g2d);
 
-        // 4. Vẽ HUD chế độ Đấu Mạng
-        int myHp = myState != null ? myState.hp : 100;
-        int myMaxHp = myState != null ? myState.maxHp : 100;
-        String myStateName = myState != null ? myState.stateName : "CONNECTED";
-        String myName = myState != null ? myState.name : "Player";
+        if (inputController.isShowDebugOverlay()) {
+            renderDebugOverlay(g2d);
+        }
 
-        renderHUD(g2d, myName, myHp, myMaxHp, myStateName,
-                0, networkClient.getCurrentWave(), 0, (int) states.values().stream().filter(e -> e.isMonster).count(), true);
-    }
+        String displayName = (myState != null) ? myState.name : world.getPlayer().getPlayerName();
+        int currentHp = (myState != null) ? myState.hp : world.getPlayer().getCurrentHp();
+        int maxHp = (myState != null) ? myState.maxHp : world.getPlayer().getMaxHp();
+        String stateName = (myState != null) ? myState.stateName : "IDLE";
+        int kills = world.getPlayer().getKillCount();
+        int wave = world.getCurrentWave();
+        int score = world.getScore();
 
-    /**
-     * Đường cong uốn lượn tự nhiên của dòng sông 2.5D theo trục hoành X (Ủy quyền cho Environment25DRenderer).
-     */
-    public static double getRiverCenterY(double wx) {
-        return Environment25DRenderer.getRiverCenterY(wx);
+        renderHUD(g2d, displayName, currentHp, maxHp, stateName, kills, wave, score, 0, true);
+
+        if (myState != null && myState.hp <= 0) {
+            renderGameOverOverlay(g2d, getWidth(), getHeight());
+        }
     }
 
     private void renderCombatEffects(Graphics2D g2d) {
