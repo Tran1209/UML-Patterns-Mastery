@@ -179,8 +179,8 @@ TIÊU CHÍ XONG: <checklist kiểm được>
 
 Đánh dấu khi **đã duyệt + commit** (không phải khi AI vừa sinh xong):
 
-* **Pha A**: ☐ KT-01 ☐ KT-02 ☐ KT-03 ☐ KT-04 ☐ KT-05 ☐ KT-06 ☐ KT-07 ☐ KT-08 ☐ KT-09
-* **Pha B**: ☐ BC-01 ☐ BC-02 ☐ BC-03 ☐ BC-04 ☐ BC-05 ☐ BC-06 ☐ BC-07 ☐ BC-08
+* **Pha A (Kho kiến thức)**: ☑ KT-01 ☑ KT-02 ☑ KT-03 ☑ KT-04 ☑ KT-05 ☑ KT-06 ☑ KT-07 ☑ KT-08 ☑ KT-09 *(Hoàn thành 100%: Nystrom 10 đợt + Larman 38 chương + Khung 3 sách còn lại)*
+* **Pha B (Bản gộp toàn văn)**: ☑ BC-01 ☑ BC-02 ☑ BC-03 ☑ BC-04 ☑ BC-05 ☑ BC-06 ☑ BC-07 ☑ BC-08 *(Hoàn thành 100%: Bản gộp FULL_Game_Programming_Patterns.md & FULL_Craig_Larman_Applying_UML_and_Patterns.md)*
 * **Pha C**: ☐ AI-01 ☐ AI-02 ☐ AI-03 ☐ AI-04 ☐ AI-05 ☐ AI-06 ☐ AI-07 ☐ AI-08
 * **Pha D1 (OOA)**: ☐ OOA-01 ☐ OOA-02 ☐ OOA-03 ☐ OOA-04 ☐ OOA-05 ☐ OOA-06
 * **Pha D2 (OOD)**: ☐ OOD-01 ☐ OOD-02 ☐ OOD-03 ☐ OOD-04 ☐ OOD-05 ☐ OOD-06 ☐ OOD-07 ☐ OOD-08
