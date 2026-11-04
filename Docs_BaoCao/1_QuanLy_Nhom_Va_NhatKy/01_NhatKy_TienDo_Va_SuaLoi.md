@@ -183,7 +183,7 @@ flowchart LR
      * `02_Craig_Larman_OOAD`: 38 Chương trích xuất toàn văn + Bản gộp.
      * `03_Glazer_Madhav_Netcode`: Khung lộ trình 10 đợt Multiplayer Netcode.
      * `04_Martin_Fowler_PoEAA`: Khung lộ trình 10 đợt PoEAA.
-     * `05_Vaughn_Vernon_IDDD`: Khung lộ trình 10 đợt Domain-Driven Design.
+     * `05_Vaughn_Vernon_IDDD`: 10 Đợt trích xuất toàn diện 14 Chương & Phụ lục (~365 KB) hoàn tất + Bản gộp `00_TOAN_TAP_IDDD_14_Chuong.md` (Đức Anh hoàn thành).
      * Lưu trữ các ghi chú sơ khai tuần trước vào `_Ban_Tom_Tat_Cu_Tuan_Truoc/`.
   3. **Tích hợp Toàn văn 38 Chương Giáo trình *Applying UML and Patterns (3rd Edition)* (Craig Larman)**:
      * Nhập trọn bộ 38 chương vào `02_Craig_Larman_OOAD/38_Chapters/` (~536 KB).
@@ -212,7 +212,7 @@ flowchart LR
 * **Chủ trì**: Nhóm trưởng **Trung Kiên (`KienEsto`)** & Kiến trúc sư **Duy Nam (`Tran1209`)**
 * **Thành phần tham dự**: Đầy đủ 5/5 thành viên (Trung Kiên, Duy Nam, Đức Huy, Đức Anh, Huy Hoàng).
 * **Nội dung kết luận**:
-  1. **Nghiệm thu Kho Lý thuyết (Pha A & Pha B)**: Toàn bộ 2 cuốn sách hạt nhân (*Game Programming Patterns* - 10 Đợt & *Applying UML and Patterns* - 38 Chương) đã được trích xuất chuyên sâu, có bản gộp toàn văn và liên kết thư viện hoàn chỉnh. 3 cuốn sách còn lại đã sẵn sàng khung cấu trúc và mẫu prompt trích xuất.
+  1. **Nghiệm thu Kho Lý thuyết (Pha A & Pha B)**: 3/5 cuốn sách kinh điển quốc tế (*Game Programming Patterns* - 10 Đợt, *Applying UML and Patterns* - 38 Chương, *Implementing Domain-Driven Design* - 10 Đợt) đã hoàn thành 100% bản bóc tách và bản gộp toàn văn, có bản gộp toàn văn và liên kết thư viện hoàn chỉnh. 3 cuốn sách còn lại đã sẵn sàng khung cấu trúc và mẫu prompt trích xuất.
   2. **Nghiệm thu Nền tảng Kỹ thuật**: Cơ chế di chuyển Click-to-Move MOBA 2.5D, bộ sinh quái `WaveManager` và bộ 20/20 Unit Tests hoạt động ổn định 100%.
   3. **Kế hoạch ngày tiếp theo (Từ 05/11/2026)**: Cả nhóm chính thức bước vào Pha D — triển khai hoàn thiện 8 hạng mục mở rộng trên nền 2.5D theo đúng thiết kế OOA/OOD đã chốt, đảm bảo chất lượng bảo vệ đồ án tốt nghiệp xuất sắc.
 
@@ -238,6 +238,7 @@ flowchart LR
 |  `1ad6ce6`  | 04/11/2026 | `docs(theory): reorganize knowledge base into 5 dedicated book folders and archive legacy notes`| `GhiChu_Sach_Larman_Nystrom/` (5 folder sách chuyên khảo + archive)                                |
 |  `d813772`  | 04/11/2026 | `docs(theory): add complete 38-chapter Craig Larman OOAD textbook and merged edition`          | `Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/GhiChu_Sach_Larman_Nystrom/02_Craig_Larman_OOAD/`           |
 |  `6aa60ff`  | 04/11/2026 | `docs(theory): move Larman chapters into 02_Craig_Larman_OOAD/38_Chapters and clean up branch`  | Dọn dẹp folder lệch trên nhánh `Kien`, nâng cấp auto-pull `QuanLy_DuAn.bat`                        |
+|  `dbd99bc`  | 04/11/2026 | `docs(kb): bo sung 10 dot boc tach chuyen sau sach Vaughn Vernon IDDD va phu luc`              | `05_Vaughn_Vernon_IDDD/` (Đức Anh hoàn thành 10 đợt + toàn tập 14 chương)                         |
 
 ---
 
