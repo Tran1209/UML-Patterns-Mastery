@@ -110,7 +110,7 @@ sequenceDiagram
     Note over P,O: Client dùng LERP nội suy<br/>vẽ mượt 60 FPS
 ```
 
-- Người chơi điều khiển nhân vật bằng **WASD** (di chuyển) và **Space / Chuột** (tấn công).
+- Người chơi điều khiển nhân vật bằng **Chuột** (di chuyển) và **Space / Chuột** (tấn công).
 - Client **chỉ gửi ý định** (`InputCommandPacket`). Server tự tính toán tất cả.
 - Server phát sóng ảnh chụp trạng thái (`WorldSnapshotPacket`) ở tần số **20Hz**.
 - Client dùng giải thuật **nội suy tuyến tính (LERP)** để vẽ mượt mà ở **60 FPS** dù chỉ nhận dữ liệu 20 lần/giây:

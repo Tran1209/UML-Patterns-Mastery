@@ -61,10 +61,14 @@ public class CharacterRenderer {
     public void syncFromPlayer(Player player, double deltaTime) {
         if (player == null) return;
 
-        // 1. Cập nhật hướng nhìn dựa trên vận tốc
+        // 1. Cập nhật hướng nhìn: từ vận tốc khi di chuyển, hoặc từ hướng ngắm Player khi đứng yên
         double vx = player.getVelocity().getX();
         double vy = player.getVelocity().getY();
-        this.currentDirection = Direction.fromVelocity(vx, vy, this.currentDirection);
+        if (Math.abs(vx) > 1e-3 || Math.abs(vy) > 1e-3) {
+            this.currentDirection = Direction.fromVelocity(vx, vy, this.currentDirection);
+        } else {
+            this.currentDirection = player.getFacingDirection();
+        }
 
         // 2. Ánh xạ State Pattern từ FSM sang LPC Action Block
         String stateName = player.getCurrentState() != null ? player.getCurrentState().getStateName() : "IDLE";

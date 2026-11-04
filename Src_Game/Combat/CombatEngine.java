@@ -123,8 +123,8 @@ public class CombatEngine {
         Hitbox attackBox = attacker.getAttackArea();
         Direction dir = attacker.getFacingDirection();
 
-        double startX = attacker.getPosition().getX() + dir.getDirX() * 22;
-        double startY = attacker.getPosition().getY() + dir.getDirY() * 22;
+        double startX = attacker.getPosition().getX() + (dir == Direction.LEFT ? -12.0 : (dir == Direction.RIGHT ? 12.0 : 0.0));
+        double startY = attacker.getPosition().getY();
 
         Monster target = attacker.getTargetMonster();
         if (target == null || !target.isAlive() || attacker.getPosition().distanceTo(target.getPosition()) > Player.DEFAULT_ATTACK_RANGE + 35.0) {

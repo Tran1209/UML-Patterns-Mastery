@@ -109,6 +109,9 @@ public class GameInputController {
             }
             return;
         }
+        if (!player.canAttack()) return;
+
+        player.stopMoving();
         if (player.getTargetMonster() == null && lastMouseX >= 0 && lastMouseY >= 0) {
             double wx = camera.screenToWorldX(lastMouseX);
             double wy = camera.screenToWorldY(lastMouseY);
@@ -118,6 +121,7 @@ public class GameInputController {
         }
         if (networkClient != null && networkClient.isConnected()) {
             attackRequested = true;
+            world.handlePlayerAttack();
         } else {
             world.handlePlayerAttack();
         }

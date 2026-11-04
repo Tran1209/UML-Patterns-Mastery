@@ -305,10 +305,10 @@ public final class CombatVisualRenderer {
         float alpha = (float) Math.max(0f, bolt.lifeTime / bolt.maxLifeTime);
         // Tọa độ đầu phát: Viên ngọc ma pháp trên đỉnh gậy phép (Staff Orb Tip 2.5D)
         double sx1 = camera.worldToScreenX(bolt.startX);
-        double sy1 = camera.worldToScreenY(bolt.startY) - 22;
+        double sy1 = camera.worldToScreenY(bolt.startY) - 26;
         // Tọa độ điểm đích: Tâm thân mục tiêu quái vật (Target Torso 2.5D)
         double sx2 = camera.worldToScreenX(bolt.targetX);
-        double sy2 = camera.worldToScreenY(bolt.targetY) - 12;
+        double sy2 = camera.worldToScreenY(bolt.targetY) - 14;
 
         double dx = sx2 - sx1;
         double dy = sy2 - sy1;
@@ -327,9 +327,11 @@ public final class CombatVisualRenderer {
         boltPath.moveTo(sx1, sy1);
         double midX = sx1, midY = sy1;
 
+        long timeNow = System.currentTimeMillis();
         for (int i = 0; i < segments; i++) {
             double t = (i + 1) * segLen;
-            double offset = bolt.segmentsOffset[i] * (alpha * 0.7f + 0.3f);
+            double flicker = Math.sin(timeNow * 0.05 + i * 2.1) * 5.0;
+            double offset = (bolt.segmentsOffset[i] + flicker) * (alpha * 0.7f + 0.3f);
             double nx = sx1 + ux * t + px * offset;
             double ny = sy1 + uy * t + py * offset;
             boltPath.lineTo(nx, ny);

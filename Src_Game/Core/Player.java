@@ -345,7 +345,10 @@ public class Player extends LivingEntity {
         @Override
         public String getStateName() { return "ATTACKING"; }
         @Override
-        public void onEnter(Player player) { this.timer = 0.3; }
+        public void onEnter(Player player) {
+            player.setVelocity(new Vector2D(0, 0));
+            this.timer = 0.3;
+        }
         @Override
         public void onUpdate(Player player, double deltaTime) {
             timer -= deltaTime;

@@ -44,6 +44,7 @@ description: Quy chuẩn kiến trúc, quy trình làm việc và tiêu chuẩn 
 - **Thay đổi tối thiểu**: Chỉ sửa những gì cần thiết. Không refactor lan man ngoài phạm vi yêu cầu; nếu phát hiện vấn đề khác, ghi chú lại thay vì sửa ngầm.
 - **Tự kiểm tra trước khi báo xong**: Chạy build/lint/test, đọc lại diff, đối chiếu với yêu cầu. Báo cáo cuối gồm: đã làm gì, file nào đổi, cách kiểm chứng, rủi ro còn lại.
 - **Không bịa**: Không tự tạo API/hàm/thư viện không tồn tại. Không chắc thì nói "không chắc" và kiểm tra lại bằng cách đọc code/tài liệu.
+- **Đồng bộ Danh mục Class bắt buộc**: Khi thêm mới, thay đổi hoặc sửa đổi bất kỳ class/interface/enum nào trong thư mục `Src_Game/`, BẮT BUỘC phải cập nhật ngay vào tệp [`DANH_SACH_CLASS_SRC_GAME.md`](file:///d:/KiênEsto/DELL/Downloads/UML-Patterns-Mastery-Kien/DANH_SACH_CLASS_SRC_GAME.md) (tên class, tệp chứa, quan hệ kế thừa/interface, chức năng nghiệp vụ và mẫu thiết kế liên quan).
 
 ### 1. PHÂN TÍCH & MÔ HÌNH HÓA NGHIỆP VỤ (Larman + Vernon)
 - Bắt đầu từ Use Case / User Story: ai (actor) làm gì, mục tiêu gì, kết quả thành công và các luồng ngoại lệ.
@@ -120,4 +121,5 @@ description: Quy chuẩn kiến trúc, quy trình làm việc và tiêu chuẩn 
 - [x] Có test cho logic mới; test + lint + build đều xanh
 - [x] Giao dịch/nhất quán dữ liệu đúng ranh giới Aggregate
 - [x] (Game/Realtime) không cấp phát trong vòng lặp nóng; đã đo hiệu năng; server là nguồn sự thật
+- [x] Đã đồng bộ mọi thay đổi/thêm mới class trong `Src_Game/` vào tệp `DANH_SACH_CLASS_SRC_GAME.md`
 - [x] Diff gọn, không thay đổi ngoài phạm vi; tài liệu/ADR đã cập nhật nếu cần

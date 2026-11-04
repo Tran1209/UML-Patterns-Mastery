@@ -339,7 +339,15 @@ public class GameUnitTestSuite {
         panel.getKeyListeners()[0].keyPressed(keyAPress);
         boolean keyASpawnedBolt = world.getCombatEngine().getLightningBolts().size() > boltsBeforeKeyA;
 
-        assertTrue("GameInputController điều phối chuột chuẩn MOBA, phím A đánh thường và Gậy Phép phóng Tia Sét tầm xa",
-                targetAcquired && noDrift && targeted && targetPreserved && magicStaffRange && hitFarGoblin && lightningSpawned && keyASpawnedBolt);
+        // 6. Kiểm tra phím [Space] đánh thường của nhân vật Pháp Sư kích hoạt Tia Sét
+        player.changeState(new Player.IdleState());
+        player.triggerAttackCooldown(0); // Sẵn sàng đánh
+        int boltsBeforeSpace = world.getCombatEngine().getLightningBolts().size();
+        KeyEvent spacePress = new KeyEvent(panel, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_SPACE, ' ');
+        panel.getKeyListeners()[0].keyPressed(spacePress);
+        boolean spaceSpawnedBolt = world.getCombatEngine().getLightningBolts().size() > boltsBeforeSpace;
+
+        assertTrue("GameInputController điều phối chuột chuẩn MOBA, phím Space & A đánh thường sinh Tia Sét cho Pháp Sư",
+                targetAcquired && noDrift && targeted && targetPreserved && magicStaffRange && hitFarGoblin && lightningSpawned && keyASpawnedBolt && spaceSpawnedBolt);
     }
 }
