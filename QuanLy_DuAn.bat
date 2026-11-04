@@ -81,6 +81,16 @@ echo [3/3] Dang day len GitHub nhanh [%MY_BRANCH%] (git push)...
 git push -u origin %MY_BRANCH%
 if errorlevel 1 (
     echo.
+    echo [THONG BAO] Nhanh [%MY_BRANCH%] tren GitHub co thay doi moi chua keo ve.
+    echo Dang tu dong dong bo (git pull origin %MY_BRANCH%)...
+    git pull origin %MY_BRANCH% --no-edit
+    if not errorlevel 1 (
+        echo Dang thu day lai len GitHub...
+        git push -u origin %MY_BRANCH%
+    )
+)
+if errorlevel 1 (
+    echo.
     echo [CANH BAO] Day len GitHub that bai! Co the can chay [4] de dong bo code truoc.
 ) else (
     echo.
