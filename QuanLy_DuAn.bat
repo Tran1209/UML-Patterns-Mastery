@@ -1,11 +1,11 @@
 @echo off
 cd /d "%~dp0"
-title QUAN LY DU AN - DUC ANH (GRAPHICS ENGINEER) - NHOM 1
+title QUAN LY DU AN - DUY NAM (LEAD ARCHITECT) - NHOM 1
 
-set "MY_BRANCH=Anh"
-set "MY_NAME=Duc Anh"
-set "MY_EMAIL=Alonee-code@users.noreply.github.com"
-set "MY_ROLE=Alonee-code - 2.5D Graphics Engineer"
+set "MY_BRANCH=main"
+set "MY_NAME=Duy Nam"
+set "MY_EMAIL=oknha278@gmail.com"
+set "MY_ROLE=Tran1209 - Lead Architect / Core"
 
 :MENU
 cls
@@ -17,7 +17,7 @@ echo ===========================================================================
 echo   [1] Chay game tren PC (Bien dich va khoi dong ngay)
 echo   [2] Bien dich lai ban Android (Build file APK cai vao dien thoai)
 echo   [3] Day code local len nhanh [%MY_BRANCH%] tren GitHub
-echo   [4] Dong bo code moi nhat tu [main] ve may (va cap nhat len [Anh])
+echo   [4] Keo code moi nhat tu [main] tren GitHub ve may tinh
 echo   [0] Thoat
 echo ===============================================================================
 set "CHOICE="
@@ -81,6 +81,16 @@ echo [3/3] Dang day len GitHub nhanh [%MY_BRANCH%] (git push)...
 git push -u origin %MY_BRANCH%
 if errorlevel 1 (
     echo.
+    echo [THONG BAO] Nhanh [%MY_BRANCH%] tren GitHub co thay doi moi chua keo ve.
+    echo Dang tu dong dong bo (git pull origin %MY_BRANCH%)...
+    git pull origin %MY_BRANCH% --no-edit
+    if not errorlevel 1 (
+        echo Dang thu day lai len GitHub...
+        git push -u origin %MY_BRANCH%
+    )
+)
+if errorlevel 1 (
+    echo.
     echo [CANH BAO] Day len GitHub that bai! Co the can chay [4] de dong bo code truoc.
 ) else (
     echo.
@@ -95,56 +105,14 @@ echo.
 echo ===============================================================================
 echo   DONG BO CODE MOI NHAT CHO NHANH [%MY_BRANCH%]
 echo ===============================================================================
-echo Quy trinh dong bo an toan:
-echo   1. Sao luu file QuanLy_DuAn.bat cua rieng ban
-echo   2. Tu dong commit luu giu toan bo code ban dang lam do o local (tranh mat code)
-echo   3. Lay code chuan moi nhat tu origin/main ve may
-echo   4. Gop (merge) vao nhanh [Anh] tai may cua ban
-echo   5. Tu dong day code da gop len GitHub nhanh [Anh]
-echo ===============================================================================
-echo.
-set /p "CONFIRM=Ban co muon tien hanh dong bo khong? (Y/N): "
-if /i not "%CONFIRM%"=="Y" goto MENU
-
-echo.
-git config user.name "Duc Anh"
-git config user.email "Alonee-code@users.noreply.github.com"
-
-copy /y "%~f0" "%TEMP%\QuanLy_DuAn_Anh.bat" >nul
-
-echo [1/4] Luu an toan cac thay doi dang lam do o local...
-git add -A
-git commit -m "wip(Anh): luu tam thay doi cuc bo truoc khi dong bo tu main" 2>nul
-
-echo [2/4] Dang tai code moi nhat tu origin/main...
-git fetch origin main
-if errorlevel 1 (
-    echo [LOI] Khong the ket noi toi GitHub! Kiem tra lai mang Internet.
-    pause
-    goto MENU
-)
-
-echo [3/4] Dang gop code tu main vao nhanh [Anh] tren may ban...
-git merge origin/main --no-edit -m "merge(main): dong bo code moi nhat tu main vao Anh"
-if exist "%TEMP%\QuanLy_DuAn_Anh.bat" (
-    copy /y "%TEMP%\QuanLy_DuAn_Anh.bat" "%~f0" >nul
-    git add "%~f0"
-    git commit --amend --no-edit 2>nul
-)
-
+echo [1/1] Dang tai va dong bo code tu origin/main ve may...
+git pull origin main --no-edit
 if errorlevel 1 (
     echo.
-    echo [XUNG DOT MERGE DETECTED!] Co file ma nguon bi conflict voi code tu main.
-    echo Hay mo VSCode hoac nho Lead Architect de chon giu code phu hop.
-    pause
-    goto MENU
+    echo [LOI] Khong the pull tu GitHub! Vui long kiem tra lai ket noi hoac conflict.
+) else (
+    echo.
+    echo [THANH CONG] May local da dong bo hoan toan voi origin/main!
 )
-
-echo [4/4] Dang day code da dong bo len GitHub nhanh [Anh] cua ban...
-git push origin Anh
-echo.
-echo ===============================================================================
-echo [HOAN TAT] May tinh cua ban va GitHub deu da co code moi nhat tu [main]!
-echo ===============================================================================
 pause
 goto MENU
