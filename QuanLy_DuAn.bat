@@ -81,6 +81,16 @@ echo [3/3] Dang day len GitHub nhanh [%MY_BRANCH%] (git push)...
 git push -u origin %MY_BRANCH%
 if errorlevel 1 (
     echo.
+    echo [THONG BAO] Nhanh [%MY_BRANCH%] tren GitHub co thay doi moi chua keo ve.
+    echo Dang tu dong dong bo (git pull origin %MY_BRANCH%)...
+    git pull origin %MY_BRANCH% --no-edit
+    if not errorlevel 1 (
+        echo Dang thu day lai len GitHub...
+        git push -u origin %MY_BRANCH%
+    )
+)
+if errorlevel 1 (
+    echo.
     echo [CANH BAO] Day len GitHub that bai! Co the can chay [4] de dong bo code truoc.
 ) else (
     echo.
@@ -116,16 +126,17 @@ echo [1/4] Luu an toan cac thay doi dang lam do o local...
 git add -A
 git commit -m "wip(Kien): luu tam thay doi cuc bo truoc khi dong bo tu main" 2>nul
 
-echo [2/4] Dang tai code moi nhat tu origin/main...
-git fetch origin main
+echo [2/4] Dang tai code moi nhat tu origin/main va origin/%MY_BRANCH%...
+git fetch origin main %MY_BRANCH%
 if errorlevel 1 (
     echo [LOI] Khong the ket noi toi GitHub! Kiem tra lai mang Internet.
     pause
     goto MENU
 )
 
-echo [3/4] Dang gop code tu main vao nhanh [Kien] tren may ban...
-git merge origin/main --no-edit -m "merge(main): dong bo code moi nhat tu main vao Kien"
+echo [3/4] Dang gop code moi tu origin/%MY_BRANCH% va origin/main vao nhanh [%MY_BRANCH%]...
+git merge origin/%MY_BRANCH% --no-edit 2>nul
+git merge origin/main --no-edit -m "merge(main): dong bo code moi nhat tu main vao %MY_BRANCH%"
 if exist "%TEMP%\QuanLy_DuAn_Kien.bat" (
     copy /y "%TEMP%\QuanLy_DuAn_Kien.bat" "%~f0" >nul
     git add "%~f0"
