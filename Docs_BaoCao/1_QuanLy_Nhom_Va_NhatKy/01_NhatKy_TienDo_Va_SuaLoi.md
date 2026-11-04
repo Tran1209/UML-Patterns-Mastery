@@ -139,12 +139,82 @@ flowchart LR
 
 ---
 
+---
+
+### 🛠️ Ca sửa chữa & nâng cấp 7 (Ngày 01/11/2026): Tối ưu hóa & Cá nhân hóa Launcher Quản trị Dự án `QuanLy_DuAn.bat` & Chuẩn hóa Danh tính Nhóm 1 (Thực hiện: Duy Nam & Trung Kiên)
+* **Bối cảnh**: Bộ launcher `QuanLy_DuAn.bat` ban đầu có 9 tùy chọn gây rối mắt và các thành viên dễ bấm nhầm nhánh của nhau khi gộp code, dẫn đến nguy cơ xung đột mã nguồn.
+* **Cải tiến kỹ thuật**:
+  1. Rút gọn menu xuống **4 tùy chọn cốt lõi**: `[1] Chạy game trên PC`, `[2] Biên dịch bản Android APK`, `[3] Đẩy code local lên nhánh riêng`, `[4] Đồng bộ code mới nhất từ main về máy`.
+  2. **Cá nhân hóa tự động**: Mỗi thành viên trên nhánh riêng của mình (`main` - Duy Nam, `Kien` - Trung Kiên, `Huy` - Đức Huy, `Anh` - Đức Anh, `Hoang` - Huy Hoàng) được cấu hình sẵn Git `user.name`, `user.email` và biến môi trường `%MY_BRANCH%`.
+  3. **Cơ chế chống mất code an toàn**: Trước khi kéo code từ `origin/main`, launcher tự động commit lưu tạm (WIP) toàn bộ sửa đổi dang dở tại local, sao lưu file batch vào `%TEMP%` rồi mới tiến hành merge, loại bỏ 100% rủi ro mất code do ghi đè.
+  4. **Quy chuẩn hóa danh tính học thuật**: Rà soát và thay thế toàn bộ danh xưng cũ "Nhóm 5" thành **Nhóm 1 (HUCE OOP 2026)** trên toàn bộ hệ thống tài liệu và mã nguồn.
+
+---
+
+### 🛠️ Ca sửa chữa & nâng cấp 8 (Ngày 02/11/2026): Chuẩn hóa Đồng bộ Toàn diện 7 Chương Báo Cáo Chính Thức & Bộ Kiểm Thử Đồ án (Thực hiện: Cả nhóm)
+* **Bối cảnh**: 7 chương báo cáo chính thức trong thư mục `Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/` có sự sai lệch thông tin về tên thành viên, vai trò phụ trách kỹ thuật và trụ cột nghiên cứu học thuật giữa các chương.
+* **Cải tiến kỹ thuật**:
+  1. Đồng bộ hóa toàn diện từ Trang bìa đến Chương 1 qua Chương 7 theo phân công chuẩn mực:
+     * **Trung Kiên** *(Trưởng nhóm)*: Team Leader, Combat Systems Architecture & Trụ cột Sách Craig Larman + Robert Nystrom.
+     * **Duy Nam** *(Lead Architect)*: Core Domain, State Machine, Android Port & Trụ cột Sách Craig Larman + Vaughn Vernon.
+     * **Nguyễn Đức Huy**: Dedicated Server, Mạng Hybrid LAN/4G & Trụ cột Sách Glazer & Madhav.
+     * **Đức Anh**: 2.5D Graphics LPC Renderer, Camera2D & Trụ cột Sách Robert Nystrom + GoF.
+     * **Huy Hoàng**: Data Persistence JSON, QA/QC 15/15 Tests & Trụ cột Sách Martin Fowler + SOLID.
+  2. Đồng bộ danh sách tác giả và vai trò trong bộ kiểm thử `Tests/GameUnitTestSuite.java`.
+
+---
+
+### 🛠️ Ca sửa chữa & nâng cấp 9 (Ngày 04/11/2026): Tích hợp Cập nhật Lớn Click-to-Move MOBA, WaveManager & Mở rộng 20/20 Unit Tests từ Trưởng nhóm Kiên (Thực hiện: Trung Kiên & Duy Nam)
+* **Bối cảnh**: Trưởng nhóm Trung Kiên hoàn thành đợt nâng cấp lớn 27 files trên nhánh `Kien`, chuyển đổi hoàn toàn cơ chế di chuyển từ bàn phím WASD sang **Click chuột định vị chuẩn MOBA (Click-to-Move)** và tái cấu trúc hệ sinh thái quái vật.
+* **Cải tiến kỹ thuật**:
+  1. **Click-to-Move Pathfinding**: Bổ sung cơ chế điều hướng chuột mượt mà, tính toán vector hướng di chuyển tự động và vẽ cọc tiêu định vị hiệu ứng sóng lan tỏa tại điểm click chuột.
+  2. **Quản lý Đợt Quái (`WaveManager`)**: Phân tách logic sinh quái vật theo đợt thời gian, quản lý chu kỳ hồi sinh và gia tăng độ khó cho chế độ sinh tồn Arena.
+  3. **Module hóa Renderers**: Tách nhỏ `GameCanvas` thành các renderer chuyên trách: `WorldRenderer` (vẽ mặt sàn, cầu đá, sông), `CombatRenderer` (vẽ hitbox, đòn đánh, vòng AoE), `EntityRenderer` (vẽ tướng và quái).
+  4. **Mở rộng Kiểm thử QA**: Bổ sung 5 ca kiểm thử mới cho `WaveManager`, nâng tổng số unit test từ 15 lên **20/20 Unit Tests** (đạt tỉ lệ vượt qua 100%).
+
+---
+
+### 🛠️ Ca sửa chữa & nâng cấp 10 (Ngày 04/11/2026): Hoàn thiện Toàn diện Thư viện Lý thuyết 5 Đầu Sách, Trích xuất 10 Đợt Nystrom và 38 Chương Larman (Thực hiện: Cả nhóm)
+* **Bối cảnh**: Kho tài liệu lý thuyết ban đầu bị phân tán, lộn xộn các file tóm tắt sơ khai và chưa có chiều sâu học thuật tương xứng với đồ án tốt nghiệp chuẩn quốc tế.
+* **Cải tiến kỹ thuật**:
+  1. **Trích xuất Chuyên sâu 10 Đợt Sách *Game Programming Patterns* (Robert Nystrom)**: Bóc tách chi tiết toàn bộ các mẫu thiết kế game (Command, Flyweight, Observer, Prototype, Singleton, State, Double Buffer, Game Loop, Update Method, Bytecode, Subclass Sandbox, Type Object, Component, Event Queue, Service Locator, Data Locality, Dirty Flag, Object Pool, Spatial Partition). Khởi tạo bản gộp toàn văn `FULL_Game_Programming_Patterns.md` (~324 KB).
+  2. **Quy hoạch Thư viện Lý thuyết thành 5 Đầu Sách Chuyên Khảo**:
+     * `01_Robert_Nystrom_GamePatterns`: 10 Đợt trích xuất hoàn tất + Bản gộp.
+     * `02_Craig_Larman_OOAD`: 38 Chương trích xuất toàn văn + Bản gộp.
+     * `03_Glazer_Madhav_Netcode`: Khung lộ trình 10 đợt Multiplayer Netcode.
+     * `04_Martin_Fowler_PoEAA`: Khung lộ trình 10 đợt PoEAA.
+     * `05_Vaughn_Vernon_IDDD`: Khung lộ trình 10 đợt Domain-Driven Design.
+     * Lưu trữ các ghi chú sơ khai tuần trước vào `_Ban_Tom_Tat_Cu_Tuan_Truoc/`.
+  3. **Tích hợp Toàn văn 38 Chương Giáo trình *Applying UML and Patterns (3rd Edition)* (Craig Larman)**:
+     * Nhập trọn bộ 38 chương vào `02_Craig_Larman_OOAD/38_Chapters/` (~536 KB).
+     * Biên soạn bản gộp liền mạch `FULL_Craig_Larman_Applying_UML_and_Patterns.md` (~532 KB) loại bỏ thanh điều hướng vụn để tiện tra cứu Ctrl+F.
+     * Xây dựng `README.md` trung tâm với Map of Content (MOC), phân loại 5 phần Agile UP và bảng tra cứu nhanh 9 mẫu GRASP.
+  4. **Dọn dẹp & Tối ưu hóa Git Đa Nhánh**:
+     * Xóa bỏ thư mục đặt nhầm vị trí `Applying_UML_and_Patterns_Chapters` trên nhánh `Kien`.
+     * Nâng cấp `QuanLy_DuAn.bat` với tính năng tự động `pull` chống bị từ chối (fast-forward reject) trước khi `push`.
+     * Tự động hợp nhất và đồng bộ hóa 100% tài nguyên giữa `main` và cả 4 nhánh thành viên (`Kien`, `Huy`, `Anh`, `Hoang`) trên GitHub.
+
+---
+
 ## 4. BIÊN BẢN HỌP NHÓM ĐÊM 31/10/2026 (CHỐT LỘ TRÌNH 2 GIAI ĐOẠN)
 * **Thời gian**: 20h30 ngày 31/10/2026
 * **Chủ trì**: Nhóm trưởng **Trung Kiên (`KienEsto`)** & Kiến trúc sư **Duy Nam (`Tran1209`)**
 * **Nội dung thống nhất**:
   1. **Giai đoạn 1 (Đêm 31/10/2026 — Ưu tiên tối cao)**: **Nam** và **Kiên** tập trung hoàn thành 100% việc nâng cấp đồ họa từ **2D lên 2.5D** (gồm Camera 2.5D, Mặt sàn & Trụ 2.5D, Z-Sorting, Nhân vật & Hiệu ứng chiêu thức trục $Z$, kèm nút `[Phím V]` chuyển đổi góc nhìn trực tiếp để chứng minh nguyên lý *Model-View Separation* khi bảo vệ đồ án).
   2. **Giai đoạn 2 (Các ngày tiếp theo)**: Sau khi nền tảng 2.5D đã ổn định trên nhánh `main` và `Kien`, cả nhóm mới triển khai tiếp 8 hạng mục còn lại trên nền 2.5D theo kế hoạch tại [`04_KeHoach_PhanCong_9_HangMuc.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/1_QuanLy_Nhom_Va_NhatKy/04_KeHoach_PhanCong_9_HangMuc.md).
+
+---
+
+---
+
+## 4.2. BIÊN BẢN HỌP NHÓM TỔNG KẾT ĐỢT 1 (ĐÊM 04/11/2026: HOÀN TẤT KHO TRI THỨC VÀ SẴN SÀNG TRIỂN KHAI CODE CHUYÊN SÂU)
+* **Thời gian**: 22h45 ngày 04/11/2026
+* **Chủ trì**: Nhóm trưởng **Trung Kiên (`KienEsto`)** & Kiến trúc sư **Duy Nam (`Tran1209`)**
+* **Thành phần tham dự**: Đầy đủ 5/5 thành viên (Trung Kiên, Duy Nam, Đức Huy, Đức Anh, Huy Hoàng).
+* **Nội dung kết luận**:
+  1. **Nghiệm thu Kho Lý thuyết (Pha A & Pha B)**: Toàn bộ 2 cuốn sách hạt nhân (*Game Programming Patterns* - 10 Đợt & *Applying UML and Patterns* - 38 Chương) đã được trích xuất chuyên sâu, có bản gộp toàn văn và liên kết thư viện hoàn chỉnh. 3 cuốn sách còn lại đã sẵn sàng khung cấu trúc và mẫu prompt trích xuất.
+  2. **Nghiệm thu Nền tảng Kỹ thuật**: Cơ chế di chuyển Click-to-Move MOBA 2.5D, bộ sinh quái `WaveManager` và bộ 20/20 Unit Tests hoạt động ổn định 100%.
+  3. **Kế hoạch ngày tiếp theo (Từ 05/11/2026)**: Cả nhóm chính thức bước vào Pha D — triển khai hoàn thiện 8 hạng mục mở rộng trên nền 2.5D theo đúng thiết kế OOA/OOD đã chốt, đảm bảo chất lượng bảo vệ đồ án tốt nghiệp xuất sắc.
 
 ---
 
@@ -161,6 +231,13 @@ flowchart LR
 |  `b671af7`  | 28/10/2026 | `refactor(combat,ui): apply Strategy/Command pattern and SRP to CombatEngine and GameCanvas`   | `ISkillAction.java`, `DashStrikeSkill.java`, `CombatEffects.java`, `DesktopHudRenderer.java`      |
 |  `97097cf`  | 28/10/2026 | `chore(repo): reorganize root folder structure and add unified QuanLy_DuAn.bat launcher`       | `QuanLy_DuAn.bat`, `README.md`, `scripts/`                                                        |
 |  `227e2f5`  | 31/10/2026 | `feat(render,docs): upgrade to 2.5D/3D Perspective MOBA Arena and organize Docs_BaoCao`        | `Camera2D.java`, `Arena3DSceneRenderer.java`, `LpcCanvasRenderer.java`, `DesktopHudRenderer.java` |
+|  `02e38ef`  | 01/11/2026 | `feat(launcher): simplify QuanLy_DuAn.bat to 4 essential options with safe main sync`          | `QuanLy_DuAn.bat`, cấu hình cá nhân hóa 5 nhánh Git thành viên                                     |
+|  `499987d`  | 01/11/2026 | `docs(identity): change team name from Nhom 5 to Nhom 1 across documentation`                  | Rà soát và chuyển đổi đồng bộ 100% tài xưng Nhóm 1                                                 |
+|  `818c192`  | 02/11/2026 | `docs(report): synchronize all 7 chapters and test suite with official Nhom 1 members and roles`| `Docs_BaoCao/2_BaoCao_ChinhThuc_7Chuong/`, `Tests/GameUnitTestSuite.java`                          |
+|  `af82f21`  | 04/11/2026 | `docs(theory): add complete 10-run deep extraction of Game Programming Patterns by Nystrom`    | `Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/GhiChu_Sach_Larman_Nystrom/01_Robert_Nystrom_GamePatterns/` |
+|  `1ad6ce6`  | 04/11/2026 | `docs(theory): reorganize knowledge base into 5 dedicated book folders and archive legacy notes`| `GhiChu_Sach_Larman_Nystrom/` (5 folder sách chuyên khảo + archive)                                |
+|  `d813772`  | 04/11/2026 | `docs(theory): add complete 38-chapter Craig Larman OOAD textbook and merged edition`          | `Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/GhiChu_Sach_Larman_Nystrom/02_Craig_Larman_OOAD/`           |
+|  `6aa60ff`  | 04/11/2026 | `docs(theory): move Larman chapters into 02_Craig_Larman_OOAD/38_Chapters and clean up branch`  | Dọn dẹp folder lệch trên nhánh `Kien`, nâng cấp auto-pull `QuanLy_DuAn.bat`                        |
 
 ---
 
