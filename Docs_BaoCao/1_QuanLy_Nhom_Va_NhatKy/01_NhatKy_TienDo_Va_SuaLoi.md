@@ -218,6 +218,23 @@ flowchart LR
 
 ---
 
+## 4.3. NGHIỆM THU BÁO CÁO GIAI ĐOẠN 1 (05/11/2026: CHUẨN BỊ BẢN MÔ TẢ WORD & SƠ ĐỒ NỘP THẦY)
+* **Thời gian**: 14h00 ngày 05/11/2026
+* **Yêu cầu của Giảng viên (Buổi 1 — Giai đoạn 1 sau 1-3 tuần)**:
+  1. Mô tả bài toán: Chuẩn bị 1 bản mô tả Word (.docx) hoàn chỉnh.
+  2. Kết quả phân tích: Use Case (Sơ đồ, đặc tả chi tiết) và Class (Domain Model chuẩn Craig Larman không methods).
+  3. Có giao diện chương trình: Sơ đồ luồng UI, Mockup chi tiết 4 màn hình (Lobby, Canvas 2.5D MOBA 55°, Segmented HP Bar & Skill Dock HUD, Tổng kết trận đấu).
+  4. Kết quả thiết kế: Sơ đồ Component (5 phân hệ kiến trúc Clean Architecture) và bảng khế ước giao diện Interfaces.
+  5. Tài liệu tham khảo chuẩn IEEE.
+* **Sản phẩm bàn giao chính thức**:
+  - [`Docs_BaoCao/BaoCao_GiaiDoan_1_Nhom1_HUCE.docx`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/BaoCao_GiaiDoan_1_Nhom1_HUCE.docx): Bản nộp Microsoft Word in ấn chuẩn chỉ có bìa đồ án, bảng biểu và wireframe.
+  - [`Docs_BaoCao/BaoCao_GiaiDoan_1_Nhom1_HUCE.html`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/BaoCao_GiaiDoan_1_Nhom1_HUCE.html): Bản HTML tương tác hỗ trợ kết xuất động Mermaid.js và in A4.
+  - [`Docs_BaoCao/BaoCao_GiaiDoan_1_Nhom1_HUCE.md`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/BaoCao_GiaiDoan_1_Nhom1_HUCE.md): Bản Markdown gốc lưu trữ trên GitHub.
+  - Lưu trữ an toàn 6 file nháp sơ khai tuần 1 vào [`_Ban_Thao_So_Khai_Tuan_1/`](file:///E:/UML-Patterns-Mastery/Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/_Ban_Thao_So_Khai_Tuan_1/) để bảo toàn lịch sử git.
+  - Đồng bộ hóa 100% tài nguyên báo cáo Giai đoạn 1 sang tất cả 4 nhánh thành viên (`Kien`, `Huy`, `Anh`, `Hoang`).
+
+---
+
 ## 5. BẢNG ĐỐI SOÁT LỊCH SỬ GIT COMMIT THỰC TẾ (GIT AUDIT TRAIL)
 
 | Commit Hash | Thời gian  | Nội dung Commit (Message)                                                                      | Phân hệ Tác động Chính                                                                            |
@@ -239,6 +256,8 @@ flowchart LR
 |  `d813772`  | 04/11/2026 | `docs(theory): add complete 38-chapter Craig Larman OOAD textbook and merged edition`          | `Docs_BaoCao/3_PhuLuc_UML_Va_LyThuyet/GhiChu_Sach_Larman_Nystrom/02_Craig_Larman_OOAD/`           |
 |  `6aa60ff`  | 04/11/2026 | `docs(theory): move Larman chapters into 02_Craig_Larman_OOAD/38_Chapters and clean up branch`  | Dọn dẹp folder lệch trên nhánh `Kien`, nâng cấp auto-pull `QuanLy_DuAn.bat`                        |
 |  `dbd99bc`  | 04/11/2026 | `docs(kb): bo sung 10 dot boc tach chuyen sau sach Vaughn Vernon IDDD va phu luc`              | `05_Vaughn_Vernon_IDDD/` (Đức Anh hoàn thành 10 đợt + toàn tập 14 chương)                         |
+|  `e7cd633`  | 05/11/2026 | `docs(report): add comprehensive Phase 1 milestone report and archive week 1 draft notes`      | `Docs_BaoCao/BaoCao_GiaiDoan_1_Nhom1_HUCE.md`, `.html`, lưu trữ `_Ban_Thao_So_Khai_Tuan_1/`       |
+|  `df153ad`  | 05/11/2026 | `docs(report): generate official Microsoft Word report (.docx) for Milestone 1 submission`     | `Docs_BaoCao/BaoCao_GiaiDoan_1_Nhom1_HUCE.docx` (Chuẩn mực A4 nộp thầy, đồng bộ 5/5 nhánh)        |
 
 ---
 
