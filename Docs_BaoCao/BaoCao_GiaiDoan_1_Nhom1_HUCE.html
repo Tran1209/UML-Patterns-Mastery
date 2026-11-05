@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BÁO CÁO GIAI ĐOẠN 1 - ĐỒ ÁN LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG (NHÓM 1 - HUCE)</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm 15mm 20mm 20mm;
+        }
+        body {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 13pt;
+            line-height: 1.5;
+            color: #111;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-radius: 4px;
+        }
+        .cover-page {
+            border: 3px double #0f172a;
+            padding: 40px 30px;
+            text-align: center;
+            margin-bottom: 50px;
+            page-break-after: always;
+        }
+        .university-title {
+            font-size: 15pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .faculty-title {
+            font-size: 13pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #334155;
+            margin-bottom: 25px;
+        }
+        .hr-cover {
+            width: 150px;
+            height: 2px;
+            background: #0f172a;
+            margin: 0 auto 35px auto;
+        }
+        .report-subject {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #b91c1c;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        .report-title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            line-height: 1.3;
+            color: #0f172a;
+            margin-bottom: 35px;
+        }
+        .team-box {
+            text-align: left;
+            margin: 40px auto 30px auto;
+            max-width: 600px;
+            font-size: 13pt;
+        }
+        .footer-cover {
+            margin-top: 50px;
+            font-weight: bold;
+            font-size: 13pt;
+        }
+        h1, h2, h3, h4 {
+            font-family: "Times New Roman", Times, serif;
+            color: #0f172a;
+        }
+        h1 {
+            font-size: 16pt;
+            text-transform: uppercase;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 5px;
+            margin-top: 35px;
+        }
+        h2 {
+            font-size: 14pt;
+            margin-top: 25px;
+            color: #1e3a8a;
+        }
+        h3 {
+            font-size: 13pt;
+            font-style: italic;
+            margin-top: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 11.5pt;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+            color: #0f172a;
+        }
+        pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 10.5pt;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        .ascii-art {
+            background-color: #1e293b;
+            color: #38bdf8;
+            font-weight: bold;
+        }
+        blockquote {
+            border-left: 4px solid #2563eb;
+            margin: 15px 0;
+            padding: 10px 18px;
+            background-color: #eff6ff;
+            font-style: italic;
+            color: #1e40af;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10pt;
+            font-weight: bold;
+        }
+        .badge-p1 { background: #fee2e2; color: #991b1b; }
+        .badge-p2 { background: #fef3c7; color: #92400e; }
+        .badge-done { background: #dcfce7; color: #166534; }
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+            .page-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <!-- TRANG BIA CHUAN A4 HUCE -->
+    <div class="cover-page">
+        <div class="university-title">TRƯỜNG ĐẠI HỌC XÂY DỰNG HÀ NỘI (HUCE)</div>
+        <div class="faculty-title">KHOA CÔNG NGHỆ THÔNG TIN — BỘ MÔN CÔNG NGHỆ PHẦN MỀM</div>
+        <div class="hr-cover"></div>
+
+        <div class="report-subject">BÁO CÁO KẾT QUẢ ĐỒ ÁN MÔN HỌC (GIAI ĐOẠN 1)</div>
+        <div style="font-size: 14pt; margin-bottom: 15px; font-weight: bold;">HỌC PHẦN: LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG (OOP)</div>
+        
+        <div class="report-title">
+            PHÂN TÍCH, THIẾT KẾ VÀ XÂY DỰNG HỆ THỐNG TRÒ CHƠI ĐẤU TRƯỜNG THỜI GIAN THỰC 2.5D ACTION RPG MULTIPLAYER
+        </div>
+
+        <div class="team-box">
+            <p><b>Giảng viên hướng dẫn:</b> Bộ môn Công nghệ Phần mềm</p>
+            <p><b>Nhóm thực hiện:</b> <b>NHÓM 1</b></p>
+            <p><b>Thành viên nhóm:</b></p>
+            <ul>
+                <li><b>Trung Kiên</b> (Trưởng nhóm) — Combat Systems & Gameplay</li>
+                <li><b>Duy Nam</b> (Kiến trúc sư trưởng) — Core Domain Architecture & FSM</li>
+                <li><b>Nguyễn Đức Huy</b> — Dedicated Server 20Hz & Hybrid LAN Network</li>
+                <li><b>Đức Anh</b> — 2.5D Dimetric MOBA Render, Z-Sorting & Camera</li>
+                <li><b>Huy Hoàng</b> — JSON Data Persistence, Mobs AI & 20 Unit Tests</li>
+            </ul>
+            <p><b>Mã nguồn GitHub:</b> <a href="https://github.com/Tran1209/UML-Patterns-Mastery.git">https://github.com/Tran1209/UML-Patterns-Mastery.git</a></p>
+        </div>
+
+        <div class="footer-cover">
+            HÀ NỘI — THÁNG 11 NĂM 2026
+        </div>
+    </div>
+
+    <!-- NOI DUNG CHINH -->
+    <div>
+        <p style="text-align: right; font-style: italic; color: #64748b;">(Tài liệu nộp Giai đoạn 1: 1 - 3 tuần sau buổi 1)</p>
+        
+        <h1>PHẦN I: MÔ TẢ BÀI TOÁN TOÀN DIỆN</h1>
+        
+        <h2>1.1. Bối cảnh & Lý do chọn đề tài</h2>
+        <p>
+            Trong quá trình học tập môn <b>Lập trình Hướng đối tượng (OOP)</b> tại Trường Đại học Xây dựng Hà Nội (HUCE), sinh viên cần được cọ xát với những bài toán có tính động cao, đòi hỏi tư duy phân bổ trách nhiệm và cấu trúc chặt chẽ. Nhóm 1 lựa chọn đề tài xây dựng <b>Trò chơi Đấu trường Thời gian thực 2.5D Action RPG nhiều người chơi</b> nhằm giải quyết trọn vẹn 4 vấn đề kỹ thuật lớn:
+        </p>
+        <ul>
+            <li><b>Triệt tiêu Anti-Pattern "God Object"</b>: Tách rời hoàn toàn giao diện (UI/Render), xử lý logic (Combat/Core) và mạng/lưu trữ (Network/Persistence).</li>
+            <li><b>Vận hành Client-Server tin cậy (Authoritative Server)</b>: Mọi quyết định va chạm, trừ máu và sinh quái đều do máy chủ kiểm soát, chống gian lận tuyệt đối.</li>
+            <li><b>Nguyên tắc "Pure OOP" (100% Thuần Hướng đối tượng)</b>: Không dựa dẫm vào Game Engine ngoài (Unity, LibGDX), sinh viên tự tay lập trình Game Loop, Phép chiếu 2.5D Dimetric, Va chạm hình học Hitbox AABB và Socket TCP/UDP.</li>
+            <li><b>Mô hình hóa chuẩn mực theo Craig Larman</b>: Ứng dụng quy trình Unified Process (UP), 9 nguyên tắc GRASP và các mẫu thiết kế GoF.</li>
+        </ul>
+
+        <h2>1.2. Mô tả nghiệp vụ thế giới Game</h2>
+        <p>
+            Trò chơi mô phỏng một <b>Bình Nguyên MOBA 2.5D</b> với các thực thể:
+        </p>
+        <ul>
+            <li><b>Tướng người chơi (Player Hero)</b>: Sở hữu các chỉ số Máu (HP), Giáp (Armor), Sát thương vật lý (AD), Vận tốc (Speed). Trạng thái nhân vật tuân theo FSM: <code>IDLE</code>, <code>RUNNING</code>, <code>ATTACKING</code>, <code>CASTING</code>, <code>HURT</code>, <code>DEAD</code>.</li>
+            <li><b>Cơ chế điều khiển Click-to-Move MOBA</b>: Click chuột phải để di chuyển tự động có cọc tiêu sóng định vị; Phím tắt <code>Q / E / F</code> thi triển 3 chiêu thức AOV chuyên sâu (Chiêu 1 Lướt kiếm, Chiêu 2 Lốc xoáy lửa AoE, Chiêu 3 Thiên thạch nổ dội từ độ cao Z = 420px).</li>
+            <li><b>Hệ sinh thái Quái vật</b>: Gồm Goblin Brawler, Cung thủ Xương và Boss Golem do <code>WaveManager</code> kích hoạt theo từng đợt thời gian thử thách người chơi.</li>
+        </ul>
+
+        <h1>PHẦN II: KẾT QUẢ PHÂN TÍCH HƯỚNG ĐỐI TƯỢNG (OOA)</h1>
+
+        <h2>2.1. Biểu đồ Ca sử dụng Tổng thể (Use Case Diagram)</h2>
+        <div class="mermaid">
+        flowchart LR
+            Player(("👤 Người chơi<br/>(Client Player)"))
+            Server(("🖥️ Dedicated Server<br/>(Hệ thống Phán quyết)"))
+            FileStore[("💾 File Store<br/>(match_history.json)")]
+
+            subgraph SYSTEM_BOUNDARY["HỆ THỐNG ĐẤU TRƯỜNG MOBA 2.5D"]
+                UC1(["UC01: Khởi tạo Trận đấu & Sảnh chờ"])
+                UC2(["UC02: Điều khiển Di chuyển Click-to-Move"])
+                UC3(["UC03: Thi triển Kỹ năng & Tác chiến Combat"])
+                UC4(["UC04: Quản lý Đợt Quái & Sinh tồn"])
+                UC5(["UC05: Thu thập Chiến lợi phẩm"])
+                UC6(["UC06: Đồng bộ Trạng thái Mạng LAN"])
+            end
+
+            Player --> UC1
+            Player --> UC2
+            Player --> UC3
+            Player --> UC5
+
+            UC1 <--> Server
+            UC3 <--> Server
+            UC4 <--> Server
+            UC6 <--> Server
+            Server --> FileStore
+        </div>
+
+        <h2>2.2. Đặc tả Chi tiết Ca sử dụng Cốt lõi: UC03 — Tác chiến Combat</h2>
+        <table>
+            <tr><th style="width: 25%;">Hạng mục</th><th>Nội dung đặc tả chuẩn UP</th></tr>
+            <tr><td><b>Tên Ca sử dụng</b></td><td><b>UC03: Thi triển Kỹ năng & Tác chiến Combat (Skill Execution)</b></td></tr>
+            <tr><td><b>Tác nhân chính</b></td><td>Người chơi (Player), Máy chủ (Dedicated Server)</td></tr>
+            <tr><td><b>Tiền điều kiện</b></td><td>Nhân vật còn sống (HP > 0), kỹ năng không trong thời gian hồi chiêu (Cooldown = 0).</td></tr>
+            <tr><td><b>Hậu điều kiện</b></td><td>Kỹ năng chuyển sang Cooldown, sinh Hitbox gây sát thương thực tế theo công thức giáp, cập nhật HP mục tiêu.</td></tr>
+            <tr><td><b>Luồng chính (Main Flow)</b></td><td>
+                1. Người chơi nhấn phím Q/E/F và trỏ chuột định hướng.<br/>
+                2. Hệ thống kiểm tra Cooldown, đổi trạng thái sang <code>CASTING</code>.<br/>
+                3. Khởi tạo Hitbox AABB/Elip 2.5D, quét mục tiêu trúng đòn.<br/>
+                4. Tính sát thương thực: <code>Damage = Base * 100 / (100 + Armor)</code>.<br/>
+                5. Trừ máu đối thủ, nảy số sát thương, phát sự kiện âm thanh.
+            </td></tr>
+            <tr><td><b>Luồng ngoại lệ</b></td><td>
+                2a. Chiêu chưa hồi: Phát âm thanh cảnh báo, nhấp nháy đỏ HUD.<br/>
+                4a. Mục tiêu HP &le; 0: Chuyển sang <code>DEAD</code>, cộng điểm hạ gục.
+            </td></tr>
+        </table>
+
+        <h2>2.3. Sơ đồ Lớp Khái niệm (Domain Model / Conceptual Class Diagram)</h2>
+        <blockquote><b>Quy tắc vàng OOA Craig Larman:</b> Tuyệt đối KHÔNG có phương thức (No Methods). Chỉ mô tả khái niệm thực tế, thuộc tính và bản số lượng kết hợp.</blockquote>
+        
+        <div class="mermaid">
+        classDiagram
+            class PlayerHero {
+                +string heroId
+                +string heroName
+                +HeroClass heroClass
+                +Vector2D position
+                +Direction facingDirection
+            }
+            class CharacterStats {
+                +float maxHp
+                +float currentHp
+                +float baseAttack
+                +float armor
+                +float moveSpeed
+            }
+            class Skill {
+                +string skillName
+                +int skillSlot
+                +float baseDamage
+                +float cooldownTime
+                +float rangeAoE
+            }
+            class HitboxAABB {
+                +float width
+                +float height
+                +float depthZ
+            }
+            class MonsterEnemy {
+                +string monsterId
+                +MonsterType type
+                +Vector2D position
+            }
+            class WaveManager {
+                +int currentWave
+                +float waveTimer
+            }
+            class BattleSession {
+                +string sessionId
+                +float elapsedTime
+                +int score
+            }
+
+            BattleSession "1" -- "1..4" PlayerHero : tham_gia
+            BattleSession "1" -- "1" WaveManager : dieu_phoi
+            PlayerHero "1" *-- "1" CharacterStats : so_huu
+            PlayerHero "1" *-- "3" Skill : trang_bi
+            PlayerHero "1" *-- "1" HitboxAABB : bao_boc
+            MonsterEnemy "1" *-- "1" CharacterStats : so_huu
+            WaveManager "1" o-- "0..*" MonsterEnemy : sinh_quai
+        </div>
+
+        <h1>PHẦN III: GIAO DIỆN CHƯƠNG TRÌNH (GUI)</h1>
+
+        <h2>3.1. Sơ đồ Luồng Màn hình (UI Navigation)</h2>
+        <div class="mermaid">
+        stateDiagram-v2
+            [*] --> LOBBY : Khởi động Game (Main)
+            LOBBY --> BATTLE_CANVAS : Nhấn [Vào Trận Đấu]
+            BATTLE_CANVAS --> HUD_OBSERVER : Lắng nghe sự kiện Domain
+            BATTLE_CANVAS --> PERSPECTIVE_TOGGLE : Nhấn phím [V] đổi góc nhìn
+            BATTLE_CANVAS --> SUMMARY : Game Over / Hoàn thành
+            SUMMARY --> LOBBY : Chơi lại
+        </div>
+
+        <h2>3.2. Bố cục Đấu trường 2.5D Dimetric & HUD Người chơi</h2>
+        <pre class="ascii-art">
++-----------------------------------------------------------------------------------+
+| [V: Doi Goc Nhin 2.5D]       FPS: 60 | Ping: 12ms | Wave: 03/10       Score: 1,450 |
++-----------------------------------------------------------------------------------+
+|                                     /\                                           |
+|       (Rung Cay 2.5D)              /  \  (Cau Da 2.5D)                           |
+|           /######\                /    \====================                     |
+|          | ####### |              /  *   \  [Quai Goblin]                        |
+|             |   |                /        \                                      |
+|             |===| (Tru 2.5D)    /  (Song)  \               (Tru Thanh Tich)       |
+|            /     \            /            \                  +-------+         |
+|           +-------+           /              \                 |  [!]  |         |
+|                                                                 +-------+         |
+|                   [=== TƯỚNG (PLAYER) ===]                                        |
+|                   |  Segmented HP: [||||||||||] [Lv.1]  |                         |
+|                   |           (O_O)                     |                         |
+|                   |          /|   |\                    |                         |
+|                   |           /   \                     |                         |
+|                   +-----------------------------+                                 |
+|                       ( ) Vong Hao Quang Elip                                     |
+|                         \                                                        |
+|                          \==> (X) Coc Tieu Chuot Click-to-Move                    |
++-----------------------------------------------------------------------------------+
+|  [Q] Luot Kiem (2.4s) |  [E] Loc Lua (SAN SANG) |  [F] Thien Thach (12.0s)        |
++-----------------------------------------------------------------------------------+
+        </pre>
+        <ul>
+            <li><b>Phép chiếu Dimetric 2.5D</b>: Góc nghiêng 55&deg;, hỗ trợ phím tắt <code>[V]</code> chuyển đổi 3 góc nhìn mượt mà.</li>
+            <li><b>Thanh máu chia vạch (Segmented Health Bar)</b>: 100 HP/vạch chuẩn Liên Quân Mobile kèm huy hiệu cấp độ <code>[1]</code>.</li>
+            <li><b>HUD Kỹ năng AOV</b>: Hiển thị đồng hồ đếm ngược Cooldown trực quan, vòng ngắm chiêu Elip 2.5D bám sát mặt đất kèm cột sáng định vị trục Z.</li>
+        </ul>
+
+        <h1>PHẦN IV: KẾT QUẢ THIẾT KẾ THÀNH PHẦN (COMPONENT DESIGN)</h1>
+
+        <h2>4.1. Biểu đồ Thành phần Hệ thống (UML Component Diagram)</h2>
+        <div class="mermaid">
+        flowchart TD
+            subgraph PRESENTATION["TẦNG HIỂN THỊ (PRESENTATION COMPONENT)"]
+                UI_COMP["🎨 Component UI & Render 2.5D<br/>DesktopHudRenderer, Arena3DSceneRenderer, LpcCanvasRenderer, Camera2D"]
+            end
+
+            subgraph DOMAIN["TẦNG NGHIỆP VỤ (DOMAIN COMPONENT)"]
+                CORE_COMP["⚙️ Component Core Game Loop<br/>GameEngineLoop, LivingEntity, Player, CharacterStateMachine"]
+                COMBAT_COMP["⚔️ Component Combat & Physics<br/>CombatEngine, Hitbox AABB, WaveManager, ISkillAction"]
+            end
+
+            subgraph INFRASTRUCTURE["TẦNG HẠ TẦNG (INFRASTRUCTURE COMPONENT)"]
+                NET_COMP["📡 Component Network Services<br/>DedicatedServer 20Hz, PacketSerializer, SnapshotInterpolator"]
+                PERSIST_COMP["💾 Component Persistence & QA<br/>JsonMatchRepository, GameUnitTestSuite (20/20 Tests)"]
+            end
+
+            UI_COMP ==>|IEntityEventListener / IPlayerState| CORE_COMP
+            CORE_COMP <==> COMBAT_COMP
+            COMBAT_COMP ==>|ISkillAction| CORE_COMP
+            CORE_COMP <==>|INetworkRelay| NET_COMP
+            CORE_COMP ==>|IMatchRepository| PERSIST_COMP
+        </div>
+
+        <h2>4.2. Bảng Khế ước Giao diện giữa các Thành phần (Component Interfaces)</h2>
+        <table>
+            <tr><th style="width: 20%;">Tên Interface</th><th style="width: 25%;">Cung cấp &rarr; Tiêu thụ</th><th>Phương thức & Bản chất kỹ thuật</th></tr>
+            <tr>
+                <td><b><code>ISkillAction</code></b></td>
+                <td>Combat &rarr; Core</td>
+                <td>Chiến lược kỹ năng đa hình (Strategy Pattern):<br/><code>+ execute(Caster c, Target t, World w): void</code></td>
+            </tr>
+            <tr>
+                <td><b><code>IPlayerState</code></b></td>
+                <td>Core &rarr; UI</td>
+                <td>Máy trạng thái nhân vật (State Pattern):<br/><code>+ handleInput(Player p, InputCmd cmd): void</code><br/><code>+ update(Player p, float dt): void</code></td>
+            </tr>
+            <tr>
+                <td><b><code>IEntityEventListener</code></b></td>
+                <td>UI &rarr; Core</td>
+                <td>Lắng nghe sự kiện bất đồng bộ (Observer Pattern):<br/><code>+ onHealthChanged(Entity e, float newHp): void</code></td>
+            </tr>
+            <tr>
+                <td><b><code>INetworkRelay</code></b></td>
+                <td>Network &rarr; Core</td>
+                <td>Giao thức Socket TCP Client-Server 20Hz:<br/><code>+ broadcastSnapshot(WorldState state): void</code></td>
+            </tr>
+            <tr>
+                <td><b><code>IMatchRepository</code></b></td>
+                <td>Persistence &rarr; Core</td>
+                <td>Trừu tượng hóa lưu trữ dữ liệu (Repository Pattern):<br/><code>+ saveMatch(MatchSummary s): boolean</code></td>
+            </tr>
+        </table>
+
+        <h1>PHẦN V: TÀI LIỆU THAM KHẢO CHÍNH THỨC</h1>
+        <ol>
+            <li><b>Craig Larman</b> (2004). <i>Applying UML and Patterns: An Introduction to Object-Oriented Analysis and Design and Iterative Development</i> (3rd Edition). Prentice Hall PTR.</li>
+            <li><b>Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides (GoF)</b> (1994). <i>Design Patterns: Elements of Reusable Object-Oriented Software</i>. Addison-Wesley.</li>
+            <li><b>Robert Nystrom</b> (2014). <i>Game Programming Patterns</i>. Genever Benning.</li>
+            <li><b>Joshua Glazer & Sanjay Madhav</b> (2015). <i>Multiplayer Game Programming: Architecting Networked Games</i>. Addison-Wesley.</li>
+            <li><b>Martin Fowler</b> (2002). <i>Patterns of Enterprise Application Architecture</i>. Addison-Wesley.</li>
+            <li><b>Vaughn Vernon</b> (2013). <i>Implementing Domain-Driven Design</i>. Addison-Wesley.</li>
+        </ol>
+    </div>
+
+</div>
+
+</body>
+</html>
