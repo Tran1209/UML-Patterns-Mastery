@@ -83,7 +83,7 @@ flowchart TB
 | **2** | **Trung Kiên** | **Team Leader / Combat & Phím** | `Kien` | `Src_Game/Combat/`, WASD + Q/E/R, Chuột | `kienesto@huce.edu.vn` |
 | **3** | **Nguyễn Đức Huy** | **Network & Sảnh Chờ** | `Huy` | `Src_Game/Network/`, Server UDP/TCP 20Hz | `duchuy462007` (noreply) |
 | **4** | **Đức Anh** | **2.5D Graphics & Z-Sorting** | `Anh` | `Src_Game/Render/`, LPC Sprite, Camera2D | `Alonee-code` (noreply) |
-| **5** | **Huy Hoàng** | **Mobs AI & Kiểm thử QA** | `Hoang` | `Src_Game/Core/` (Mobs), `Tests/` (15 Tests) | `HHoang2903` (noreply) |
+| **5** | **Huy Hoàng** | **Mobs AI & Kiểm thử QA** | `Hoang` | `Src_Game/Core/` (Mobs), `Tests/` (15 Tests) | `KienFake` (noreply) |
 
 ---
 
