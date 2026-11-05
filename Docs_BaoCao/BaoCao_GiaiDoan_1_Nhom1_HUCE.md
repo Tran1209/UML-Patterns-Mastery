@@ -21,7 +21,7 @@
 | **2** | **Duy Nam** | `Tran1209` | **Lead Software Architect & Core Developer**<br>• Kiến trúc Clean Architecture, Game Loop 60 FPS, Player FSM, Android Port | **Craig Larman** (*OOAD UP*) & **Vaughn Vernon** (*Implementing DDD*) | **100%** |
 | **3** | **Nguyễn Đức Huy** | `nguyenduchuy20070406-oss` | **Network & Distributed Systems Engineer**<br>• Dedicated Server 20Hz Tickrate, Gói tin nhị phân TCP/UDP, Sảnh chờ Lobby | **Joshua Glazer & Sanjay Madhav** (*Multiplayer Game Programming*) | **100%** |
 | **4** | **Đức Anh** | [`Alonee-code`](https://github.com/Alonee-code) | **Client Graphics & UX Engineer**<br>• Kết xuất 2.5D Dimetric MOBA, Thuật toán Z-Sorting, Camera2D LERP, LPC Sprite | **Robert Nystrom** (*Game Loop & Double Buffer*) & **GoF Patterns** | **100%** |
-| **5** | **Huy Hoàng** | [`HHoang2903`](https://github.com/HHoang2903) | **Persistence & QA/QC Test Engineer**<br>• Lưu trữ JSON (`IMatchRepository`), Wave Quái vật (`WaveManager`), Bộ 20/20 Unit Tests | **Martin Fowler** (*PoEAA*) & **SOLID Principles** | **100%** |
+| **5** | **Huy Hoàng** | [`KienFake`](https://github.com/KienFake) | **Persistence & QA/QC Test Engineer**<br>• Lưu trữ JSON (`IMatchRepository`), Wave Quái vật (`WaveManager`), Bộ 20/20 Unit Tests | **Martin Fowler** (*PoEAA*) & **SOLID Principles** | **100%** |
 
 ---
 
