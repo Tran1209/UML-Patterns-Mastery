@@ -91,6 +91,7 @@ namespace SurvivalHeroes.Gameplay
                 {
                     if (hero == null || !GodotObject.IsInstanceValid(hero) || hero.IsDead) continue;
                     if (hero.PhotonView != null && hero.PhotonView.ViewID == OwnerViewId) continue;
+                    if (ArenaGameManager.Instance.AreSameTeam(OwnerViewId, hero)) continue;
 
                     float dist2D = new Vector2(GlobalPosition.X - hero.GlobalPosition.X, GlobalPosition.Z - hero.GlobalPosition.Z).Length();
                     if (dist2D <= 1.05f)

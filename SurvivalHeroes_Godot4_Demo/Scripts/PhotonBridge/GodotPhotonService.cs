@@ -30,7 +30,12 @@ namespace Photon.Pun.GodotBridge
 
         /// <summary>True khi đang chạy phòng giả lập Loopback tại máy để test ngay lập tức.</summary>
         public bool IsLocalSimulationMode { get; private set; } = true;
-        public string StatusMessage { get; private set; } = "Photon Loopback Room (Local Sim + AI)";
+        public string StatusMessage { get; private set; } = "Photon Loopback Room [Mã: SH-8899] (Local Sim + AI)";
+
+        public string CurrentAppId { get; private set; } = "";
+        public string CurrentRegion { get; private set; } = "asia";
+        public string RequestedRoomCode { get; set; } = "SH-8899";
+        public int LocalTeamId { get; set; } = 1;
 
         public Room CurrentRoom => Client?.CurrentRoom;
         public Player LocalPlayer => Client?.LocalPlayer;
@@ -44,11 +49,14 @@ namespace Photon.Pun.GodotBridge
 
         public double Time => ((uint)ServerTimestamp) / 1000.0d;
 
-        /// <summary>Các thuộc tính của Phòng (dùng chung choทั้ง Photon Cloud Room và Local Loopback Room).</summary>
+        /// <summary>Các thuộc tính của Phòng (dùng chung cho cả Photon Cloud Room và Local Loopback Room).</summary>
         public readonly Hashtable SharedRoomProperties = new();
 
         public event Action<Hashtable> OnRoomPropertiesChanged;
         public event Action<byte, object, int> OnCustomNetworkEvent;
+        public event Action OnJoinedRoomSuccess;
+        public event Action<Player> OnRemotePlayerJoined;
+        public event Action<Player> OnRemotePlayerLeft;
 
         private readonly Dictionary<int, GodotPhotonView> _photonViews = new();
         private readonly PhotonStream _serializeStreamOut = new(true, null);
@@ -143,25 +151,99 @@ namespace Photon.Pun.GodotBridge
             }
         }
 
-        /// <summary>Kết nối lên Photon Cloud thật bằng AppId của bạn.</summary>
-        public bool ConnectToPhotonCloud(string appId, string region = "asia")
+        /// <summary>Kết nối lên Photon Cloud thật bằng AppId + Mã Phòng + Tên Nhân Vật + Đội.</summary>
+        public bool ConnectToPhotonCloud(string appId, string region = "asia", string roomCode = null, string nickName = null, int teamId = 1)
         {
+            if (!string.IsNullOrWhiteSpace(roomCode))
+                RequestedRoomCode = roomCode.Trim().ToUpperInvariant();
+            if (!string.IsNullOrWhiteSpace(nickName) && Client?.LocalPlayer != null)
+                Client.LocalPlayer.NickName = nickName.Trim();
+
+            LocalTeamId = Mathf.Clamp(teamId, 1, 8);
+            if (Client?.LocalPlayer != null)
+            {
+                Client.LocalPlayer.SetCustomProperties(new Hashtable { ["TeamId"] = LocalTeamId });
+            }
+
             if (string.IsNullOrWhiteSpace(appId))
             {
-                StatusMessage = "AppId trống -> Đang chạy chế độ Photon Loopback Sim";
+                StatusMessage = $"Chế độ Local Sim — Phòng [{RequestedRoomCode}] (Chưa nhập AppId Cloud)";
                 IsLocalSimulationMode = true;
+                OnJoinedRoomSuccess?.Invoke();
                 return false;
             }
 
+            CurrentAppId = appId.Trim();
+            CurrentRegion = string.IsNullOrWhiteSpace(region) ? "asia" : region.Trim();
+
+            if (Client != null && Client.IsConnected)
+            {
+                Client.Disconnect();
+            }
+
             IsLocalSimulationMode = false;
-            StatusMessage = $"Đang kết nối Photon Cloud ({region})...";
+            StatusMessage = $"Đang kết nối Photon Cloud ({CurrentRegion}) -> Phòng [{RequestedRoomCode}]...";
             AppSettings settings = new()
             {
-                AppIdRealtime = appId.Trim(),
-                FixedRegion = region,
+                AppIdRealtime = CurrentAppId,
+                FixedRegion = CurrentRegion,
                 AppVersion = "1.0-survival-heroes"
             };
             return Client.ConnectUsingSettings(settings);
+        }
+
+        public static string GenerateRandomRoomCode()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            char[] code = new char[4];
+            for (int i = 0; i < 4; i++)
+                code[i] = chars[GD.Randi() % chars.Length];
+            return "SH-" + new string(code);
+        }
+
+        public string BuildClipboardInviteToken(string appIdInput)
+        {
+            string app = !string.IsNullOrWhiteSpace(appIdInput) ? appIdInput.Trim() : CurrentAppId;
+            return $"SH-INVITE|{(string.IsNullOrEmpty(app) ? "LOCAL" : app)}|{CurrentRegion}|{RequestedRoomCode}";
+        }
+
+        public static bool TryParseClipboardInviteToken(string rawText, out string appId, out string region, out string roomCode)
+        {
+            appId = "";
+            region = "asia";
+            roomCode = "";
+            if (string.IsNullOrWhiteSpace(rawText)) return false;
+
+            string trimmed = rawText.Trim();
+            if (trimmed.StartsWith("SH-INVITE|", StringComparison.OrdinalIgnoreCase))
+            {
+                string[] parts = trimmed.Split('|');
+                if (parts.Length >= 4)
+                {
+                    appId = parts[1] == "LOCAL" ? "" : parts[1].Trim();
+                    region = string.IsNullOrWhiteSpace(parts[2]) ? "asia" : parts[2].Trim();
+                    roomCode = parts[3].Trim().ToUpperInvariant();
+                    return !string.IsNullOrEmpty(roomCode);
+                }
+            }
+
+            // Nếu người dùng chỉ copy nguyên Mã Phòng (ví dụ "SH-8899" hoặc "HUCE01")
+            if (trimmed.Length >= 3 && trimmed.Length <= 18 && !trimmed.Contains(' '))
+            {
+                roomCode = trimmed.ToUpperInvariant();
+                return true;
+            }
+            return false;
+        }
+
+        public void RebindPhotonView(GodotPhotonView view, int newViewId, int newOwnerActorNr)
+        {
+            if (view == null) return;
+            UnregisterPhotonView(view);
+            view.ViewID = newViewId;
+            view.OwnerActorNr = newOwnerActorNr;
+            view.CreatorActorNr = newOwnerActorNr;
+            RegisterPhotonView(view);
         }
 
         public void SwitchToLocalSimulationMode()
@@ -171,7 +253,7 @@ namespace Photon.Pun.GodotBridge
                 Client.Disconnect();
             }
             IsLocalSimulationMode = true;
-            StatusMessage = "Photon Loopback Room (Local Sim + AI)";
+            StatusMessage = $"Photon Loopback Room [Mã: {RequestedRoomCode}] (Local Sim + AI)";
         }
 
         /// <summary>Cập nhật Room CustomProperties (ví dụ: trạng thái Vòng Bo, Thời gian trận đấu).</summary>
@@ -513,23 +595,24 @@ namespace Photon.Pun.GodotBridge
         public void OnConnected() => StatusMessage = "Đã kết nối NameServer...";
         public void OnConnectedToMaster()
         {
-            StatusMessage = "Đã kết nối Photon Master! Đang vào phòng SurvivalHeroes...";
+            string targetRoom = string.IsNullOrWhiteSpace(RequestedRoomCode) ? "SH-8899" : RequestedRoomCode;
+            StatusMessage = $"Đã kết nối Master! Đang vào phòng [{targetRoom}]...";
             RoomOptions roomOpts = new() { MaxPlayers = 20, IsOpen = true, IsVisible = true };
-            Client.OpJoinOrCreateRoom(new EnterRoomParams { RoomName = "SurvivalHeroes_Arena_1", RoomOptions = roomOpts });
+            Client.OpJoinOrCreateRoom(new EnterRoomParams { RoomName = targetRoom, RoomOptions = roomOpts });
         }
         public void OnDisconnected(DisconnectCause cause)
         {
-            StatusMessage = $"Ngắt kết nối Photon Cloud ({cause}) -> Chuyển về Local Sim";
+            StatusMessage = $"Ngắt kết nối Photon Cloud ({cause}) -> Chuyển về Local Sim [{RequestedRoomCode}]";
             IsLocalSimulationMode = true;
         }
         public void OnRegionListReceived(RegionHandler regionHandler) { }
         public void OnCustomAuthenticationResponse(Dictionary<string, object> data) { }
         public void OnCustomAuthenticationFailed(string debugMessage) { }
         public void OnFriendListUpdate(List<FriendInfo> friendList) { }
-        public void OnCreatedRoom() => StatusMessage = "Đã tạo phòng Photon Cloud (MasterClient)!";
+        public void OnCreatedRoom() => StatusMessage = $"Đã tạo phòng [{CurrentRoom?.Name}] (Chủ phòng MasterClient)!";
         public void OnJoinedRoom()
         {
-            StatusMessage = $"Online Photon Room: {CurrentRoom?.Name} ({CurrentRoom?.PlayerCount} Players)";
+            StatusMessage = $"🟢 ONLINE PHÒNG [{CurrentRoom?.Name}] ({CurrentRoom?.PlayerCount}/{CurrentRoom?.MaxPlayers} Người)";
             if (CurrentRoom?.CustomProperties != null)
             {
                 foreach (var k in CurrentRoom.CustomProperties.Keys)
@@ -538,13 +621,22 @@ namespace Photon.Pun.GodotBridge
                 }
                 OnRoomPropertiesChanged?.Invoke(CurrentRoom.CustomProperties);
             }
+            OnJoinedRoomSuccess?.Invoke();
         }
         public void OnCreateRoomFailed(short returnCode, string message) => StatusMessage = $"Lỗi tạo phòng: {message}";
         public void OnJoinRoomFailed(short returnCode, string message) => StatusMessage = $"Lỗi vào phòng: {message}";
         public void OnJoinRandomFailed(short returnCode, string message) { }
         public void OnLeftRoom() => StatusMessage = "Đã rời phòng.";
-        public void OnPlayerEnteredRoom(Player newPlayer) => StatusMessage = $"{newPlayer.NickName} vừa vào đấu trường!";
-        public void OnPlayerLeftRoom(Player otherPlayer) => StatusMessage = $"{otherPlayer.NickName} đã rời đấu trường.";
+        public void OnPlayerEnteredRoom(Player newPlayer)
+        {
+            StatusMessage = $"🎉 {newPlayer.NickName} vừa vào phòng [{CurrentRoom?.Name}]! ({CurrentRoom?.PlayerCount} Người)";
+            OnRemotePlayerJoined?.Invoke(newPlayer);
+        }
+        public void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            StatusMessage = $"👋 {otherPlayer.NickName} đã rời phòng [{CurrentRoom?.Name}].";
+            OnRemotePlayerLeft?.Invoke(otherPlayer);
+        }
         public void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
         {
             foreach (var k in propertiesThatChanged.Keys)

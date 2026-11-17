@@ -58,7 +58,13 @@ namespace SurvivalHeroes.Gameplay
         private Label _skillBarLabel;
         private Label _killFeedLabel;
         private Label _dragonStatusLabel;
+        private Label _roomRosterLabel;
         private LineEdit _appIdInput;
+        private LineEdit _roomCodeInput;
+        private LineEdit _nickNameInput;
+        private Button _teamSelectBtn;
+        private int _selectedTeamId = 1;
+        private readonly Dictionary<int, HeroCharacter> _remoteHumanHeroes = new();
 
         private Control _fullMapModalRoot;
         private TacticalMapCanvas _bigMapCanvas;
@@ -80,6 +86,9 @@ namespace SurvivalHeroes.Gameplay
             if (GodotPhotonService.Instance != null)
             {
                 GodotPhotonService.Instance.OnCustomNetworkEvent += OnCustomPhotonEventReceived;
+                GodotPhotonService.Instance.OnJoinedRoomSuccess += OnPhotonRoomJoined;
+                GodotPhotonService.Instance.OnRemotePlayerJoined += SpawnOrUpdateRemoteHumanHero;
+                GodotPhotonService.Instance.OnRemotePlayerLeft += RemoveRemoteHumanHero;
             }
             ArenaEventBus.OnFloatingTextRequested += SpawnFloatingTextFromPool;
             ArenaEventBus.OnArenaAnnouncement += AddKillFeed;
@@ -94,8 +103,8 @@ namespace SurvivalHeroes.Gameplay
             SpawnHeroes();
             BuildMobaHudAndTacticalMap();
 
-            AddKillFeed("⚡ Bản đồ SURVIVAL HEROES (22 Địa Danh + 3 Cửa Hàng Thần Bí) đã sẵn sàng!");
-            AddKillFeed("🗺️ Click lên Bản đồ để Đánh Dấu Tọa Độ -> Bấm [🪂 NHẢY] (hoặc phím [M] để đóng/mở Bản đồ)!");
+            AddKillFeed("⚡ SURVIVAL HEROES 2.5D (22 Địa Danh + Hệ thống Mã Phòng & Mời Bạn Bè) sẵn sàng!");
+            AddKillFeed("🤝 Bấm [📋 COPY MỜI] để gửi mã phòng cho bạn bè, hoặc [📥 DÁN & VÀO] để chơi chung!");
         }
 
         public override void _ExitTree()
@@ -103,6 +112,9 @@ namespace SurvivalHeroes.Gameplay
             if (GodotPhotonService.Instance != null)
             {
                 GodotPhotonService.Instance.OnCustomNetworkEvent -= OnCustomPhotonEventReceived;
+                GodotPhotonService.Instance.OnJoinedRoomSuccess -= OnPhotonRoomJoined;
+                GodotPhotonService.Instance.OnRemotePlayerJoined -= SpawnOrUpdateRemoteHumanHero;
+                GodotPhotonService.Instance.OnRemotePlayerLeft -= RemoveRemoteHumanHero;
             }
             ArenaEventBus.OnFloatingTextRequested -= SpawnFloatingTextFromPool;
             ArenaEventBus.OnArenaAnnouncement -= AddKillFeed;
@@ -549,7 +561,7 @@ namespace SurvivalHeroes.Gameplay
                 HeroCharacter bot = new() { Name = $"Bot_{i + 1}" };
                 AddChild(bot);
                 bot.SetupHero(
-                    viewId: 2001 + i,
+                    viewId: 9001 + i, // Dải 9001..9007 dành riêng cho AI Bot (để 1001, 2001, 3001... dành cho Người chơi thật!)
                     heroName: botConfigs[i].name,
                     isLocalHuman: false,
                     isAiBot: true,
@@ -558,6 +570,91 @@ namespace SurvivalHeroes.Gameplay
                     bodyColor: botConfigs[i].col
                 );
                 AllHeroes.Add(bot);
+            }
+        }
+
+        private void OnPhotonRoomJoined()
+        {
+            if (GodotPhotonService.Instance == null || LocalHero == null) return;
+
+            int myActorNr = (GodotPhotonService.Instance.LocalPlayer != null && GodotPhotonService.Instance.LocalPlayer.ActorNumber > 0)
+                ? GodotPhotonService.Instance.LocalPlayer.ActorNumber
+                : 1;
+            int myViewId = myActorNr * 1000 + 1;
+
+            GodotPhotonService.Instance.RebindPhotonView(LocalHero.PhotonView, myViewId, myActorNr);
+            LocalHero.TeamId = _selectedTeamId;
+            if (_nickNameInput != null && !string.IsNullOrWhiteSpace(_nickNameInput.Text))
+            {
+                LocalHero.HeroName = _nickNameInput.Text.Trim();
+            }
+
+            // Tạo nhân vật cho toàn bộ những người chơi thật đang có mặt sẵn trong phòng
+            if (!GodotPhotonService.Instance.IsLocalSimulationMode && GodotPhotonService.Instance.CurrentRoom != null)
+            {
+                foreach (var kvp in GodotPhotonService.Instance.CurrentRoom.Players)
+                {
+                    if (kvp.Key != myActorNr)
+                    {
+                        SpawnOrUpdateRemoteHumanHero(kvp.Value);
+                    }
+                }
+            }
+
+            AddKillFeed($"🟢 Đã vào Phòng [{GodotPhotonService.Instance.RequestedRoomCode}] (Actor #{myActorNr}, ViewID {myViewId}, Đội {_selectedTeamId})!");
+        }
+
+        private void SpawnOrUpdateRemoteHumanHero(Player remotePlayer)
+        {
+            if (remotePlayer == null) return;
+            int actorNr = remotePlayer.ActorNumber;
+            int remoteViewId = actorNr * 1000 + 1;
+
+            int remoteTeam = 2;
+            if (remotePlayer.CustomProperties != null && remotePlayer.CustomProperties.ContainsKey("TeamId"))
+            {
+                remoteTeam = (int)remotePlayer.CustomProperties["TeamId"];
+            }
+
+            if (_remoteHumanHeroes.TryGetValue(actorNr, out HeroCharacter existing) && GodotObject.IsInstanceValid(existing))
+            {
+                existing.HeroName = string.IsNullOrWhiteSpace(remotePlayer.NickName) ? $"Player_{actorNr}" : remotePlayer.NickName;
+                existing.TeamId = remoteTeam;
+                return;
+            }
+
+            HeroCharacter remoteHero = new() { Name = $"RemotePlayer_{actorNr}" };
+            AddChild(remoteHero);
+            Vector3 spawnOffset = new(-4f + (actorNr % 4) * 3.0f, 0f, -6f + (actorNr / 4) * 3.0f);
+            remoteHero.SetupHero(
+                viewId: remoteViewId,
+                heroName: string.IsNullOrWhiteSpace(remotePlayer.NickName) ? $"Player_{actorNr}" : remotePlayer.NickName,
+                isLocalHuman: false,
+                isAiBot: false,
+                teamId: remoteTeam,
+                spawnPos: spawnOffset,
+                bodyColor: new Color(0.25f, 0.95f, 0.65f)
+            );
+            GodotPhotonService.Instance?.RebindPhotonView(remoteHero.PhotonView, remoteViewId, actorNr);
+            _remoteHumanHeroes[actorNr] = remoteHero;
+            AllHeroes.Add(remoteHero);
+
+            AddKillFeed($"🤝 Người chơi thật [{remoteHero.HeroName}] (Actor #{actorNr}) đã tham gia đấu trường!");
+        }
+
+        private void RemoveRemoteHumanHero(Player leftPlayer)
+        {
+            if (leftPlayer == null) return;
+            if (_remoteHumanHeroes.TryGetValue(leftPlayer.ActorNumber, out HeroCharacter hero))
+            {
+                _remoteHumanHeroes.Remove(leftPlayer.ActorNumber);
+                AllHeroes.Remove(hero);
+                if (GodotObject.IsInstanceValid(hero))
+                {
+                    GodotPhotonService.Instance?.UnregisterPhotonView(hero.PhotonView);
+                    hero.QueueFree();
+                }
+                AddKillFeed($"👋 Người chơi [{leftPlayer.NickName}] đã rời phòng.");
             }
         }
 
@@ -624,50 +721,133 @@ namespace SurvivalHeroes.Gameplay
             hud.AddChild(topPanel);
 
             // ================================================================
-            // C. KHUNG NHẬP PHOTON APPID & KILL FEED BÊN PHẢI
+            // C. SẢNH MỜI BẠN BÈ, MÃ PHÒNG & CHỌN ĐỘI (KẾ THỪA KINH NGHIỆM BẢN DEMO CŨ)
             // ================================================================
             PanelContainer cloudPanel = new()
             {
-                Position = new Vector2(820, 10),
-                Size = new Vector2(534, 78)
+                Position = new Vector2(818, 8),
+                Size = new Vector2(538, 148)
             };
             VBoxContainer cloudBox = new();
             cloudPanel.AddChild(cloudBox);
 
-            cloudBox.AddChild(new Label
+            // Hàng 1: Tên Nhân Vật + Mã Phòng + Nút Đổi Mã + Chọn Đội (Team 1..4)
+            HBoxContainer roomRow = new();
+            roomRow.AddChild(new Label { Text = "👤Tên:" });
+            _nickNameInput = new LineEdit
             {
-                Text = "🌐 KẾT NỐI PHOTON CLOUD (Hoặc chạy Local Loopback Sim):"
-            });
+                Text = "ViiShiin",
+                CustomMinimumSize = new Vector2(95, 28)
+            };
+            roomRow.AddChild(_nickNameInput);
 
+            roomRow.AddChild(new Label { Text = " 🔑Mã Phòng:" });
+            _roomCodeInput = new LineEdit
+            {
+                Text = "SH-8899",
+                CustomMinimumSize = new Vector2(88, 28)
+            };
+            roomRow.AddChild(_roomCodeInput);
+
+            Button randCodeBtn = new() { Text = "🎲Mã Mới" };
+            randCodeBtn.Pressed += () =>
+            {
+                _roomCodeInput.Text = GodotPhotonService.GenerateRandomRoomCode();
+                AddKillFeed($"🎲 Đã tạo Mã Phòng mới: [{_roomCodeInput.Text}] — Bấm [📋 COPY MỜI] để gửi bạn bè!");
+            };
+            roomRow.AddChild(randCodeBtn);
+
+            _teamSelectBtn = new Button { Text = "🛡️ Đội 1" };
+            _teamSelectBtn.Pressed += () =>
+            {
+                _selectedTeamId = (_selectedTeamId % 4) + 1;
+                _teamSelectBtn.Text = $"🛡️ Đội {_selectedTeamId}";
+                if (LocalHero != null) LocalHero.TeamId = _selectedTeamId;
+                AddKillFeed($"🛡️ Bạn đã chuyển sang [Đội {_selectedTeamId}] (Cùng Đội sẽ không gây sát thương lên nhau!).");
+            };
+            roomRow.AddChild(_teamSelectBtn);
+            cloudBox.AddChild(roomRow);
+
+            // Hàng 2: Photon AppId + Vào Phòng + Copy Lời Mời + Dán Mã Mời 1-Click
             HBoxContainer inputRow = new();
             _appIdInput = new LineEdit
             {
                 PlaceholderText = "Dán Photon Realtime AppId...",
-                CustomMinimumSize = new Vector2(290, 30)
+                CustomMinimumSize = new Vector2(185, 28)
             };
-            Button connectBtn = new() { Text = "Kết Nối Cloud" };
+            Button connectBtn = new() { Text = "🚀 Vào Phòng" };
             connectBtn.Pressed += () =>
             {
-                GodotPhotonService.Instance?.ConnectToPhotonCloud(_appIdInput.Text, "asia");
-                AddKillFeed($"🌐 Đang kết nối Photon Cloud với AppId: {_appIdInput.Text}");
+                GodotPhotonService.Instance?.ConnectToPhotonCloud(
+                    _appIdInput.Text,
+                    "asia",
+                    _roomCodeInput.Text,
+                    _nickNameInput.Text,
+                    _selectedTeamId);
+                AddKillFeed($"🚀 Đang kết nối vào Phòng [{_roomCodeInput.Text}] dưới tên [{_nickNameInput.Text}] (Đội {_selectedTeamId})...");
             };
-            Button simBtn = new() { Text = "Local Sim" };
+
+            Button copyInviteBtn = new() { Text = "📋 COPY MỜI" };
+            copyInviteBtn.Pressed += () =>
+            {
+                if (GodotPhotonService.Instance != null)
+                {
+                    GodotPhotonService.Instance.RequestedRoomCode = _roomCodeInput.Text.Trim().ToUpperInvariant();
+                    string token = GodotPhotonService.Instance.BuildClipboardInviteToken(_appIdInput.Text);
+                    DisplayServer.ClipboardSet(token);
+                    AddKillFeed($"📋 Đã COPY Mã Mời [{_roomCodeInput.Text}] vào Clipboard! Hãy gửi cho bạn bè qua Discord/Zalo.");
+                }
+            };
+
+            Button pasteInviteBtn = new() { Text = "📥 DÁN & VÀO" };
+            pasteInviteBtn.Pressed += () =>
+            {
+                string clip = DisplayServer.ClipboardGet();
+                if (GodotPhotonService.TryParseClipboardInviteToken(clip, out string parsedAppId, out string parsedRegion, out string parsedRoom))
+                {
+                    if (!string.IsNullOrEmpty(parsedAppId)) _appIdInput.Text = parsedAppId;
+                    _roomCodeInput.Text = parsedRoom;
+                    GodotPhotonService.Instance?.ConnectToPhotonCloud(
+                        _appIdInput.Text,
+                        parsedRegion,
+                        _roomCodeInput.Text,
+                        _nickNameInput.Text,
+                        _selectedTeamId);
+                    AddKillFeed($"📥 Đã đọc Mã Mời từ Clipboard -> Vào ngay Phòng [{parsedRoom}]!");
+                }
+                else
+                {
+                    AddKillFeed("⚠️ Clipboard chưa có Mã Mời hợp lệ (Dạng: SH-INVITE|AppId|asia|SH-8899 hoặc mã phòng).");
+                }
+            };
+
+            Button simBtn = new() { Text = "Local" };
             simBtn.Pressed += () =>
             {
                 GodotPhotonService.Instance?.SwitchToLocalSimulationMode();
-                AddKillFeed("🔄 Đã chuyển về chế độ Photon Loopback Room + AI Survivors.");
+                AddKillFeed($"🔄 Chuyển về chế độ Local Sim — Phòng [{_roomCodeInput.Text}].");
             };
 
             inputRow.AddChild(_appIdInput);
             inputRow.AddChild(connectBtn);
+            inputRow.AddChild(copyInviteBtn);
+            inputRow.AddChild(pasteInviteBtn);
             inputRow.AddChild(simBtn);
             cloudBox.AddChild(inputRow);
+
+            // Hàng 3: Danh sách Thành viên đang có mặt trong Phòng
+            _roomRosterLabel = new Label
+            {
+                Text = "👥 Phòng [SH-8899]: 👑 ViiShiin (Đội 1) + 7 AI Bots | Bấm [📋 COPY MỜI] để rủ bạn bè vào chung phòng!",
+                Modulate = new Color(0.55f, 0.95f, 1.0f)
+            };
+            cloudBox.AddChild(_roomRosterLabel);
             hud.AddChild(cloudPanel);
 
             PanelContainer feedPanel = new()
             {
-                Position = new Vector2(820, 96),
-                Size = new Vector2(534, 125)
+                Position = new Vector2(818, 160),
+                Size = new Vector2(538, 110)
             };
             _killFeedLabel = new Label { Modulate = new Color(0.95f, 0.92f, 0.85f) };
             feedPanel.AddChild(_killFeedLabel);
@@ -964,6 +1144,28 @@ namespace SurvivalHeroes.Gameplay
                 _photonStatusLabel.Text = $"📡 PHOTON: {GodotPhotonService.Instance.StatusMessage} | ServerTime: {GodotPhotonService.Instance.Time:F1}s | Views: {GodotPhotonService.Instance.GetAllViews().Count}";
             }
 
+            if (GodotPhotonService.Instance != null && _roomRosterLabel != null)
+            {
+                if (!GodotPhotonService.Instance.IsLocalSimulationMode && GodotPhotonService.Instance.CurrentRoom != null)
+                {
+                    List<string> names = new();
+                    foreach (var kvp in GodotPhotonService.Instance.CurrentRoom.Players)
+                    {
+                        Player pl = kvp.Value;
+                        string crown = pl.IsMasterClient ? "👑" : "👤";
+                        int tId = (pl.CustomProperties != null && pl.CustomProperties.ContainsKey("TeamId")) ? (int)pl.CustomProperties["TeamId"] : 1;
+                        names.Add($"{crown}{pl.NickName}(Đội {tId})");
+                    }
+                    _roomRosterLabel.Text = $"👥 Phòng Cloud [{GodotPhotonService.Instance.CurrentRoom.Name}] ({names.Count} Người): {string.Join(", ", names)}";
+                }
+                else
+                {
+                    string code = _roomCodeInput != null ? _roomCodeInput.Text : "SH-8899";
+                    string myName = LocalHero != null ? LocalHero.HeroName : "ViiShiin";
+                    _roomRosterLabel.Text = $"👥 Phòng [{code}]: 👑 {myName} (Đội {_selectedTeamId}) + 7 AI Bots | Dán AppId & bấm [📋 COPY MỜI] để chơi Online!";
+                }
+            }
+
             if (_cullArea != null && _cullAreaInfoLabel != null)
             {
                 string groups = string.Join(", ", _cullArea.ActiveInterestGroups);
@@ -1034,12 +1236,24 @@ namespace SurvivalHeroes.Gameplay
             }
         }
 
+        public bool AreSameTeam(int attackerViewId, HeroCharacter targetHero)
+        {
+            if (targetHero == null || attackerViewId == 0) return false;
+            GodotPhotonView pv = GodotPhotonService.Instance?.GetPhotonView(attackerViewId);
+            if (pv != null && pv.GetParent() is HeroCharacter attacker)
+            {
+                return attacker.TeamId == targetHero.TeamId;
+            }
+            return false;
+        }
+
         public void ApplyAoeDamage(int attackerViewId, Vector3 center, float radius, float damage)
         {
             foreach (HeroCharacter hero in AllHeroes)
             {
                 if (hero == null || !GodotObject.IsInstanceValid(hero) || hero.IsDead) continue;
                 if (hero.PhotonView != null && hero.PhotonView.ViewID == attackerViewId) continue;
+                if (AreSameTeam(attackerViewId, hero)) continue;
 
                 float dist = new Vector2(hero.GlobalPosition.X - center.X, hero.GlobalPosition.Z - center.Z).Length();
                 if (dist <= radius + 0.55f)
@@ -1199,6 +1413,7 @@ namespace SurvivalHeroes.Gameplay
             foreach (HeroCharacter candidate in AllHeroes)
             {
                 if (candidate == null || candidate == seeker || candidate.IsDead) continue;
+                if (seeker != null && candidate.TeamId == seeker.TeamId) continue;
 
                 float dist = new Vector2(candidate.GlobalPosition.X - seeker.GlobalPosition.X, candidate.GlobalPosition.Z - seeker.GlobalPosition.Z).Length();
                 if (candidate.InStealthBush && dist > 3.2f) continue;

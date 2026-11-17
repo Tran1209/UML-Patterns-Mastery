@@ -888,11 +888,12 @@ namespace SurvivalHeroes.Gameplay
             string stealthTag = InStealthBush ? " [🌿TÀNG HÌNH]" : "";
             string cullTag = isSubscribedCell ? $"[Ô #{cellId}]" : $"[Ô #{cellId} - NGOÀI VÙNG MẠNG]";
             string shieldTxt = Shield > 0.5f ? $" + 🛡️{(int)Shield}" : "";
+            bool isTeammate = ArenaGameManager.Instance?.LocalHero != null && ArenaGameManager.Instance.LocalHero.TeamId == TeamId;
 
-            _overheadLabel.Text = $"{HeroName} ({Kills}⚔️) {cullTag}{stealthTag}\n[{CurrentLoadout.Title}]\n❤️ {(int)Health}/{(int)MaxHealth}{shieldTxt}";
+            _overheadLabel.Text = $"[Đội {TeamId}] {HeroName} ({Kills}⚔️) {cullTag}{stealthTag}\n[{CurrentLoadout.Title}]\n❤️ {(int)Health}/{(int)MaxHealth}{shieldTxt}";
             _overheadLabel.Modulate = IsLocalHumanPlayer
                 ? new Color(0.35f, 1.0f, 0.55f)
-                : (isSubscribedCell ? new Color(1.0f, 0.92f, 0.65f) : new Color(0.6f, 0.6f, 0.65f, 0.55f));
+                : (isTeammate ? new Color(0.35f, 0.85f, 1.0f) : (isSubscribedCell ? new Color(1.0f, 0.92f, 0.65f) : new Color(0.6f, 0.6f, 0.65f, 0.55f)));
         }
 
         /// <summary>Đồng bộ trạng thái liên tục qua PhotonStream (IPunObservable).</summary>
@@ -905,6 +906,8 @@ namespace SurvivalHeroes.Gameplay
                 stream.SendNext((int)CurrentWeaponType);
                 stream.SendNext(Kills);
                 stream.SendNext(InStealthBush);
+                stream.SendNext(TeamId);
+                stream.SendNext(HeroName);
             }
             else
             {
@@ -917,6 +920,8 @@ namespace SurvivalHeroes.Gameplay
                 }
                 Kills = (int)stream.ReceiveNext();
                 InStealthBush = (bool)stream.ReceiveNext();
+                TeamId = (int)stream.ReceiveNext();
+                HeroName = (string)stream.ReceiveNext();
             }
         }
     }
