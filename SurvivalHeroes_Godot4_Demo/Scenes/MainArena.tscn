@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dep7gwn4p73u"]
+
+[ext_resource type="Script" path="res://Scripts/Gameplay/ArenaGameManager.cs" id="1_arena"]
+
+[node name="MainArena" type="Node3D"]
+script = ExtResource("1_arena")

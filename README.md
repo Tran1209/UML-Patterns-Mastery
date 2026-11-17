@@ -38,11 +38,26 @@ E:\UML-Patterns-Mastery\
 │   └── 📄 AndroidManifest.xml   # Cấu hình ứng dụng Android
 │
 ├── 📁 Tests/                    # Bộ kiểm thử tự động (15/15 Unit Tests kiểm chứng OOP & Patterns)
-├── 📁 Docs_BaoCao/              # Toàn bộ Báo cáo Word/Markdown, Sơ đồ UML & Hướng dẫn Git cho nhóm
+├── 📁 SurvivalHeroes_Godot4_Demo/# [MỚI] Game Demo Survival Heroes 2.5D (Godot 4.7 C# + Photon Cloud + 22 Địa Danh)
+├── 📁 Docs_BaoCao/              # Toàn bộ Báo cáo Word/Markdown, Sơ đồ UML & Phân tích Kiến trúc 2.5D
+│   └── 📁 5_KienTruc_25D_Unity_Photon_Godot/ # Phân tích 177 Scripts Unity SOLID/Patterns + Photon Godot 4 C#
 ├── 📁 build/                    # Thư mục chứa file thực thi (.jar cho PC và .apk cho Android)
 ├── 📁 scripts/                  # Các kịch bản biên dịch (.bat) và công cụ đóng gói tự động
 └── ⚙️ QuanLy_DuAn.bat           # MENU ĐIỀU KHIỂN TRUNG TÂM (Chạy Game, Test, Build PC & Android)
 ```
+
+---
+
+## 🔥 [MỚI] Bộ Tài Liệu Kiến Trúc 2.5D (177 Scripts Unity + Photon) & Game Demo *Survival Heroes* (Godot 4.7 C#)
+
+1. **Bản Tiếng Việt — Phân tích Toàn diện 177 Scripts `Unity-Technologies/game-programming-patterns-demo` & Lọc Kiến trúc 2.5D**:
+   👉 [`Docs_BaoCao/5_KienTruc_25D_Unity_Photon_Godot/01_PhanTich_ToanDien_177_Scripts_Unity_SOLID_DesignPatterns_25D_VI.md`](Docs_BaoCao/5_KienTruc_25D_Unity_Photon_Godot/01_PhanTich_ToanDien_177_Scripts_Unity_SOLID_DesignPatterns_25D_VI.md)
+2. **Bản Tiếng Anh Đầy Đủ (1.209 dòng — Bảng chấm điểm 177 dòng Keep / Prune / Adapt)**:
+   👉 [`Docs_BaoCao/5_KienTruc_25D_Unity_Photon_Godot/02_UNITY_25D_ARCHITECTURE_ANALYSIS_EN.md`](Docs_BaoCao/5_KienTruc_25D_Unity_Photon_Godot/02_UNITY_25D_ARCHITECTURE_ANALYSIS_EN.md)
+3. **Bản Tiếng Việt — Sổ tay Chuyển đổi Mạng Photon (`PhotonRealtime` + `PUN 2`) sang Godot 4 C# (.NET 8)**:
+   👉 [`Docs_BaoCao/5_KienTruc_25D_Unity_Photon_Godot/03_PhanTich_ToanDien_Photon_ChuyenDoi_Godot4_CSharp_VI.md`](Docs_BaoCao/5_KienTruc_25D_Unity_Photon_Godot/03_PhanTich_ToanDien_Photon_ChuyenDoi_Godot4_CSharp_VI.md)
+4. **Dự Án Game Demo *Survival Heroes 2.5D* trên Godot 4.7 (.NET 8) — Bản đồ 22 Địa Danh Tiếng Việt & 3 Cửa Hàng Thần Bí**:
+   👉 [`SurvivalHeroes_Godot4_Demo/README.md`](SurvivalHeroes_Godot4_Demo/README.md)
 
 ---
 

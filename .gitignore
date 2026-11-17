@@ -37,7 +37,9 @@ Android_Game/build/
 Android_Game/gen/
 *.exe
 *.dll
+!SurvivalHeroes_Godot4_Demo/PhotonLibs/*.dll
 *.pdb
+.godot/
 
 # OS generated files
 Thumbs.db
