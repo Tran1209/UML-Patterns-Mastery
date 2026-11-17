@@ -34,6 +34,8 @@ namespace SurvivalHeroes.Gameplay
         public readonly List<ExplosiveBarrel3D> ExplosiveBarrels = new();
         public readonly List<HealingShrineSwitch3D> HealingShrines = new();
         public readonly List<MysteryShopTent3D> MysteryShops = new();
+        public readonly List<JungleMonster3D> JungleMonsters = new();
+        public readonly List<ScoutWard3D> ScoutWards = new();
 
         public HeroCharacter LocalHero { get; private set; }
 
@@ -383,6 +385,25 @@ namespace SurvivalHeroes.Gameplay
                 AddChild(shrine);
                 shrine.Initialize(shPos);
                 HealingShrines.Add(shrine);
+            }
+
+            // Quái Rừng & Boss Rồng Cổ Đại (JungleMonster3D : IDamageable)
+            (string title, Vector3 pos, bool isDragon)[] monsterSpawns =
+            {
+                ("Hắc Long Cổ Đại [Di Tích Thất Lạc]", new Vector3(24f, 0f, -52f), true),
+                ("Sói Tinh Rừng Rậm [Vườn Hoa]",      new Vector3(-22f, 0f, -34f), false),
+                ("Golem Đá Cổ [Tàng Kim Trấn]",       new Vector3(-42f, 0f, 22f),  false),
+                ("Ác Quỷ Hầm Ngục [Địa Lao]",         new Vector3(-2f,  0f, 42f),  false),
+                ("Oan Hồn Cổ Mộ [Nghĩa Địa]",         new Vector3(16f,  0f, 62f),  false),
+                ("Chiến Binh Xương [Mê Cung Hài Cốt]",new Vector3(-12f, 0f, 68f),  false),
+                ("Thủ Vệ Hắc Ám [Thần Điện Hắc Ám]",  new Vector3(42f,  0f, 62f),  false)
+            };
+            foreach (var ms in monsterSpawns)
+            {
+                JungleMonster3D monster = new();
+                AddChild(monster);
+                monster.Initialize(ms.title, ms.pos, ms.isDragon);
+                JungleMonsters.Add(monster);
             }
         }
 
@@ -855,18 +876,10 @@ namespace SurvivalHeroes.Gameplay
                 Mathf.Clamp(targetWorldPos.Z, -82f, 82f)
             );
 
-            if (LocalHero.PhotonView != null)
-            {
-                LocalHero.PhotonView.RPC(nameof(HeroCharacter.RpcRespawnHero), RpcTarget.All, clamped);
-            }
-            else
-            {
-                LocalHero.GlobalPosition = clamped;
-            }
-
-            SpawnAoeRingEffect(clamped, 4.5f, new Color(0.25f, 0.9f, 1.0f), 0.55f);
-            ArenaEventBus.RaiseFloatingText(clamped, $"🪂 ĐÁP DÙ: {locationName}!", new Color(0.35f, 0.95f, 1.0f));
-            AddKillFeed($"🪂 ViiShiin đã nhảy dù đáp xuống [{locationName}] ({clamped.X:F0}, {clamped.Z:F0})!");
+            LocalHero.StartParachuteDrop(clamped);
+            SpawnAoeRingEffect(clamped, 4.5f, new Color(0.25f, 0.9f, 1.0f), 0.75f);
+            ArenaEventBus.RaiseFloatingText(clamped, $"🪂 ĐANG BAY DÙ XUỐNG: {locationName}!", new Color(0.35f, 0.95f, 1.0f));
+            AddKillFeed($"🪂 ViiShiin đang bung dù lượn xuống [{locationName}] ({clamped.X:F0}, {clamped.Z:F0}) — Dùng WASD lái dù!");
         }
 
         public override void _Process(double delta)
@@ -967,20 +980,21 @@ namespace SurvivalHeroes.Gameplay
             if (LocalHero != null && _heroStatsLabel != null && _skillBarLabel != null)
             {
                 var w = LocalHero.CurrentLoadout;
+                var p = LocalHero.Progression;
+                string subW = WeaponLoadout.Get(p.SecondaryWeapon).Title;
                 string stateName = LocalHero.StateMachine.CurrentState?.StateDisplayName ?? "Sẵn Sàng";
-                string bufferInfo = $" | Đệm Combo: {LocalHero.SkillInputBuffer.LastBufferedSkillName}";
-                _heroStatsLabel.Text = $"⚔️ [{w.Title.ToUpper()}] | ❤️ {(int)LocalHero.Health}/{(int)LocalHero.MaxHealth} | 🛡️ {(int)LocalHero.Shield} | 🏆 {LocalHero.Kills} Kills | {stateName}{bufferInfo}";
+                _heroStatsLabel.Text =
+                    $"⭐ Lv.{p.Level} | 💰 {p.Gold} Vàng | ⚔️ Chính: [{w.Title}] <-> [Tab] Phụ: [{subW}] | ❤️ {(int)LocalHero.Health}/{(int)LocalHero.MaxHealth} (+🛡️{(int)LocalHero.Shield}) | 🏆 {LocalHero.Kills} Kills | {stateName}\n" +
+                    $"🎒 6 Ô GIÁP: {p.FormatArmorSummaryBar()}";
 
                 string cd0 = LocalHero.CooldownBasic > 0f ? $"({LocalHero.CooldownBasic:F1}s)" : "[SẴN SÀNG]";
                 string cdQ = LocalHero.CooldownQ > 0f ? $"({LocalHero.CooldownQ:F1}s)" : "[SẴN SÀNG]";
                 string cdW = LocalHero.CooldownW > 0f ? $"({LocalHero.CooldownW:F1}s)" : "[SẴN SÀNG]";
                 string cdE = LocalHero.CooldownE > 0f ? $"({LocalHero.CooldownE:F1}s)" : "[SẴN SÀNG]";
+                string cdFlash = LocalHero.CooldownFlash > 0f ? $"({LocalHero.CooldownFlash:F0}s)" : "[SẴN SÀNG]";
 
                 _skillBarLabel.Text =
-                    $"[Chuột Trái] {w.BasicAttack.Name} {cd0}   |   " +
-                    $"[Q] {w.SkillQ.Name} {cdQ}   |   " +
-                    $"[W] {w.SkillW.Name} {cdW}   |   " +
-                    $"[E] {w.SkillE.Name} {cdE}";
+                    $"[LMB] {w.BasicAttack.Name} {cd0} | [Q] {w.SkillQ.Name} {cdQ} | [W] {w.SkillW.Name} {cdW} | [E] {w.SkillE.Name} {cdE} | [Space] Tốc Biến {cdFlash} | [4] Bình Máu({p.HealthPotions}) | [5] Cắm Mắt({p.ScoutWards})";
             }
         }
 
@@ -1043,6 +1057,74 @@ namespace SurvivalHeroes.Gameplay
                 {
                     barrel.TakeDamage(damage, attackerViewId);
                 }
+            }
+
+            for (int i = 0; i < JungleMonsters.Count; i++)
+            {
+                JungleMonster3D monster = JungleMonsters[i];
+                if (monster == null || monster.IsDestroyed) continue;
+                float dist = new Vector2(monster.WorldPosition25D.X - center.X, monster.WorldPosition25D.Z - center.Z).Length();
+                if (dist <= radius + (monster.IsDragonBoss ? 1.8f : 0.9f))
+                {
+                    monster.TakeDamage(damage, attackerViewId);
+                }
+            }
+        }
+
+        public void PlaceScoutWard(int teamId, Vector3 worldPos)
+        {
+            ScoutWard3D ward = new();
+            AddChild(ward);
+            ward.Initialize(teamId, worldPos);
+            ScoutWards.Add(ward);
+            AddKillFeed("👁️ Đã cắm Mắt Kiểm Soát soi Bụi Cỏ Tàng Hình (bán kính 11m trong 25s)!");
+        }
+
+        public bool IsRevealedByEnemyWard(Vector3 pos, int heroTeamId)
+        {
+            ScoutWards.RemoveAll(w => w == null || !GodotObject.IsInstanceValid(w) || w.IsExpired);
+            foreach (ScoutWard3D ward in ScoutWards)
+            {
+                if (ward.OwnerTeamId == heroTeamId) continue;
+                if (PlanarPhysics25D.Distance25D(pos, ward.GlobalPosition) <= ward.VisionRadius)
+                    return true;
+            }
+            return false;
+        }
+
+        public void NotifyMonsterSlain(JungleMonster3D monster, int killerViewId, int goldReward, float expReward)
+        {
+            GodotPhotonView killerPv = GodotPhotonService.Instance?.GetPhotonView(killerViewId);
+            HeroCharacter killer = (killerPv != null && killerPv.GetParent() is HeroCharacter h) ? h : LocalHero;
+            if (killer == null) return;
+
+            killer.Progression.Gold += goldReward;
+            bool lvUp = killer.Progression.GainExp(expReward);
+
+            // Rơi ngẫu nhiên 1 món Giáp (Nếu diệt Rồng Cổ Đại nhận nguyên Set Thần Bí Vàng Cam!)
+            if (monster.IsDragonBoss)
+            {
+                killer.Progression.HasDragonBuff = true;
+                killer.Progression.EquipFullSet(ItemRarity.Legendary);
+                killer.MaxHealth = 220f + killer.Progression.TotalBonusHp;
+                killer.Health = killer.MaxHealth;
+                killer.Shield = 150f;
+                ArenaEventBus.RaiseFloatingText(killer.GlobalPosition, "🐉 BÙA RỒNG + FULL GIÁP THẦN BÍ!", Colors.Gold);
+                AddKillFeed($"🐉 {killer.HeroName} đã hạ gục [{monster.MonsterTitle}] -> Nhận BÙA RỒNG + Full 6 Ô Giáp Thần Bí!");
+            }
+            else
+            {
+                Array slots = Enum.GetValues(typeof(ArmorSlot));
+                ArmorSlot randomSlot = (ArmorSlot)slots.GetValue(GD.Randi() % slots.Length);
+                ItemRarity rarity = (GD.Randi() % 100) < 35 ? ItemRarity.Epic : ItemRarity.Rare;
+                EquipmentPiece piece = EquipmentPiece.Generate(randomSlot, rarity);
+                killer.Progression.TryEquipBetterPiece(piece);
+                killer.MaxHealth = 220f + killer.Progression.TotalBonusHp;
+                killer.Health = MathF.Min(killer.MaxHealth, killer.Health + 35f);
+
+                string lvTag = lvUp ? $" -> LÊN CẤP Lv.{killer.Progression.Level}!" : "";
+                ArenaEventBus.RaiseFloatingText(killer.GlobalPosition, $"+{goldReward}💰 | Nhặt [{piece.Name}]{lvTag}", EquipmentPiece.GetRarityColor(rarity));
+                AddKillFeed($"🐺 {killer.HeroName} tiêu diệt [{monster.MonsterTitle}] (+{goldReward}💰, nhặt {piece.Name}){lvTag}");
             }
         }
 

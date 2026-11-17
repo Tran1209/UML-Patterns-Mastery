@@ -25,9 +25,14 @@ namespace SurvivalHeroes.Gameplay
         public InputBufferQueue SkillInputBuffer { get; } = new(0.18);
 
         private readonly IHeroState _stateCombatReady = new HeroSimpleState("⚔️ Sẵn Sàng Chiến Đấu");
+        private readonly IHeroState _stateParachuteGliding = new HeroSimpleState("🪂 Đang Bay Dù Hạ Cánh");
         private readonly IHeroState _stateDashing = new HeroSimpleState("💨 Đang Lướt (Dash)");
         private readonly IHeroState _stateStealthed = new HeroSimpleState("🌿 Ẩn Thân Bụi Cỏ");
         private readonly IHeroState _stateDead = new HeroSimpleState("💀 Đang Hồi Sinh");
+
+        public SurvivalHeroProgression Progression { get; } = new();
+        public bool IsParachuteGliding { get; private set; }
+        public float CooldownFlash { get; private set; }
 
         public Vector3 WorldPosition25D => GlobalPosition;
         public bool IsDestroyed => IsDead;
@@ -64,9 +69,14 @@ namespace SurvivalHeroes.Gameplay
         private MeshInstance3D _bodyMesh;
         private MeshInstance3D _weaponHandMesh;
         private MeshInstance3D _shieldSphereMesh;
+        private MeshInstance3D _parachuteCanopyMesh;
         private StandardMaterial3D _bodyMat;
         private StandardMaterial3D _weaponMat;
         private Label3D _overheadLabel;
+        private bool _tabWasPressed;
+        private bool _key4WasPressed;
+        private bool _key5WasPressed;
+        private bool _spaceWasPressed;
 
         public void SetupHero(int viewId, string heroName, bool isLocalHuman, bool isAiBot, int teamId, Vector3 spawnPos, Color bodyColor)
         {
@@ -154,6 +164,22 @@ namespace SurvivalHeroes.Gameplay
             };
             AddChild(_overheadLabel);
 
+            // 5B. Khởi tạo Dù Lượn 3D trên đầu khi Nhảy Dù từ Khinh Khí Cầu
+            _parachuteCanopyMesh = new MeshInstance3D
+            {
+                Mesh = new CylinderMesh { TopRadius = 0.35f, BottomRadius = 2.4f, Height = 1.0f, RadialSegments = 12 },
+                Position = new Vector3(0f, 3.3f, 0f),
+                MaterialOverride = new StandardMaterial3D
+                {
+                    AlbedoColor = new Color(0.2f, 0.82f, 1.0f),
+                    EmissionEnabled = true,
+                    Emission = new Color(0.15f, 0.65f, 0.95f),
+                    EmissionEnergyMultiplier = 0.85f
+                },
+                Visible = false
+            };
+            AddChild(_parachuteCanopyMesh);
+
             // 6. Gắn GodotPhotonView & GodotPhotonTransformView3D
             PhotonView = new GodotPhotonView
             {
@@ -173,8 +199,28 @@ namespace SurvivalHeroes.Gameplay
             GodotPhotonService.Instance?.RegisterPhotonView(PhotonView);
 
             StateMachine.Initialize(_stateCombatReady);
-            ApplyWeaponLoadoutLocal(WeaponType.Unarmed);
+            Progression.TryEquipBetterPiece(EquipmentPiece.Generate(ArmorSlot.Boots, ItemRarity.Common));
+            Progression.TryEquipBetterPiece(EquipmentPiece.Generate(ArmorSlot.Chest, ItemRarity.Common));
+            ApplyWeaponLoadoutLocal(WeaponType.Greatsword);
             UpdateOverheadInfo();
+        }
+
+        /// <summary>
+        /// Khởi động hiệu ứng Nhảy Dù 3D từ Khinh Khí Cầu trên cao (Y = 14.5m) hạ cánh xuống địa danh đã chọn!
+        /// </summary>
+        public void StartParachuteDrop(Vector3 targetGroundPos)
+        {
+            IsParachuteGliding = true;
+            AxisLockLinearY = false;
+            Health = MaxHealth;
+            Shield = 50f;
+            GlobalPosition = new Vector3(
+                Mathf.Clamp(targetGroundPos.X, -82f, 82f),
+                14.5f,
+                Mathf.Clamp(targetGroundPos.Z, -82f, 82f)
+            );
+            if (_parachuteCanopyMesh != null) _parachuteCanopyMesh.Visible = true;
+            StateMachine.TransitionTo(_stateParachuteGliding);
         }
 
         public override void _PhysicsProcess(double delta)
@@ -185,6 +231,7 @@ namespace SurvivalHeroes.Gameplay
             if (CooldownQ > 0f) CooldownQ = MathF.Max(0f, CooldownQ - dt);
             if (CooldownW > 0f) CooldownW = MathF.Max(0f, CooldownW - dt);
             if (CooldownE > 0f) CooldownE = MathF.Max(0f, CooldownE - dt);
+            if (CooldownFlash > 0f) CooldownFlash = MathF.Max(0f, CooldownFlash - dt);
             if (_speedBuffTimer > 0f) _speedBuffTimer = MathF.Max(0f, _speedBuffTimer - dt);
 
             if (IsDead)
@@ -200,11 +247,15 @@ namespace SurvivalHeroes.Gameplay
                 return;
             }
 
-            // Kiểm tra đứng trong Bụi Cỏ MOBA
-            InStealthBush = ArenaGameManager.Instance != null && ArenaGameManager.Instance.IsInsideAnyBush(GlobalPosition);
+            // Kiểm tra đứng trong Bụi Cỏ MOBA (Nếu bị Mắt Kiểm Soát đối phương soi trúng thì mất tàng hình!)
+            bool insideBush = ArenaGameManager.Instance != null && ArenaGameManager.Instance.IsInsideAnyBush(GlobalPosition);
+            bool revealedByWard = ArenaGameManager.Instance != null && ArenaGameManager.Instance.IsRevealedByEnemyWard(GlobalPosition, TeamId);
+            InStealthBush = insideBush && !revealedByWard && !IsParachuteGliding;
 
             // Cập nhật State Machine (_DesignPatterns/State)
-            if (_dashTimer > 0f)
+            if (IsParachuteGliding)
+                StateMachine.TransitionTo(_stateParachuteGliding);
+            else if (_dashTimer > 0f)
                 StateMachine.TransitionTo(_stateDashing);
             else if (InStealthBush)
                 StateMachine.TransitionTo(_stateStealthed);
@@ -262,7 +313,30 @@ namespace SurvivalHeroes.Gameplay
             if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) moveDir.X -= 1f;
             if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) moveDir.X += 1f;
 
-            float speed = _baseMoveSpeed + CurrentLoadout.MoveSpeedBonus + (_speedBuffTimer > 0f ? 2.8f : 0f);
+            float speed = _baseMoveSpeed + CurrentLoadout.MoveSpeedBonus + Progression.TotalBonusSpeed + (_speedBuffTimer > 0f ? 2.8f : 0f);
+
+            // Nếu đang bay Dù Lượn 3D từ trên cao xuống: Cho phép lái dù bằng WASD và hạ độ cao dần về Y = 0
+            if (IsParachuteGliding)
+            {
+                Vector3 glideVel = moveDir.LengthSquared() > 0.01f ? moveDir.Normalized() * (speed * 1.45f) : Vector3.Zero;
+                float newY = GlobalPosition.Y - 5.2f * dt;
+                GlobalPosition = new Vector3(
+                    Mathf.Clamp(GlobalPosition.X + glideVel.X * dt, -82.5f, 82.5f),
+                    MathF.Max(0f, newY),
+                    Mathf.Clamp(GlobalPosition.Z + glideVel.Z * dt, -82.5f, 82.5f)
+                );
+
+                if (GlobalPosition.Y <= 0.05f)
+                {
+                    IsParachuteGliding = false;
+                    if (_parachuteCanopyMesh != null) _parachuteCanopyMesh.Visible = false;
+                    PlanarPhysics25D.ApplyHardwareAxisLock(this, PlaneMode25D.TopDownIsometric_LockY);
+                    ClampInsideMapBounds();
+                    ArenaGameManager.Instance?.SpawnAoeRingEffect(GlobalPosition, 3.6f, new Color(0.25f, 0.9f, 1.0f), 0.45f);
+                    ArenaEventBus.RaiseFloatingText(GlobalPosition, "🪂 HẠ CÁNH AN TOÀN!", new Color(0.35f, 1f, 0.65f));
+                }
+                return;
+            }
 
             if (_dashTimer > 0f)
             {
@@ -291,6 +365,53 @@ namespace SurvivalHeroes.Gameplay
             {
                 ArenaGameManager.Instance.TryPickupNearbyWeapon(this, Input.IsKeyPressed(Key.F));
             }
+
+            // [Phím Tab]: Tráo đổi Vũ Khí Chính <-> Vũ Khí Phụ (2 Vũ khí = 8 Chiêu thức chuẩn Survival Heroes!)
+            bool tabDown = Input.IsKeyPressed(Key.Tab);
+            if (tabDown && !_tabWasPressed)
+            {
+                WeaponType oldMain = CurrentWeaponType;
+                WeaponType nextMain = Progression.SecondaryWeapon != WeaponType.Unarmed ? Progression.SecondaryWeapon : WeaponType.RangerBow;
+                Progression.SecondaryWeapon = oldMain != WeaponType.Unarmed ? oldMain : WeaponType.Greatsword;
+                PhotonView.RPC(nameof(RpcEquipWeapon), RpcTarget.All, (int)nextMain);
+                ArenaEventBus.RaiseFloatingText(GlobalPosition, $"🔄 ĐỔI VŨ KHÍ: {WeaponLoadout.Get(nextMain).Title}", new Color(1f, 0.9f, 0.3f));
+            }
+            _tabWasPressed = tabDown;
+
+            // [Phím 4]: Uống Bình Máu (+95 HP)
+            bool key4Down = Input.IsKeyPressed(Key.Key4);
+            if (key4Down && !_key4WasPressed && Progression.HealthPotions > 0 && Health < MaxHealth)
+            {
+                Progression.HealthPotions--;
+                Health = MathF.Min(MaxHealth, Health + 95f);
+                ArenaGameManager.Instance?.SpawnAoeRingEffect(GlobalPosition, 1.8f, Colors.LimeGreen, 0.3f);
+                ArenaEventBus.RaiseFloatingText(GlobalPosition, $"🧪 +95 HP (Còn {Progression.HealthPotions} bình)", Colors.LimeGreen);
+            }
+            _key4WasPressed = key4Down;
+
+            // [Phím 5]: Cắm Mắt Kiểm Soát (Soi Bụi Cỏ Tàng Hình 25s)
+            bool key5Down = Input.IsKeyPressed(Key.Key5);
+            if (key5Down && !_key5WasPressed && Progression.ScoutWards > 0)
+            {
+                Progression.ScoutWards--;
+                ArenaGameManager.Instance?.PlaceScoutWard(TeamId, GlobalPosition + lookDiff.Normalized() * 2.2f);
+                ArenaEventBus.RaiseFloatingText(GlobalPosition, $"👁️ CẮM MẮT SOI BỤI CỎ (Còn {Progression.ScoutWards})", Colors.Yellow);
+            }
+            _key5WasPressed = key5Down;
+
+            // [Phím Space]: Phép bổ trợ Tốc Biến (Flash) theo hướng chuột
+            bool spaceDown = Input.IsKeyPressed(Key.Space);
+            if (spaceDown && !_spaceWasPressed && CooldownFlash <= 0f)
+            {
+                CooldownFlash = 10.0f;
+                Vector3 flashDir = lookDiff.LengthSquared() > 0.01f ? lookDiff.Normalized() : Vector3.Forward;
+                ArenaGameManager.Instance?.SpawnAoeRingEffect(GlobalPosition, 1.8f, Colors.Gold, 0.25f);
+                GlobalPosition += flashDir * 7.5f;
+                ClampInsideMapBounds();
+                ArenaGameManager.Instance?.SpawnAoeRingEffect(GlobalPosition, 2.2f, Colors.Gold, 0.3f);
+                ArenaEventBus.RaiseFloatingText(GlobalPosition, "⚡ TỐC BIẾN!", Colors.Gold);
+            }
+            _spaceWasPressed = spaceDown;
 
             // Phím tắt đổi nhanh Vũ khí để test (Phím 1: Đại Kiếm, Phím 2: Cung, Phím 3: Trượng Lửa)
             if (Input.IsKeyPressed(Key.Key1) && CurrentWeaponType != WeaponType.Greatsword)

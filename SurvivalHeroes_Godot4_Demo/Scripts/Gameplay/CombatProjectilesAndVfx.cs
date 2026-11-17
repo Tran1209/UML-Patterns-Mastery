@@ -121,6 +121,20 @@ namespace SurvivalHeroes.Gameplay
                         return;
                     }
                 }
+
+                // Kiểm tra va chạm với Quái Rừng & Boss Rồng Cổ Đại (JungleMonster3D : IDamageable)
+                foreach (var monster in ArenaGameManager.Instance.JungleMonsters)
+                {
+                    if (monster == null || monster.IsDestroyed) continue;
+                    float hitRad = monster.IsDragonBoss ? 2.1f : 1.15f;
+                    float dist2D = new Vector2(GlobalPosition.X - monster.WorldPosition25D.X, GlobalPosition.Z - monster.WorldPosition25D.Z).Length();
+                    if (dist2D <= hitRad)
+                    {
+                        monster.TakeDamage(Damage, OwnerViewId);
+                        Deactivate();
+                        return;
+                    }
+                }
             }
 
             if (_traveledDistance >= MaxDistance)
