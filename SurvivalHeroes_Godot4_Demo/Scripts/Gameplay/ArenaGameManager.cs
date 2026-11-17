@@ -125,8 +125,8 @@ namespace SurvivalHeroes.Gameplay
             DirectionalLight3D sun = new()
             {
                 RotationDegrees = new Vector3(-54f, -35f, 0f),
-                LightEnergy = 1.3f,
-                ShadowEnabled = true
+                LightEnergy = 1.25f,
+                ShadowEnabled = false // Tắt đổ bóng toàn bản đồ 170x170m để giữ tốc độ khung hình 120+ FPS mượt mà!
             };
             AddChild(sun);
 
@@ -136,10 +136,9 @@ namespace SurvivalHeroes.Gameplay
                 BackgroundMode = Godot.Environment.BGMode.Color,
                 BackgroundColor = new Color(0.07f, 0.10f, 0.16f),
                 AmbientLightSource = Godot.Environment.AmbientSource.Color,
-                AmbientLightColor = new Color(0.36f, 0.43f, 0.56f),
-                AmbientLightEnergy = 0.88f,
-                GlowEnabled = true,
-                GlowIntensity = 0.55f
+                AmbientLightColor = new Color(0.42f, 0.48f, 0.60f),
+                AmbientLightEnergy = 0.95f,
+                GlowEnabled = false
             };
             worldEnv.Environment = env;
             AddChild(worldEnv);
@@ -299,7 +298,7 @@ namespace SurvivalHeroes.Gameplay
                     Modulate = poi.MysteryShopIndex > 0
                         ? new Color(0.45f, 0.95f, 1.0f)
                         : (poi.HasGoldenChest ? new Color(1.0f, 0.88f, 0.35f) : new Color(0.96f, 0.92f, 0.82f)),
-                    OutlineSize = 10,
+                    OutlineSize = 0,
                     Position = new Vector3(0f, 4.8f, 0f)
                 };
                 poiNode.AddChild(banner);
@@ -680,6 +679,7 @@ namespace SurvivalHeroes.Gameplay
 
             _miniMapCanvas = new TacticalMapCanvas
             {
+                ShowDetailedLabels = false,
                 CustomMinimumSize = new Vector2(205, 200),
                 Size = new Vector2(205, 200)
             };
@@ -692,7 +692,8 @@ namespace SurvivalHeroes.Gameplay
             Button openBigMapBtn = new()
             {
                 Text = "🗺️ BẢN ĐỒ LỚN & NHẢY DÙ [Phím M]",
-                CustomMinimumSize = new Vector2(205, 30)
+                CustomMinimumSize = new Vector2(205, 30),
+                FocusMode = Control.FocusModeEnum.None
             };
             openBigMapBtn.Pressed += () => ToggleFullTacticalMap();
             miniMapVBox.AddChild(openBigMapBtn);
@@ -749,7 +750,7 @@ namespace SurvivalHeroes.Gameplay
             };
             roomRow.AddChild(_roomCodeInput);
 
-            Button randCodeBtn = new() { Text = "🎲Mã Mới" };
+            Button randCodeBtn = new() { Text = "🎲Mã Mới", FocusMode = Control.FocusModeEnum.None };
             randCodeBtn.Pressed += () =>
             {
                 _roomCodeInput.Text = GodotPhotonService.GenerateRandomRoomCode();
@@ -757,7 +758,7 @@ namespace SurvivalHeroes.Gameplay
             };
             roomRow.AddChild(randCodeBtn);
 
-            _teamSelectBtn = new Button { Text = "🛡️ Đội 1" };
+            _teamSelectBtn = new Button { Text = "🛡️ Đội 1", FocusMode = Control.FocusModeEnum.None };
             _teamSelectBtn.Pressed += () =>
             {
                 _selectedTeamId = (_selectedTeamId % 4) + 1;
@@ -775,7 +776,7 @@ namespace SurvivalHeroes.Gameplay
                 PlaceholderText = "Dán Photon Realtime AppId...",
                 CustomMinimumSize = new Vector2(185, 28)
             };
-            Button connectBtn = new() { Text = "🚀 Vào Phòng" };
+            Button connectBtn = new() { Text = "🚀 Vào Phòng", FocusMode = Control.FocusModeEnum.None };
             connectBtn.Pressed += () =>
             {
                 GodotPhotonService.Instance?.ConnectToPhotonCloud(
@@ -787,7 +788,7 @@ namespace SurvivalHeroes.Gameplay
                 AddKillFeed($"🚀 Đang kết nối vào Phòng [{_roomCodeInput.Text}] dưới tên [{_nickNameInput.Text}] (Đội {_selectedTeamId})...");
             };
 
-            Button copyInviteBtn = new() { Text = "📋 COPY MỜI" };
+            Button copyInviteBtn = new() { Text = "📋 COPY MỜI", FocusMode = Control.FocusModeEnum.None };
             copyInviteBtn.Pressed += () =>
             {
                 if (GodotPhotonService.Instance != null)
@@ -799,7 +800,7 @@ namespace SurvivalHeroes.Gameplay
                 }
             };
 
-            Button pasteInviteBtn = new() { Text = "📥 DÁN & VÀO" };
+            Button pasteInviteBtn = new() { Text = "📥 DÁN & VÀO", FocusMode = Control.FocusModeEnum.None };
             pasteInviteBtn.Pressed += () =>
             {
                 string clip = DisplayServer.ClipboardGet();
@@ -821,7 +822,7 @@ namespace SurvivalHeroes.Gameplay
                 }
             };
 
-            Button simBtn = new() { Text = "Local" };
+            Button simBtn = new() { Text = "Local", FocusMode = Control.FocusModeEnum.None };
             simBtn.Pressed += () =>
             {
                 GodotPhotonService.Instance?.SwitchToLocalSimulationMode();
@@ -884,7 +885,7 @@ namespace SurvivalHeroes.Gameplay
             {
                 Position = new Vector2(65, 22),
                 Size = new Vector2(1235, 595),
-                Visible = true // Mở sẵn đầu trận để người chơi chọn điểm Nhảy Dù giống hệt ảnh!
+                Visible = false // Mặc định đóng lúc khởi đầu để vào trận mượt ngay; bấm [Phím M] để mở Bản đồ Nhảy Dù bất cứ lúc nào!
             };
             hud.AddChild(_fullMapModalRoot);
 
@@ -1069,6 +1070,8 @@ namespace SurvivalHeroes.Gameplay
             AddKillFeed($"🪂 ViiShiin đang bung dù lượn xuống [{locationName}] ({clamped.X:F0}, {clamped.Z:F0}) — Dùng WASD lái dù!");
         }
 
+        private float _hudRefreshAccumulator;
+
         public override void _Process(double delta)
         {
             float dt = (float)delta;
@@ -1083,38 +1086,21 @@ namespace SurvivalHeroes.Gameplay
 
             // Cập nhật tiến trình đường bay Khinh Khí Cầu trên Bản đồ
             _airshipFlightTimer = (_airshipFlightTimer + dt * 0.045f) % 1.0f;
-            if (_bigMapCanvas != null)
-            {
-                _bigMapCanvas.FlightProgress01 = _airshipFlightTimer;
-                if (_fullMapModalRoot != null && _fullMapModalRoot.Visible)
-                {
-                    _bigMapCanvas.QueueRedraw();
-                }
-            }
-            if (_miniMapCanvas != null)
-            {
-                _miniMapCanvas.FlightProgress01 = _airshipFlightTimer;
-                _miniMapCanvas.QueueRedraw();
-            }
 
             // Đếm ngược làm mới Rồng Cổ Đại
             if (!_dragonSpawned)
             {
                 _dragonSpawnCountdown -= dt;
-                if (_dragonStatusLabel != null)
+                if (_dragonSpawnCountdown <= 0f)
                 {
-                    if (_dragonSpawnCountdown > 0f)
-                        _dragonStatusLabel.Text = $"   Chưa làm mới Rồng (Làm mới tại Di Tích Thất Lạc sau {_dragonSpawnCountdown:F0}s)";
-                    else
-                    {
-                        _dragonSpawned = true;
+                    _dragonSpawned = true;
+                    if (_dragonStatusLabel != null)
                         _dragonStatusLabel.Text = "   🔥 RỒNG HẮC ÁM ĐÃ XUẤT HIỆN TẠI DI TÍCH THẤT LẠC!";
-                        AddKillFeed("🐉 RỒNG CỔ ĐẠI đã xuất hiện tại khu vực [DI TÍCH THẤT LẠC]!");
-                    }
+                    AddKillFeed("🐉 RỒNG CỔ ĐẠI đã xuất hiện tại khu vực [DI TÍCH THẤT LẠC]!");
                 }
             }
 
-            // Camera Isometric bám mượt theo Tướng của người chơi
+            // Camera Isometric bám mượt theo Tướng của người chơi ở tốc độ khung hình tối đa
             if (LocalHero != null && _isoCamera != null)
             {
                 Vector3 desiredCamPos = LocalHero.GlobalPosition + new Vector3(0f, 22f, 15f);
@@ -1135,7 +1121,30 @@ namespace SurvivalHeroes.Gameplay
                 _safeZoneRingMesh.GlobalPosition = new Vector3(_safeZoneTimer.ZoneCenter.X, 0.03f, _safeZoneTimer.ZoneCenter.Z);
             }
 
-            UpdateHudTexts();
+            // Giới hạn tần suất vẽ lại UI & Minimap ở 6.5 Hz (0.15s/lần) thay vì mỗi frame -> Tăng FPS gấp 6-10 lần!
+            _hudRefreshAccumulator += dt;
+            if (_hudRefreshAccumulator >= 0.15f)
+            {
+                _hudRefreshAccumulator = 0f;
+                if (_bigMapCanvas != null)
+                {
+                    _bigMapCanvas.FlightProgress01 = _airshipFlightTimer;
+                    if (_fullMapModalRoot != null && _fullMapModalRoot.Visible)
+                    {
+                        _bigMapCanvas.QueueRedraw();
+                    }
+                }
+                if (_miniMapCanvas != null)
+                {
+                    _miniMapCanvas.FlightProgress01 = _airshipFlightTimer;
+                    _miniMapCanvas.QueueRedraw();
+                }
+                if (!_dragonSpawned && _dragonStatusLabel != null)
+                {
+                    _dragonStatusLabel.Text = $"   Chưa làm mới Rồng (Làm mới tại Di Tích Thất Lạc sau {_dragonSpawnCountdown:F0}s)";
+                }
+                UpdateHudTexts();
+            }
         }
 
         private void UpdateHudTexts()

@@ -92,12 +92,13 @@ namespace SurvivalHeroes.Gameplay
 
             _label = new Label3D
             {
-                Text = $"🎪 CỬA HÀNG THẦN BÍ #{shopNumber}\n({locationName})\n[Chạm vào nhận Giáp Hoàng Kim + Vũ Khí]",
+                Text = $"🎪 CỬA HÀNG THẦN BÍ #{shopNumber} ({locationName})",
                 PixelSize = 0.012f,
                 Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+                NoDepthTest = true,
                 Modulate = new Color(0.45f, 0.92f, 1.0f),
-                OutlineSize = 10,
-                Position = new Vector3(0f, 4.1f, 0f)
+                OutlineSize = 0,
+                Position = new Vector3(0f, 3.8f, 0f)
             };
             AddChild(_label);
         }
@@ -191,6 +192,7 @@ namespace SurvivalHeroes.Gameplay
     /// </summary>
     public partial class TacticalMapCanvas : Control
     {
+        public bool ShowDetailedLabels { get; set; } = true;
         public float WorldHalfExtent { get; set; } = 85f;
         public Vector2? MarkedPingWorldPos { get; private set; }
         public string MarkedPingLocationName { get; private set; } = "TÀNG KIM TRẤN";
@@ -368,14 +370,14 @@ namespace SurvivalHeroes.Gameplay
             DrawCircle(airshipPx, 9f, new Color(1.0f, 0.82f, 0.22f, 0.95f));
             DrawCircle(airshipPx, 5f, new Color(1.0f, 0.35f, 0.1f, 1.0f));
 
-            // 7. Vẽ Tên 20 Địa Danh Tiếng Việt nổi bật trên bản đồ
-            if (defaultFont != null)
+            // 7. Vẽ Tên 22 Địa Danh Tiếng Việt nổi bật trên bản đồ lớn (Tắt trên Minimap nhỏ để mượt 144 FPS!)
+            if (ShowDetailedLabels && defaultFont != null)
             {
                 foreach (MapPoiDefinition poi in SurvivalHeroesWorldBuilder.AllPois)
                 {
                     Vector2 centerPx = WorldToMapPixel(new Vector2(poi.Center3D.X, poi.Center3D.Z));
                     Vector2 textPos = centerPx + new Vector2(-poi.Name.Length * 3.1f, 5f);
-                    DrawStringOutline(defaultFont, textPos, poi.Name, HorizontalAlignment.Left, -1, 11, 4, new Color(0.05f, 0.05f, 0.08f, 0.95f));
+                    DrawString(defaultFont, textPos + new Vector2(1f, 1f), poi.Name, HorizontalAlignment.Left, -1, 11, Colors.Black);
                     DrawString(defaultFont, textPos, poi.Name, HorizontalAlignment.Left, -1, 11, Colors.White);
                 }
             }

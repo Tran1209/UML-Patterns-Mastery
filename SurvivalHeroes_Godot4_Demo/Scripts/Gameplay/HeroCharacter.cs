@@ -152,14 +152,14 @@ namespace SurvivalHeroes.Gameplay
             _shieldSphereMesh.Visible = false;
             AddChild(_shieldSphereMesh);
 
-            // 5. Thanh thông tin trên đầu (Bật NoDepthTest để không bị mái nhà che khuất)
+            // 5. Thanh thông tin trên đầu (Bật NoDepthTest, tắt OutlineSize để không rebuild Glyph Mesh gây tụt FPS!)
             _overheadLabel = new Label3D
             {
                 PixelSize = 0.0105f,
                 Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
                 NoDepthTest = true,
                 RenderPriority = DepthSorter25D.PriorityOverheadUi,
-                OutlineSize = 8,
+                OutlineSize = 0,
                 Position = new Vector3(0, 2.55f, 0)
             };
             AddChild(_overheadLabel);
@@ -887,6 +887,8 @@ namespace SurvivalHeroes.Gameplay
             UpdateOverheadInfo();
         }
 
+        private string _lastOverheadText = "";
+
         private void UpdateOverheadInfo()
         {
             if (_overheadLabel == null) return;
@@ -896,8 +898,14 @@ namespace SurvivalHeroes.Gameplay
 
             if (IsDead)
             {
-                _overheadLabel.Text = $"💀 {HeroName} (Hồi sinh sau {_respawnTimer:F1}s)";
-                _overheadLabel.Modulate = new Color(1f, 0.35f, 0.35f);
+                int secLeft = Mathf.CeilToInt(_respawnTimer);
+                string deadTxt = $"💀 {HeroName} (Hồi sinh {secLeft}s)";
+                if (_lastOverheadText != deadTxt)
+                {
+                    _lastOverheadText = deadTxt;
+                    _overheadLabel.Text = deadTxt;
+                    _overheadLabel.Modulate = new Color(1f, 0.35f, 0.35f);
+                }
                 return;
             }
 
@@ -906,7 +914,12 @@ namespace SurvivalHeroes.Gameplay
             string shieldTxt = Shield > 0.5f ? $" + 🛡️{(int)Shield}" : "";
             bool isTeammate = ArenaGameManager.Instance?.LocalHero != null && ArenaGameManager.Instance.LocalHero.TeamId == TeamId;
 
-            _overheadLabel.Text = $"[Đội {TeamId}] {HeroName} ({Kills}⚔️) {cullTag}{stealthTag}\n[{CurrentLoadout.Title}]\n❤️ {(int)Health}/{(int)MaxHealth}{shieldTxt}";
+            string aliveTxt = $"[Đội {TeamId}] {HeroName} ({Kills}⚔️) {cullTag}{stealthTag}\n[{CurrentLoadout.Title}] ❤️ {(int)Health}/{(int)MaxHealth}{shieldTxt}";
+            if (_lastOverheadText != aliveTxt)
+            {
+                _lastOverheadText = aliveTxt;
+                _overheadLabel.Text = aliveTxt;
+            }
             _overheadLabel.Modulate = IsLocalHumanPlayer
                 ? new Color(0.35f, 1.0f, 0.55f)
                 : (isTeammate ? new Color(0.35f, 0.85f, 1.0f) : (isSubscribedCell ? new Color(1.0f, 0.92f, 0.65f) : new Color(0.6f, 0.6f, 0.65f, 0.55f)));

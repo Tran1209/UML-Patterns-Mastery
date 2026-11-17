@@ -67,7 +67,7 @@ namespace SurvivalHeroes.Gameplay
                 PixelSize = 0.011f,
                 Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
                 Modulate = loadout.ThemeColor,
-                OutlineSize = 8,
+                OutlineSize = 0,
                 Position = new Vector3(0, 2.15f, 0)
             };
             AddChild(_titleLabel);

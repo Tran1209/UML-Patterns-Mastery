@@ -339,7 +339,7 @@ namespace SurvivalHeroes.Gameplay
                 Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
                 NoDepthTest = true,
                 RenderPriority = DepthSorter25D.PriorityOverheadUi,
-                OutlineSize = 8,
+                OutlineSize = 0,
                 Position = new Vector3(0f, isDragonBoss ? 4.2f : 2.3f, 0f)
             };
             AddChild(_infoLabel);
@@ -403,19 +403,31 @@ namespace SurvivalHeroes.Gameplay
             }
         }
 
+        private string _lastMonsterLabel = "";
+
         private void UpdateMonsterLabel()
         {
             if (_infoLabel == null) return;
             if (IsDestroyed)
             {
-                _infoLabel.Text = $"⏳ {MonsterTitle} (Hồi sinh sau {_respawnTimer:F0}s)";
-                _infoLabel.Modulate = new Color(0.65f, 0.65f, 0.7f);
+                string deadTxt = $"⏳ {MonsterTitle} (Hồi sinh {Mathf.CeilToInt(_respawnTimer)}s)";
+                if (_lastMonsterLabel != deadTxt)
+                {
+                    _lastMonsterLabel = deadTxt;
+                    _infoLabel.Text = deadTxt;
+                    _infoLabel.Modulate = new Color(0.65f, 0.65f, 0.7f);
+                }
                 return;
             }
 
             string icon = IsDragonBoss ? "🐉 BOSS" : "🐺 Quái Rừng";
-            _infoLabel.Text = $"{icon}: {MonsterTitle}\n❤️ {(int)_hp}/{(int)_maxHp} (+{_goldReward}💰)";
-            _infoLabel.Modulate = IsDragonBoss ? new Color(1.0f, 0.45f, 0.95f) : new Color(1.0f, 0.85f, 0.45f);
+            string aliveTxt = $"{icon}: {MonsterTitle}\n❤️ {(int)_hp}/{(int)_maxHp} (+{_goldReward}💰)";
+            if (_lastMonsterLabel != aliveTxt)
+            {
+                _lastMonsterLabel = aliveTxt;
+                _infoLabel.Text = aliveTxt;
+                _infoLabel.Modulate = IsDragonBoss ? new Color(1.0f, 0.45f, 0.95f) : new Color(1.0f, 0.85f, 0.45f);
+            }
         }
     }
 }

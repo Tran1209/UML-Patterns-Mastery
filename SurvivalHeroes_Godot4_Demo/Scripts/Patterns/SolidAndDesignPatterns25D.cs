@@ -269,7 +269,8 @@ namespace SurvivalHeroes.Patterns
             {
                 PixelSize = 0.014f,
                 Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-                OutlineSize = 10,
+                NoDepthTest = true,
+                OutlineSize = 0,
                 Modulate = Colors.Yellow
             };
             AddChild(_label);
@@ -346,11 +347,11 @@ namespace SurvivalHeroes.Patterns
 
             _label = new Label3D
             {
-                Text = "🧨 Thùng Nổ [IDamageable]",
+                Text = "🧨 Thùng Nổ",
                 PixelSize = 0.0095f,
                 Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
                 Modulate = new Color(1f, 0.55f, 0.4f),
-                OutlineSize = 6,
+                OutlineSize = 0,
                 Position = new Vector3(0f, 1.85f, 0f)
             };
             AddChild(_label);
@@ -432,11 +433,11 @@ namespace SurvivalHeroes.Patterns
 
             _label = new Label3D
             {
-                Text = "💚 Trụ Hồi Máu [ISwitchable]",
+                Text = "💚 Trụ Hồi Máu",
                 PixelSize = 0.01f,
                 Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
                 Modulate = new Color(0.35f, 1.0f, 0.65f),
-                OutlineSize = 6,
+                OutlineSize = 0,
                 Position = new Vector3(0f, 2.3f, 0f)
             };
             AddChild(_label);
