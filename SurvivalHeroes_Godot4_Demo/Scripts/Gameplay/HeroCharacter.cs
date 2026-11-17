@@ -77,6 +77,9 @@ namespace SurvivalHeroes.Gameplay
             GlobalPosition = spawnPos;
             _aiMoveTarget = spawnPos;
 
+            // 0. Khóa trục vật lý 2.5D trực tiếp trên Jolt Physics 3D (Khóa cứng trục Y=0, khóa đổ ngã X/Z)
+            PlanarPhysics25D.ApplyHardwareAxisLock(this, PlaneMode25D.TopDownIsometric_LockY);
+
             // 1. Khởi tạo Collider vật lý
             CollisionShape3D col = new();
             CapsuleShape3D capShape = new() { Radius = 0.55f, Height = 1.8f };
@@ -91,7 +94,7 @@ namespace SurvivalHeroes.Gameplay
             {
                 AlbedoColor = bodyColor,
                 Roughness = 0.45f,
-                Transparency = BaseMaterial3D.TransparencyEnum.Alpha
+                Transparency = BaseMaterial3D.TransparencyEnum.Disabled
             };
             _bodyMesh.Mesh = capMesh;
             _bodyMesh.MaterialOverride = _bodyMat;
@@ -130,7 +133,8 @@ namespace SurvivalHeroes.Gameplay
             {
                 AlbedoColor = new Color(0.2f, 0.85f, 1.0f, 0.28f),
                 Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded
+                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                RenderPriority = DepthSorter25D.PriorityShieldVfx
             };
             _shieldSphereMesh.Mesh = shieldSphere;
             _shieldSphereMesh.MaterialOverride = shieldMat;
@@ -138,11 +142,13 @@ namespace SurvivalHeroes.Gameplay
             _shieldSphereMesh.Visible = false;
             AddChild(_shieldSphereMesh);
 
-            // 5. Thanh thông tin trên đầu (Tên, Vũ khí, Máu, Ô lưới CullArea)
+            // 5. Thanh thông tin trên đầu (Bật NoDepthTest để không bị mái nhà che khuất)
             _overheadLabel = new Label3D
             {
                 PixelSize = 0.0105f,
                 Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+                NoDepthTest = true,
+                RenderPriority = DepthSorter25D.PriorityOverheadUi,
                 OutlineSize = 8,
                 Position = new Vector3(0, 2.55f, 0)
             };
@@ -474,12 +480,12 @@ namespace SurvivalHeroes.Gameplay
 
         private void ClampInsideMapBounds()
         {
-            float limit = 82.5f;
-            GlobalPosition = new Vector3(
-                Mathf.Clamp(GlobalPosition.X, -limit, limit),
-                0f,
-                Mathf.Clamp(GlobalPosition.Z, -limit, limit)
-            );
+            Velocity = PlanarPhysics25D.ClampVelocityToPlane(Velocity, PlaneMode25D.TopDownIsometric_LockY);
+            GlobalPosition = PlanarPhysics25D.ClampPositionToPlaneAndBounds(
+                GlobalPosition,
+                mapHalfExtent: 82.5f,
+                fixedPlaneCoord: 0f,
+                mode: PlaneMode25D.TopDownIsometric_LockY);
         }
 
         [PunRPC]
@@ -714,14 +720,31 @@ namespace SurvivalHeroes.Gameplay
             if (_shieldSphereMesh != null)
             {
                 _shieldSphereMesh.Visible = !IsDead && Shield > 0.5f;
+                DepthSorter25D.UpdateIsometricDepthOrder(_shieldSphereMesh, GlobalPosition.Z, 0.15f);
             }
 
             if (_bodyMesh != null && _bodyMat != null)
             {
                 _bodyMesh.Visible = !IsDead;
+                // Chỉ bật Alpha Transparency khi đang đứng trong Bụi Cỏ Tàng Hình, còn bình thường để Opaque ghi vào Hardware Z-Buffer chuẩn 100%!
+                _bodyMat.Transparency = InStealthBush
+                    ? BaseMaterial3D.TransparencyEnum.Alpha
+                    : BaseMaterial3D.TransparencyEnum.Disabled;
+
                 Color c = _bodyMat.AlbedoColor;
                 c.A = InStealthBush ? 0.38f : 1.0f;
                 _bodyMat.AlbedoColor = c;
+
+                if (InStealthBush)
+                {
+                    _bodyMat.RenderPriority = DepthSorter25D.ComputeDynamicRenderPriority(GlobalPosition.Z, DepthSorter25D.PriorityHeroAlpha);
+                    DepthSorter25D.UpdateIsometricDepthOrder(_bodyMesh, GlobalPosition.Z, 0f);
+                }
+            }
+
+            if (_overheadLabel != null)
+            {
+                DepthSorter25D.UpdateIsometricDepthOrder(_overheadLabel, GlobalPosition.Z, 0.35f);
             }
 
             UpdateOverheadInfo();
