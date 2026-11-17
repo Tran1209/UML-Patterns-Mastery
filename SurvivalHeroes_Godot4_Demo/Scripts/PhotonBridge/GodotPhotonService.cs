@@ -197,7 +197,7 @@ namespace Photon.Pun.GodotBridge
             const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
             char[] code = new char[4];
             for (int i = 0; i < 4; i++)
-                code[i] = chars[GD.Randi() % chars.Length];
+                code[i] = chars[(int)(GD.Randi() % (uint)chars.Length)];
             return "SH-" + new string(code);
         }
 
