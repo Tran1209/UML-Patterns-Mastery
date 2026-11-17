@@ -1056,7 +1056,14 @@ namespace SurvivalHeroes.Gameplay
                 Mathf.Clamp(targetWorldPos.Z, -82f, 82f)
             );
 
-            LocalHero.StartParachuteDrop(clamped);
+            if (LocalHero.PhotonView != null)
+            {
+                LocalHero.PhotonView.RPC(nameof(HeroCharacter.RpcStartParachuteDrop), RpcTarget.All, clamped);
+            }
+            else
+            {
+                LocalHero.StartParachuteDrop(clamped);
+            }
             SpawnAoeRingEffect(clamped, 4.5f, new Color(0.25f, 0.9f, 1.0f), 0.75f);
             ArenaEventBus.RaiseFloatingText(clamped, $"🪂 ĐANG BAY DÙ XUỐNG: {locationName}!", new Color(0.35f, 0.95f, 1.0f));
             AddKillFeed($"🪂 ViiShiin đang bung dù lượn xuống [{locationName}] ({clamped.X:F0}, {clamped.Z:F0}) — Dùng WASD lái dù!");

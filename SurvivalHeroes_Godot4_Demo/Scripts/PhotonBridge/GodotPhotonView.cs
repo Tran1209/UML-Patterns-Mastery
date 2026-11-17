@@ -38,8 +38,13 @@ namespace Photon.Pun.GodotBridge
         {
             get
             {
-                if (GodotPhotonService.Instance?.LocalPlayer == null) return false;
-                if (OwnerActorNr == GodotPhotonService.Instance.LocalPlayer.ActorNumber) return true;
+                if (GodotPhotonService.Instance == null) return OwnerActorNr == 1 || IsRoomView;
+                int localActor = (!GodotPhotonService.Instance.IsLocalSimulationMode
+                    && GodotPhotonService.Instance.LocalPlayer != null
+                    && GodotPhotonService.Instance.LocalPlayer.ActorNumber > 0)
+                    ? GodotPhotonService.Instance.LocalPlayer.ActorNumber
+                    : 1;
+                if (OwnerActorNr == localActor) return true;
                 return IsRoomView && GodotPhotonService.Instance.IsMasterClient;
             }
         }

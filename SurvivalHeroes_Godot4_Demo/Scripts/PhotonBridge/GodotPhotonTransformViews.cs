@@ -97,8 +97,17 @@ namespace Photon.Pun.GodotBridge
                     {
                         double serverTime = GodotPhotonService.Instance?.Time ?? info.SentServerTime;
                         float lag = MathF.Abs((float)(serverTime - info.SentServerTime));
-                        _networkPosition += _direction * lag;
+                        float rate = GodotPhotonService.Instance?.SerializationRate ?? 12;
+                        // _direction là độ dời trên 1 chu kỳ gửi (1/rate giây) -> vận tốc = _direction * rate
+                        _networkPosition += (_direction * rate) * Mathf.Clamp(lag, 0f, 0.25f);
                         _distance = _target3D.Position.DistanceTo(_networkPosition);
+
+                        // Nếu khoảng cách > 12m (do Nhảy Dù, Hồi Sinh hoặc Tốc Biến), dịch chuyển tức thời để không trượt xuyên tường
+                        if (_distance > 12.0f)
+                        {
+                            _target3D.Position = _networkPosition;
+                            _distance = 0f;
+                        }
                     }
                 }
 

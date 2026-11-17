@@ -205,9 +205,18 @@ namespace SurvivalHeroes.Gameplay
             UpdateOverheadInfo();
         }
 
+        public float GetScaledDamage(float baseDamage) => baseDamage + Progression.TotalBonusAttack;
+        public float GetScaledCooldown(float baseCooldown) => MathF.Max(0.15f, baseCooldown * (1f - Progression.TotalCdr));
+
         /// <summary>
         /// Khởi động hiệu ứng Nhảy Dù 3D từ Khinh Khí Cầu trên cao (Y = 14.5m) hạ cánh xuống địa danh đã chọn!
         /// </summary>
+        [PunRPC]
+        public void RpcStartParachuteDrop(Vector3 targetGroundPos, PhotonMessageInfo info)
+        {
+            StartParachuteDrop(targetGroundPos);
+        }
+
         public void StartParachuteDrop(Vector3 targetGroundPos)
         {
             IsParachuteGliding = true;
@@ -245,6 +254,13 @@ namespace SurvivalHeroes.Gameplay
                 }
                 UpdateOverheadInfo();
                 return;
+            }
+
+            // Nếu là người chơi từ xa đang nhảy dù và đã chạm đất (Y <= 0.12m), tự động thu dù
+            if (!IsLocalHumanPlayer && IsParachuteGliding && GlobalPosition.Y <= 0.12f)
+            {
+                IsParachuteGliding = false;
+                if (_parachuteCanopyMesh != null) _parachuteCanopyMesh.Visible = false;
             }
 
             // Kiểm tra đứng trong Bụi Cỏ MOBA (Nếu bị Mắt Kiểm Soát đối phương soi trúng thì mất tàng hình!)
@@ -426,7 +442,7 @@ namespace SurvivalHeroes.Gameplay
             {
                 if (CooldownBasic <= 0f)
                 {
-                    CooldownBasic = CurrentLoadout.BasicAttack.Cooldown;
+                    CooldownBasic = GetScaledCooldown(CurrentLoadout.BasicAttack.Cooldown);
                     PhotonView.RPC(nameof(RpcCastSkill), RpcTarget.All, 0, GlobalPosition, aimWorld);
                 }
                 else if (CooldownBasic <= 0.18f && SkillInputBuffer.BufferedCount == 0)
@@ -436,7 +452,7 @@ namespace SurvivalHeroes.Gameplay
                         () => CooldownBasic <= 0f && !IsDead,
                         () =>
                         {
-                            CooldownBasic = CurrentLoadout.BasicAttack.Cooldown;
+                            CooldownBasic = GetScaledCooldown(CurrentLoadout.BasicAttack.Cooldown);
                             Vector3 aim = ArenaGameManager.Instance != null ? ArenaGameManager.Instance.GetMouseGroundPosition(GlobalPosition) : aimWorld;
                             PhotonView.RPC(nameof(RpcCastSkill), RpcTarget.All, 0, GlobalPosition, aim);
                         }));
@@ -446,7 +462,7 @@ namespace SurvivalHeroes.Gameplay
             {
                 if (CooldownQ <= 0f)
                 {
-                    CooldownQ = CurrentLoadout.SkillQ.Cooldown;
+                    CooldownQ = GetScaledCooldown(CurrentLoadout.SkillQ.Cooldown);
                     PhotonView.RPC(nameof(RpcCastSkill), RpcTarget.All, 1, GlobalPosition, aimWorld);
                 }
                 else if (CooldownQ <= 0.18f && SkillInputBuffer.BufferedCount == 0)
@@ -456,7 +472,7 @@ namespace SurvivalHeroes.Gameplay
                         () => CooldownQ <= 0f && !IsDead,
                         () =>
                         {
-                            CooldownQ = CurrentLoadout.SkillQ.Cooldown;
+                            CooldownQ = GetScaledCooldown(CurrentLoadout.SkillQ.Cooldown);
                             Vector3 aim = ArenaGameManager.Instance != null ? ArenaGameManager.Instance.GetMouseGroundPosition(GlobalPosition) : aimWorld;
                             PhotonView.RPC(nameof(RpcCastSkill), RpcTarget.All, 1, GlobalPosition, aim);
                         }));
@@ -466,7 +482,7 @@ namespace SurvivalHeroes.Gameplay
             {
                 if (CooldownW <= 0f)
                 {
-                    CooldownW = CurrentLoadout.SkillW.Cooldown;
+                    CooldownW = GetScaledCooldown(CurrentLoadout.SkillW.Cooldown);
                     PhotonView.RPC(nameof(RpcCastSkill), RpcTarget.All, 2, GlobalPosition, aimWorld);
                 }
                 else if (CooldownW <= 0.18f && SkillInputBuffer.BufferedCount == 0)
@@ -476,7 +492,7 @@ namespace SurvivalHeroes.Gameplay
                         () => CooldownW <= 0f && !IsDead,
                         () =>
                         {
-                            CooldownW = CurrentLoadout.SkillW.Cooldown;
+                            CooldownW = GetScaledCooldown(CurrentLoadout.SkillW.Cooldown);
                             Vector3 aim = ArenaGameManager.Instance != null ? ArenaGameManager.Instance.GetMouseGroundPosition(GlobalPosition) : aimWorld;
                             PhotonView.RPC(nameof(RpcCastSkill), RpcTarget.All, 2, GlobalPosition, aim);
                         }));
@@ -486,7 +502,7 @@ namespace SurvivalHeroes.Gameplay
             {
                 if (CooldownE <= 0f)
                 {
-                    CooldownE = CurrentLoadout.SkillE.Cooldown;
+                    CooldownE = GetScaledCooldown(CurrentLoadout.SkillE.Cooldown);
                     PhotonView.RPC(nameof(RpcCastSkill), RpcTarget.All, 3, GlobalPosition, aimWorld);
                 }
                 else if (CooldownE <= 0.18f && SkillInputBuffer.BufferedCount == 0)
@@ -496,7 +512,7 @@ namespace SurvivalHeroes.Gameplay
                         () => CooldownE <= 0f && !IsDead,
                         () =>
                         {
-                            CooldownE = CurrentLoadout.SkillE.Cooldown;
+                            CooldownE = GetScaledCooldown(CurrentLoadout.SkillE.Cooldown);
                             Vector3 aim = ArenaGameManager.Instance != null ? ArenaGameManager.Instance.GetMouseGroundPosition(GlobalPosition) : aimWorld;
                             PhotonView.RPC(nameof(RpcCastSkill), RpcTarget.All, 3, GlobalPosition, aim);
                         }));
@@ -675,7 +691,7 @@ namespace SurvivalHeroes.Gameplay
             {
                 Vector3 hitCenter = origin + dir * 2.1f;
                 ArenaGameManager.Instance.SpawnAoeRingEffect(hitCenter, 2.2f, color, 0.22f);
-                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, hitCenter, 2.3f, CurrentLoadout.BasicAttack.Damage);
+                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, hitCenter, 2.3f, GetScaledDamage(CurrentLoadout.BasicAttack.Damage));
             }
             else if (slot == 1) // Q: Lướt Chém (Dash Strike)
             {
@@ -683,12 +699,12 @@ namespace SurvivalHeroes.Gameplay
                 _dashTimer = 0.26f;
                 Vector3 slashCenter = origin + dir * 3.5f;
                 ArenaGameManager.Instance.SpawnAoeRingEffect(slashCenter, 2.8f, color, 0.3f);
-                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, slashCenter, 3.0f, CurrentLoadout.SkillQ.Damage);
+                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, slashCenter, 3.0f, GetScaledDamage(CurrentLoadout.SkillQ.Damage));
             }
             else if (slot == 2) // W: Xoáy Kiếm 360 độ (Whirlwind)
             {
                 ArenaGameManager.Instance.SpawnAoeRingEffect(origin, 4.5f, new Color(1f, 0.25f, 0.1f), 0.45f);
-                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, origin, 4.5f, CurrentLoadout.SkillW.Damage);
+                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, origin, 4.5f, GetScaledDamage(CurrentLoadout.SkillW.Damage));
             }
             else if (slot == 3) // E: Khiên Dũng Sĩ + Tăng Tốc
             {
@@ -703,7 +719,7 @@ namespace SurvivalHeroes.Gameplay
             Vector3 muzzle = origin + new Vector3(0, 1.0f, 0) + dir * 0.8f;
             if (slot == 0) // LMB: Tên Xuyên Phá
             {
-                ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, dir, 26f, CurrentLoadout.BasicAttack.Range, CurrentLoadout.BasicAttack.Damage, 0f, color, lag);
+                ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, dir, 26f, CurrentLoadout.BasicAttack.Range, GetScaledDamage(CurrentLoadout.BasicAttack.Damage), 0f, color, lag);
             }
             else if (slot == 1) // Q: Tán Xạ 5 Mũi Tên Hình Nón
             {
@@ -711,20 +727,20 @@ namespace SurvivalHeroes.Gameplay
                 {
                     float angleOffset = i * Mathf.DegToRad(11f);
                     Vector3 rotatedDir = dir.Rotated(Vector3.Up, angleOffset);
-                    ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, rotatedDir, 24f, CurrentLoadout.SkillQ.Range, CurrentLoadout.SkillQ.Damage, 0f, color, lag);
+                    ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, rotatedDir, 24f, CurrentLoadout.SkillQ.Range, GetScaledDamage(CurrentLoadout.SkillQ.Damage), 0f, color, lag);
                 }
             }
             else if (slot == 2) // W: Lộn Nhào Bắn Lùi (Backflip)
             {
                 _dashVelocity = -dir * 20.0f;
                 _dashTimer = 0.24f;
-                ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, dir, 25f, CurrentLoadout.SkillW.Range, CurrentLoadout.SkillW.Damage, 2.2f, Colors.Yellow, lag);
+                ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, dir, 25f, CurrentLoadout.SkillW.Range, GetScaledDamage(CurrentLoadout.SkillW.Damage), 2.2f, Colors.Yellow, lag);
             }
             else if (slot == 3) // E: Mưa Tên AOE tại vị trí chuột
             {
                 Vector3 clampedTarget = origin + (targetPos - origin).LimitLength(CurrentLoadout.SkillE.Range);
                 ArenaGameManager.Instance.SpawnAoeRingEffect(clampedTarget, 4.2f, color, 0.55f);
-                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, clampedTarget, 4.2f, CurrentLoadout.SkillE.Damage);
+                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, clampedTarget, 4.2f, GetScaledDamage(CurrentLoadout.SkillE.Damage));
             }
         }
 
@@ -733,17 +749,17 @@ namespace SurvivalHeroes.Gameplay
             Vector3 muzzle = origin + new Vector3(0, 1.05f, 0) + dir * 0.8f;
             if (slot == 0) // LMB: Hỏa Cầu
             {
-                ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, dir, 21f, CurrentLoadout.BasicAttack.Range, CurrentLoadout.BasicAttack.Damage, 0f, color, lag);
+                ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, dir, 21f, CurrentLoadout.BasicAttack.Range, GetScaledDamage(CurrentLoadout.BasicAttack.Damage), 0f, color, lag);
             }
             else if (slot == 1) // Q: Đại Hỏa Cầu Nổ
             {
-                ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, dir, 18f, CurrentLoadout.SkillQ.Range, CurrentLoadout.SkillQ.Damage, 3.6f, new Color(1f, 0.2f, 0.05f), lag);
+                ArenaGameManager.Instance.SpawnProjectile(myViewId, muzzle, dir, 18f, CurrentLoadout.SkillQ.Range, GetScaledDamage(CurrentLoadout.SkillQ.Damage), 3.6f, new Color(1f, 0.2f, 0.05f), lag);
             }
             else if (slot == 2) // W: Thiên Thạch Rơi AOE
             {
                 Vector3 clampedTarget = origin + (targetPos - origin).LimitLength(CurrentLoadout.SkillW.Range);
                 ArenaGameManager.Instance.SpawnAoeRingEffect(clampedTarget, 4.8f, new Color(0.95f, 0.15f, 0.8f), 0.6f);
-                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, clampedTarget, 4.8f, CurrentLoadout.SkillW.Damage);
+                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, clampedTarget, 4.8f, GetScaledDamage(CurrentLoadout.SkillW.Damage));
             }
             else if (slot == 3) // E: Tốc Biến Hư Không (Arcane Blink)
             {
@@ -752,7 +768,7 @@ namespace SurvivalHeroes.Gameplay
                 GlobalPosition = new Vector3(blinkDest.X, 0f, blinkDest.Z);
                 ClampInsideMapBounds();
                 ArenaGameManager.Instance.SpawnAoeRingEffect(GlobalPosition, 2.8f, color, 0.35f);
-                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, GlobalPosition, 2.8f, CurrentLoadout.SkillE.Damage);
+                ArenaGameManager.Instance.ApplyAoeDamage(myViewId, GlobalPosition, 2.8f, GetScaledDamage(CurrentLoadout.SkillE.Damage));
             }
         }
 

@@ -53,7 +53,9 @@ namespace Photon.Realtime
         /// Toggle to enable or disable traffic statistics logging.
         /// </summary>
         public bool LogTrafficStats = true;
+#if SUPPORTED_UNITY
         private bool loggedStillOfflineMessage;
+#endif
 
         private LoadBalancingClient client;
 
