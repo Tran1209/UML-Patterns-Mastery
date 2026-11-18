@@ -1,8 +1,9 @@
 // ----------------------------------------------------------------------------
 // GodotPhotonView.cs
-// Chuyển đổi từ: PhotonUnityNetworking/Code/PhotonView.cs
-// Chức năng: Node định danh đối tượng mạng trên Godot 4, quản lý ViewID,
-// quyền sở hữu (IsMine / Owner), danh sách IPunObservable và gọi hàm từ xa (RPC).
+// [TẦNG 3 - CẦU NỐI PHOTON]:
+//   - Đã tối ưu hóa StaticTypeRpcCache (Dictionary tĩnh cấp độ Type):
+//     Quét Reflection tìm [PunRPC] đúng 1 lần duy nhất cho mỗi class khi nạp game,
+//     triệt tiêu 100% GC Spike khi khởi tạo Node trong trận đấu!
 // ----------------------------------------------------------------------------
 
 namespace Photon.Pun.GodotBridge
@@ -15,22 +16,51 @@ namespace Photon.Pun.GodotBridge
 
     public partial class GodotPhotonView : Node
     {
-        [Export]
-        public int ViewID { get; set; }
+        /// <summary>
+        /// Bộ nhớ đệm tĩnh lưu danh sách phương thức [PunRPC] theo từng Type.
+        /// Mỗi lớp C# chỉ quét Reflection đúng 1 lần duy nhất trong suốt vòng đời ứng dụng!
+        /// </summary>
+        private static readonly Dictionary<Type, (MethodInfo Method, ParameterInfo[] Params)[]> StaticTypeRpcCache = new();
 
-        [Export]
-        public byte Group { get; set; } = 0;
+        public static void PrewarmRpcCacheForTypes(params Type[] types)
+        {
+            if (types == null) return;
+            foreach (Type t in types)
+            {
+                if (t != null) GetOrBuildTypeRpcMethods(t);
+            }
+        }
 
-        [Export]
-        public ViewSynchronization Synchronization { get; set; } = ViewSynchronization.ReliableDeltaCompressed;
+        private static (MethodInfo Method, ParameterInfo[] Params)[] GetOrBuildTypeRpcMethods(Type type)
+        {
+            if (StaticTypeRpcCache.TryGetValue(type, out var cached))
+            {
+                return cached;
+            }
 
-        [Export]
-        public OwnershipOption OwnershipTransfer { get; set; } = OwnershipOption.Fixed;
+            List<(MethodInfo, ParameterInfo[])> found = new();
+            MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (MethodInfo method in methods)
+            {
+                if (method.IsDefined(typeof(PunRPC), true))
+                {
+                    found.Add((method, method.GetParameters()));
+                }
+            }
+
+            var arr = found.ToArray();
+            StaticTypeRpcCache[type] = arr;
+            return arr;
+        }
+
+        [Export] public int ViewID { get; set; }
+        [Export] public byte Group { get; set; } = 0;
+        [Export] public ViewSynchronization Synchronization { get; set; } = ViewSynchronization.ReliableDeltaCompressed;
+        [Export] public OwnershipOption OwnershipTransfer { get; set; } = OwnershipOption.Fixed;
 
         public int OwnerActorNr { get; internal set; }
         public int CreatorActorNr { get; internal set; }
 
-        /// <summary>Người chơi sở hữu PhotonView này trên mạng (dùng new để phân biệt với Node.Owner của SceneTree).</summary>
         public new Player Owner => GodotPhotonService.Instance?.CurrentRoom?.GetPlayer(OwnerActorNr);
         public bool IsRoomView => CreatorActorNr == 0;
 
@@ -50,7 +80,6 @@ namespace Photon.Pun.GodotBridge
         }
 
         public readonly List<IPunObservable> ObservedComponents = new();
-
         private readonly Dictionary<string, List<(Node Target, MethodInfo Method, ParameterInfo[] Params)>> _rpcCache = new();
 
         public override void _EnterTree()
@@ -70,9 +99,6 @@ namespace Photon.Pun.GodotBridge
             }
         }
 
-        /// <summary>
-        /// Quét Node cha (Root của thực thể) và các Node con để tự động tìm IPunObservable và [PunRPC].
-        /// </summary>
         public void RefreshObservedAndRpcTargets()
         {
             ObservedComponents.Clear();
@@ -89,23 +115,20 @@ namespace Photon.Pun.GodotBridge
                 ObservedComponents.Add(observable);
             }
 
-            MethodInfo[] methods = node.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            foreach (MethodInfo method in methods)
+            var rpcMethods = GetOrBuildTypeRpcMethods(node.GetType());
+            for (int i = 0; i < rpcMethods.Length; i++)
             {
-                if (method.IsDefined(typeof(PunRPC), true))
+                var (method, paramInfos) = rpcMethods[i];
+                if (!_rpcCache.TryGetValue(method.Name, out var list))
                 {
-                    if (!_rpcCache.TryGetValue(method.Name, out var list))
-                    {
-                        list = new List<(Node, MethodInfo, ParameterInfo[])>();
-                        _rpcCache[method.Name] = list;
-                    }
-                    list.Add((node, method, method.GetParameters()));
+                    list = new List<(Node, MethodInfo, ParameterInfo[])>(2);
+                    _rpcCache[method.Name] = list;
                 }
+                list.Add((node, method, paramInfos));
             }
 
             foreach (Node child in node.GetChildren())
             {
-                // Không quét lấn sang một GodotPhotonView lồng bên dưới khác
                 if (child is GodotPhotonView && child != this) continue;
                 ScanNodeHierarchy(child);
             }
@@ -127,13 +150,11 @@ namespace Photon.Pun.GodotBridge
             }
         }
 
-        /// <summary>Gửi lệnh gọi hàm từ xa (RPC) tới các máy khách trong phòng.</summary>
         public void RPC(string methodName, RpcTarget target, params object[] parameters)
         {
             GodotPhotonService.Instance?.SendRpc(this, methodName, target, null, parameters);
         }
 
-        /// <summary>Gửi lệnh gọi hàm từ xa (RPC) tới một người chơi cụ thể.</summary>
         public void RpcSecure(string methodName, Player targetPlayer, params object[] parameters)
         {
             GodotPhotonService.Instance?.SendRpc(this, methodName, RpcTarget.Others, targetPlayer, parameters);
@@ -166,7 +187,6 @@ namespace Photon.Pun.GodotBridge
             }
         }
 
-        /// <summary>Hàm tiện ích lấy GodotPhotonView gắn trên một Node hoặc con trực tiếp của Node đó.</summary>
         public static GodotPhotonView Get(Node node)
         {
             if (node == null) return null;

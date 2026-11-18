@@ -20,7 +20,9 @@ namespace SurvivalHeroes.Gameplay
     using System.Collections.Generic;
     using Godot;
     using Photon.Pun.GodotBridge;
-    using SurvivalHeroes.Patterns;
+    using SurvivalHeroes.Core.Events;
+    using SurvivalHeroes.Core.Interfaces;
+    using SurvivalHeroes.Gameplay.World;
 
     public sealed class MapPoiDefinition
     {
@@ -103,9 +105,9 @@ namespace SurvivalHeroes.Gameplay
             AddChild(_label);
         }
 
-        public void Activate(HeroCharacter activator)
+        public void Activate(Node3D activatorNode)
         {
-            if (!IsActive || activator == null || activator.IsDead) return;
+            if (!IsActive || activatorNode is not HeroCharacter activator || activator.IsDead) return;
             IsActive = false;
             _restockTimer = 20.0f;
 
@@ -342,10 +344,10 @@ namespace SurvivalHeroes.Gameplay
             Vector2 tangKimTranPx = WorldToMapPixel(new Vector2(-48f, 28f));
             DrawArc(tangKimTranPx, 58f, 0f, Mathf.Tau, 48, new Color(0.95f, 0.15f, 0.15f, 0.9f), 2.5f);
 
-            if (GodotSafeZoneTimer.Instance != null)
+            if (SafeZoneController.Instance != null)
             {
-                Vector2 zoneCenterPx = WorldToMapPixel(new Vector2(GodotSafeZoneTimer.Instance.ZoneCenter.X, GodotSafeZoneTimer.Instance.ZoneCenter.Z));
-                float radiusPx = (GodotSafeZoneTimer.Instance.CurrentRadius / (WorldHalfExtent * 2f)) * Size.X;
+                Vector2 zoneCenterPx = WorldToMapPixel(new Vector2(SafeZoneController.Instance.ZoneCenter.X, SafeZoneController.Instance.ZoneCenter.Z));
+                float radiusPx = (SafeZoneController.Instance.CurrentRadius / (WorldHalfExtent * 2f)) * Size.X;
                 DrawArc(zoneCenterPx, MathF.Max(12f, radiusPx), 0f, Mathf.Tau, 64, new Color(0.25f, 0.9f, 1.0f, 0.85f), 2.0f);
             }
 
@@ -382,12 +384,12 @@ namespace SurvivalHeroes.Gameplay
                 }
             }
 
-            // 8. Vẽ vị trí của Người chơi & các AI Survivors trực tiếp trên bản đồ
+            // 8. Vẽ vị trí của Người chơi & các mục tiêu nằm trong Tầm nhìn Fog of War trên bản đồ
             if (ArenaGameManager.Instance != null)
             {
                 foreach (HeroCharacter h in ArenaGameManager.Instance.AllHeroes)
                 {
-                    if (h == null || h.IsDead) continue;
+                    if (h == null || h.IsDead || !h.IsVisibleInFogOfWar) continue;
                     Vector2 hPx = WorldToMapPixel(new Vector2(h.GlobalPosition.X, h.GlobalPosition.Z));
                     if (h.IsLocalHumanPlayer)
                     {

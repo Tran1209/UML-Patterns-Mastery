@@ -110,11 +110,11 @@ namespace SurvivalHeroes.Gameplay
                     }
                 }
 
-                // Kiểm tra va chạm với Thùng Thuốc Nổ 2.5D (IDamageable / IExplodable)
+                // Kiểm tra va chạm với Thùng Thuốc Nổ 3D XZ (IDamageable / IExplodable)
                 foreach (var barrel in ArenaGameManager.Instance.ExplosiveBarrels)
                 {
                     if (barrel == null || barrel.IsDestroyed) continue;
-                    float dist2D = new Vector2(GlobalPosition.X - barrel.WorldPosition25D.X, GlobalPosition.Z - barrel.WorldPosition25D.Z).Length();
+                    float dist2D = new Vector2(GlobalPosition.X - barrel.WorldPositionXZ.X, GlobalPosition.Z - barrel.WorldPositionXZ.Z).Length();
                     if (dist2D <= 1.0f)
                     {
                         barrel.TakeDamage(Damage, OwnerViewId);
@@ -128,7 +128,7 @@ namespace SurvivalHeroes.Gameplay
                 {
                     if (monster == null || monster.IsDestroyed) continue;
                     float hitRad = monster.IsDragonBoss ? 2.1f : 1.15f;
-                    float dist2D = new Vector2(GlobalPosition.X - monster.WorldPosition25D.X, GlobalPosition.Z - monster.WorldPosition25D.Z).Length();
+                    float dist2D = new Vector2(GlobalPosition.X - monster.WorldPositionXZ.X, GlobalPosition.Z - monster.WorldPositionXZ.Z).Length();
                     if (dist2D <= hitRad)
                     {
                         monster.TakeDamage(Damage, OwnerViewId);

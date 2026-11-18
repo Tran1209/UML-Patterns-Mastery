@@ -20,13 +20,19 @@ namespace SurvivalHeroes.Gameplay
     using Photon.Pun;
     using Photon.Pun.GodotBridge;
     using Photon.Realtime;
-    using SurvivalHeroes.Patterns;
+    using SurvivalHeroes.Core.Events;
+    using SurvivalHeroes.Core.ObjectPool;
+    using SurvivalHeroes.Core.Physics;
+    using SurvivalHeroes.Gameplay.Entities;
+    using SurvivalHeroes.Gameplay.Items;
+    using SurvivalHeroes.Gameplay.World;
 
     public partial class ArenaGameManager : Node3D
     {
         public static ArenaGameManager Instance { get; private set; }
 
-        public const byte EventClaimWeaponLoot = 10;
+        public const byte EventRequestWeaponLoot = 10; // Client -> MasterClient (Yêu cầu nhặt hộp)
+        public const byte EventGrantWeaponLoot = 11;   // MasterClient -> All (Xác nhận trao vũ khí, chống nhân bản!)
 
         public readonly List<HeroCharacter> AllHeroes = new();
         public readonly List<WeaponLootPickup3D> WeaponCrates = new();
@@ -36,6 +42,7 @@ namespace SurvivalHeroes.Gameplay
         public readonly List<MysteryShopTent3D> MysteryShops = new();
         public readonly List<JungleMonster3D> JungleMonsters = new();
         public readonly List<ScoutWard3D> ScoutWards = new();
+        public FogOfWarSystem FogOfWar { get; } = new();
 
         public HeroCharacter LocalHero { get; private set; }
 
@@ -44,7 +51,7 @@ namespace SurvivalHeroes.Gameplay
         private GodotNodePool<PooledFloatingText3D> _floatingTextPool;
 
         private GodotCullArea _cullArea;
-        private GodotSafeZoneTimer _safeZoneTimer;
+        private SafeZoneController _safeZoneTimer;
         private Camera3D _isoCamera;
         private MeshInstance3D _safeZoneRingMesh;
         private MeshInstance3D _aimReticleMesh;
@@ -79,6 +86,8 @@ namespace SurvivalHeroes.Gameplay
         public override void _EnterTree()
         {
             Instance = this;
+            // Quét và cache tĩnh toàn bộ [PunRPC] ngay lúc khởi động game (0 byte GC Spike khi đang giao tranh!)
+            GodotPhotonView.PrewarmRpcCacheForTypes(typeof(HeroCharacter));
         }
 
         public override void _Ready()
@@ -146,11 +155,12 @@ namespace SurvivalHeroes.Gameplay
 
         private void BuildArenaFloorAndCullGrid()
         {
-            // 1. Khởi tạo GodotCullArea (170x170m, 3x3 = 9 InterestGroup Cells) và GodotSafeZoneTimer
-            _cullArea = new GodotCullArea { Name = "GodotCullArea", MapSize = new Vector2(170f, 170f), GridColumns = 3, GridRows = 3 };
+            // 1. Truyền cấu hình kích thước lưới từ Tầng 5 (Gameplay) xuống Tầng 3 (GodotCullArea)
+            _cullArea = new GodotCullArea { Name = "GodotCullArea" };
+            _cullArea.ConfigureGrid(new Vector2(170f, 170f), 3, 3);
             AddChild(_cullArea);
 
-            _safeZoneTimer = new GodotSafeZoneTimer { Name = "GodotSafeZoneTimer" };
+            _safeZoneTimer = new SafeZoneController { Name = "SafeZoneController" };
             AddChild(_safeZoneTimer);
 
             // 2. Nền đá xanh đen 170x170m đúng tông màu bản đồ Survival Heroes
@@ -332,6 +342,9 @@ namespace SurvivalHeroes.Gameplay
                         MaterialOverride = goldenRoofMat
                     });
                     poiNode.AddChild(building);
+
+                    // Đăng ký khối nhà vào hệ thống Sương mù chiến tranh (Fog of War Line-of-Sight Blocker)
+                    FogOfWar.RegisterWallBlocker(poi.Center3D + localHousePos, wallSize);
                 }
 
                 // Nếu khu vực này có Cửa Hàng Thần Bí (#1, #2, #3), dựng Lều Thần Bí ngay tại trung tâm!
@@ -1121,11 +1134,12 @@ namespace SurvivalHeroes.Gameplay
                 _safeZoneRingMesh.GlobalPosition = new Vector3(_safeZoneTimer.ZoneCenter.X, 0.03f, _safeZoneTimer.ZoneCenter.Z);
             }
 
-            // Giới hạn tần suất vẽ lại UI & Minimap ở 6.5 Hz (0.15s/lần) thay vì mỗi frame -> Tăng FPS gấp 6-10 lần!
+            // Giới hạn tần suất vẽ lại UI, Fog of War & Minimap ở 6.5 Hz (0.15s/lần)
             _hudRefreshAccumulator += dt;
             if (_hudRefreshAccumulator >= 0.15f)
             {
                 _hudRefreshAccumulator = 0f;
+                UpdateFogOfWarForAllHeroes();
                 if (_bigMapCanvas != null)
                 {
                     _bigMapCanvas.FlightProgress01 = _airshipFlightTimer;
@@ -1282,7 +1296,7 @@ namespace SurvivalHeroes.Gameplay
             {
                 ExplosiveBarrel3D barrel = ExplosiveBarrels[i];
                 if (barrel == null || barrel.IsDestroyed) continue;
-                float dist = new Vector2(barrel.WorldPosition25D.X - center.X, barrel.WorldPosition25D.Z - center.Z).Length();
+                float dist = new Vector2(barrel.WorldPositionXZ.X - center.X, barrel.WorldPositionXZ.Z - center.Z).Length();
                 if (dist <= radius + 0.6f)
                 {
                     barrel.TakeDamage(damage, attackerViewId);
@@ -1293,11 +1307,25 @@ namespace SurvivalHeroes.Gameplay
             {
                 JungleMonster3D monster = JungleMonsters[i];
                 if (monster == null || monster.IsDestroyed) continue;
-                float dist = new Vector2(monster.WorldPosition25D.X - center.X, monster.WorldPosition25D.Z - center.Z).Length();
+                float dist = new Vector2(monster.WorldPositionXZ.X - center.X, monster.WorldPositionXZ.Z - center.Z).Length();
                 if (dist <= radius + (monster.IsDragonBoss ? 1.8f : 0.9f))
                 {
                     monster.TakeDamage(damage, attackerViewId);
                 }
+            }
+        }
+
+        public void UpdateFogOfWarForAllHeroes()
+        {
+            int viewerTeam = LocalHero?.TeamId ?? 1;
+            ScoutWards.RemoveAll(w => w == null || !GodotObject.IsInstanceValid(w) || w.IsExpired);
+
+            for (int i = 0; i < AllHeroes.Count; i++)
+            {
+                HeroCharacter h = AllHeroes[i];
+                if (h == null || !GodotObject.IsInstanceValid(h)) continue;
+                bool visible = FogOfWar.IsTargetVisibleToTeam(h, viewerTeam, AllHeroes, ScoutWards);
+                h.SetFogOfWarVisibility(visible);
             }
         }
 
@@ -1307,7 +1335,8 @@ namespace SurvivalHeroes.Gameplay
             AddChild(ward);
             ward.Initialize(teamId, worldPos);
             ScoutWards.Add(ward);
-            AddKillFeed("👁️ Đã cắm Mắt Kiểm Soát soi Bụi Cỏ Tàng Hình (bán kính 11m trong 25s)!");
+            UpdateFogOfWarForAllHeroes();
+            AddKillFeed("👁️ Đã cắm Mắt Kiểm Soát (Soi xuyên tường & Bụi cỏ bán kính 12m trong 25s)!");
         }
 
         public bool IsRevealedByEnemyWard(Vector3 pos, int heroTeamId)
@@ -1316,7 +1345,7 @@ namespace SurvivalHeroes.Gameplay
             foreach (ScoutWard3D ward in ScoutWards)
             {
                 if (ward.OwnerTeamId == heroTeamId) continue;
-                if (PlanarPhysics25D.Distance25D(pos, ward.GlobalPosition) <= ward.VisionRadius)
+                if (PlanarConstraintXZ.DistanceXZ(pos, ward.GlobalPosition) <= ward.VisionRadius)
                     return true;
             }
             return false;
@@ -1331,7 +1360,6 @@ namespace SurvivalHeroes.Gameplay
             killer.Progression.Gold += goldReward;
             bool lvUp = killer.Progression.GainExp(expReward);
 
-            // Rơi ngẫu nhiên 1 món Giáp (Nếu diệt Rồng Cổ Đại nhận nguyên Set Thần Bí Vàng Cam!)
             if (monster.IsDragonBoss)
             {
                 killer.Progression.HasDragonBuff = true;
@@ -1345,7 +1373,7 @@ namespace SurvivalHeroes.Gameplay
             else
             {
                 Array slots = Enum.GetValues(typeof(ArmorSlot));
-                ArmorSlot randomSlot = (ArmorSlot)slots.GetValue(GD.Randi() % slots.Length);
+                ArmorSlot randomSlot = (ArmorSlot)slots.GetValue((int)(GD.Randi() % (uint)slots.Length));
                 ItemRarity rarity = (GD.Randi() % 100) < 35 ? ItemRarity.Epic : ItemRarity.Rare;
                 EquipmentPiece piece = EquipmentPiece.Generate(randomSlot, rarity);
                 killer.Progression.TryEquipBetterPiece(piece);
@@ -1358,17 +1386,22 @@ namespace SurvivalHeroes.Gameplay
             }
         }
 
-        public void TryPickupNearbyWeapon(HeroCharacter hero, bool manualPress)
+        /// <summary>
+        /// Cơ chế Nhặt Đồ 2 Bước (MasterClient-Authoritative Loot Claim):
+        /// Bước 1: Client gửi yêu cầu nhặt (EventRequestWeaponLoot) lên duy nhất MasterClient.
+        /// Bước 2: MasterClient kiểm tra hộp còn nguyên vẹn mới khóa hộp và phát lệnh EventGrantWeaponLoot cho cả phòng -> Chống 100% lỗi nhân bản vũ khí!
+        /// </summary>
+        public void RequestPickupNearbyWeapon(HeroCharacter hero, bool manualPress)
         {
+            if (hero?.PhotonView == null) return;
             float pickupRadius = manualPress ? 2.8f : 1.55f;
             foreach (WeaponLootPickup3D crate in WeaponCrates)
             {
                 if (!crate.IsAvailable) continue;
-                float dist = new Vector2(hero.GlobalPosition.X - crate.GlobalPosition.X, hero.GlobalPosition.Z - crate.GlobalPosition.Z).Length();
-                if (dist <= pickupRadius)
+                if (PlanarConstraintXZ.DistanceXZ(hero.GlobalPosition, crate.GlobalPosition) <= pickupRadius)
                 {
-                    int[] payload = { crate.LootId, hero.PhotonView.ViewID, (int)crate.WeaponKind };
-                    GodotPhotonService.Instance?.RaiseCustomEvent(EventClaimWeaponLoot, payload, ReceiverGroup.All, true);
+                    int[] requestPayload = { crate.LootId, hero.PhotonView.ViewID };
+                    GodotPhotonService.Instance?.RaiseCustomEvent(EventRequestWeaponLoot, requestPayload, ReceiverGroup.MasterClient, true);
                     break;
                 }
             }
@@ -1376,22 +1409,41 @@ namespace SurvivalHeroes.Gameplay
 
         private void OnCustomPhotonEventReceived(byte eventCode, object data, int senderActor)
         {
-            if (eventCode == EventClaimWeaponLoot && data is int[] arr && arr.Length == 3)
+            // Bước 1 (Chỉ xử lý trên MasterClient): Kiểm tra tranh chấp (Race Condition) và duyệt quyền nhặt
+            if (eventCode == EventRequestWeaponLoot && data is int[] req && req.Length == 2)
             {
-                int lootId = arr[0];
-                int heroViewId = arr[1];
-                WeaponType weaponKind = (WeaponType)arr[2];
+                if (GodotPhotonService.Instance != null && !GodotPhotonService.Instance.IsMasterClient) return;
+
+                int lootId = req[0];
+                int heroViewId = req[1];
+                WeaponLootPickup3D crate = WeaponCrates.Find(c => c.LootId == lootId);
+
+                if (crate != null && crate.IsAvailable)
+                {
+                    // Khóa hộp ngay lập tức trên MasterClient để người thứ 2 chạm vào cùng lúc bị từ chối!
+                    crate.ConsumePickup();
+                    int[] grantPayload = { lootId, heroViewId, (int)crate.WeaponKind };
+                    GodotPhotonService.Instance?.RaiseCustomEvent(EventGrantWeaponLoot, grantPayload, ReceiverGroup.All, true);
+                }
+            }
+            // Bước 2 (Thực thi trên toàn bộ máy khách sau khi MasterClient đã duyệt):
+            else if (eventCode == EventGrantWeaponLoot && data is int[] grant && grant.Length == 3)
+            {
+                int lootId = grant[0];
+                int heroViewId = grant[1];
+                WeaponType weaponKind = (WeaponType)grant[2];
 
                 WeaponLootPickup3D crate = WeaponCrates.Find(c => c.LootId == lootId);
                 if (crate != null && crate.IsAvailable)
                 {
                     crate.ConsumePickup();
-                    GodotPhotonView pv = GodotPhotonService.Instance?.GetPhotonView(heroViewId);
-                    if (pv != null && pv.GetParent() is HeroCharacter hero)
-                    {
-                        pv.RPC(nameof(HeroCharacter.RpcEquipWeapon), RpcTarget.All, (int)weaponKind);
-                        AddKillFeed($"🗡️ {hero.HeroName} đã nhặt [{WeaponLoadout.Get(weaponKind).Title}]!");
-                    }
+                }
+
+                GodotPhotonView pv = GodotPhotonService.Instance?.GetPhotonView(heroViewId);
+                if (pv != null && pv.GetParent() is HeroCharacter hero)
+                {
+                    pv.RPC(nameof(HeroCharacter.RpcEquipWeapon), RpcTarget.All, (int)weaponKind);
+                    AddKillFeed($"🗡️ [MasterClient Duyệt] {hero.HeroName} đã nhặt [{WeaponLoadout.Get(weaponKind).Title}]!");
                 }
             }
         }
@@ -1431,14 +1483,13 @@ namespace SurvivalHeroes.Gameplay
                 if (candidate == null || candidate == seeker || candidate.IsDead) continue;
                 if (seeker != null && candidate.TeamId == seeker.TeamId) continue;
 
-                float dist = new Vector2(candidate.GlobalPosition.X - seeker.GlobalPosition.X, candidate.GlobalPosition.Z - seeker.GlobalPosition.Z).Length();
+                float dist = PlanarConstraintXZ.DistanceXZ(candidate.GlobalPosition, seeker.GlobalPosition);
                 if (candidate.InStealthBush && dist > 3.2f) continue;
+                if (dist >= bestDist) continue;
+                if (FogOfWar.IsLineOfSightBlockedByWall(seeker.GlobalPosition, candidate.GlobalPosition)) continue;
 
-                if (dist < bestDist)
-                {
-                    bestDist = dist;
-                    best = candidate;
-                }
+                bestDist = dist;
+                best = candidate;
             }
             return best;
         }

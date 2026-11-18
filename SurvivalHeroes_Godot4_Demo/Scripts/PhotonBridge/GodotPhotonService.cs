@@ -57,6 +57,9 @@ namespace Photon.Pun.GodotBridge
         public event Action OnJoinedRoomSuccess;
         public event Action<Player> OnRemotePlayerJoined;
         public event Action<Player> OnRemotePlayerLeft;
+        public event Action<Player> OnMasterClientChanged;
+
+        private byte _ackFallbackThreadId = 255;
 
         private readonly Dictionary<int, GodotPhotonView> _photonViews = new();
         private readonly PhotonStream _serializeStreamOut = new(true, null);
@@ -90,10 +93,27 @@ namespace Photon.Pun.GodotBridge
             Client = new LoadBalancingClient();
             Client.AddCallbackTarget(this);
             Client.LocalPlayer.NickName = "Hero_" + GD.Randi() % 900;
+
+            // Luồng ngầm giữ kết nối (Fallback ACK Thread 100ms) tách biệt hoàn toàn khỏi FPS Render!
+            _ackFallbackThreadId = SupportClass.StartBackgroundCalls(FallbackSendAckThread, 100, "GodotPhotonAckThread");
+        }
+
+        private bool FallbackSendAckThread()
+        {
+            if (Client?.LoadBalancingPeer != null && !IsLocalSimulationMode && Client.IsConnected)
+            {
+                Client.LoadBalancingPeer.SendAcksOnly();
+            }
+            return true;
         }
 
         public override void _ExitTree()
         {
+            if (_ackFallbackThreadId != 255)
+            {
+                SupportClass.StopBackgroundCalls(_ackFallbackThreadId);
+                _ackFallbackThreadId = 255;
+            }
             if (Client != null)
             {
                 Client.RemoveCallbackTarget(this);
@@ -119,7 +139,11 @@ namespace Photon.Pun.GodotBridge
             }
         }
 
-        public override void _Process(double delta)
+        /// <summary>
+        /// Vòng lặp mạng chạy ở tần số vật lý cố định (_PhysicsProcess 60Hz),
+        /// tách biệt hoàn toàn khỏi tốc độ khung hình Render (_Process) để không bao giờ rớt mạng khi máy bị tụt FPS!
+        /// </summary>
+        public override void _PhysicsProcess(double delta)
         {
             if (Client?.LoadBalancingPeer != null && !IsLocalSimulationMode)
             {
@@ -646,6 +670,10 @@ namespace Photon.Pun.GodotBridge
             OnRoomPropertiesChanged?.Invoke(propertiesThatChanged);
         }
         public void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps) { }
-        public void OnMasterClientSwitched(Player newMasterClient) { }
+        public void OnMasterClientSwitched(Player newMasterClient)
+        {
+            StatusMessage = $"👑 Quyền Chủ phòng (MasterClient) đã chuyển sang [{newMasterClient?.NickName}]!";
+            OnMasterClientChanged?.Invoke(newMasterClient);
+        }
     }
 }
