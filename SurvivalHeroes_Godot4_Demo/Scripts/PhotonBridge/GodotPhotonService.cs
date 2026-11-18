@@ -59,7 +59,7 @@ namespace Photon.Pun.GodotBridge
         public event Action<Player> OnRemotePlayerLeft;
         public event Action<Player> OnMasterClientChanged;
 
-        private byte _ackFallbackThreadId = 255;
+        private System.Threading.Timer _ackFallbackTimer;
 
         private readonly Dictionary<int, GodotPhotonView> _photonViews = new();
         private readonly PhotonStream _serializeStreamOut = new(true, null);
@@ -94,26 +94,20 @@ namespace Photon.Pun.GodotBridge
             Client.AddCallbackTarget(this);
             Client.LocalPlayer.NickName = "Hero_" + GD.Randi() % 900;
 
-            // Luồng ngầm giữ kết nối (Fallback ACK Thread 100ms) tách biệt hoàn toàn khỏi FPS Render!
-            _ackFallbackThreadId = SupportClass.StartBackgroundCalls(FallbackSendAckThread, 100, "GodotPhotonAckThread");
-        }
-
-        private bool FallbackSendAckThread()
-        {
-            if (Client?.LoadBalancingPeer != null && !IsLocalSimulationMode && Client.IsConnected)
+            // Dùng System.Threading.Timer chuẩn .NET 8 (thay vì SupportClass.StartBackgroundCalls dùng Thread.Abort() của Unity Mono cũ!)
+            _ackFallbackTimer = new System.Threading.Timer(_ =>
             {
-                Client.LoadBalancingPeer.SendAcksOnly();
-            }
-            return true;
+                if (Client?.LoadBalancingPeer != null && !IsLocalSimulationMode && Client.IsConnected)
+                {
+                    Client.LoadBalancingPeer.SendAcksOnly();
+                }
+            }, null, 100, 100);
         }
 
         public override void _ExitTree()
         {
-            if (_ackFallbackThreadId != 255)
-            {
-                SupportClass.StopBackgroundCalls(_ackFallbackThreadId);
-                _ackFallbackThreadId = 255;
-            }
+            _ackFallbackTimer?.Dispose();
+            _ackFallbackTimer = null;
             if (Client != null)
             {
                 Client.RemoveCallbackTarget(this);
